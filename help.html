@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Help Center — Florencia OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream:     #FAF7F2;
+      --cream-mid: #F2EDE5;
+      --cream-deep:#E8E0D4;
+      --ink:       #1C1A17;
+      --ink-soft:  #4A4540;
+      --ink-muted: #8A837A;
+      --forest:    #2C4A3E;
+      --forest-lt: #3D6456;
+      --gold:      #C49A3C;
+      --gold-lt:   #E8C270;
+      --white:     #FFFFFF;
+      --shadow-sm: 0 2px 12px rgba(28,26,23,0.07);
+      --shadow-md: 0 8px 32px rgba(28,26,23,0.10);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(250,247,242,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(28,26,23,0.07); }
+    .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.45rem; color: var(--ink); letter-spacing: -0.01em; }
+    .logo span { color: var(--forest); }
+    .nav-links-simple { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links-simple a { font-size: 0.875rem; color: var(--ink-soft); transition: color 0.2s; }
+    .nav-links-simple a:hover { color: var(--forest); }
+    .btn-nav { display: inline-flex; align-items: center; gap: 6px; background: var(--forest); color: var(--white) !important; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 22px; border-radius: 50px; transition: background 0.22s; }
+    .btn-nav:hover { background: var(--forest-lt) !important; }
+    .page-hero { padding: 72px 0 56px; border-bottom: 1px solid var(--cream-deep); }
+    .page-label { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest); margin-bottom: 14px; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 18px; max-width: 600px; }
+    .page-intro { font-size: 1.05rem; color: var(--ink-soft); line-height: 1.75; max-width: 520px; font-weight: 300; }
+    .help-body { padding: 72px 0 96px; }
+    .help-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-bottom: 64px; }
+    .help-card { background: var(--white); border-radius: 16px; padding: 28px; border: 1px solid rgba(28,26,23,0.06); box-shadow: var(--shadow-sm); }
+    .help-card-icon { font-size: 1.6rem; margin-bottom: 14px; }
+    .help-card h3 { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .help-card p { font-size: 0.875rem; color: var(--ink-soft); line-height: 1.7; font-weight: 300; }
+    .faq-section { margin-bottom: 64px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; color: var(--ink); margin-bottom: 32px; }
+    .faq-list { display: flex; flex-direction: column; gap: 0; }
+    .faq-item { border-top: 1px solid var(--cream-deep); }
+    .faq-item:last-child { border-bottom: 1px solid var(--cream-deep); }
+    .faq-question { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; cursor: pointer; font-size: 0.975rem; font-weight: 500; color: var(--ink); user-select: none; }
+    .faq-question:hover { color: var(--forest); }
+    .faq-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--cream-mid); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem; color: var(--forest); font-weight: 600; transition: background 0.2s, transform 0.25s; }
+    .faq-item.open .faq-icon { background: var(--forest); color: var(--white); transform: rotate(45deg); }
+    .faq-answer { display: none; padding: 0 0 20px; font-size: 0.9rem; color: var(--ink-soft); line-height: 1.75; font-weight: 300; max-width: 680px; }
+    .faq-item.open .faq-answer { display: block; }
+    .faq-answer a { color: var(--forest); }
+    .faq-answer a:hover { color: var(--forest-lt); }
+    .trouble-list { display: flex; flex-direction: column; gap: 16px; }
+    .trouble-item { display: flex; gap: 16px; align-items: flex-start; background: var(--white); border-radius: 12px; padding: 18px 20px; border: 1px solid rgba(28,26,23,0.05); box-shadow: var(--shadow-sm); }
+    .trouble-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .trouble-item strong { display: block; font-size: 0.9rem; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .trouble-item span { font-size: 0.85rem; color: var(--ink-soft); font-weight: 300; line-height: 1.6; }
+    .support-box { background: var(--forest); border-radius: 20px; padding: 44px 40px; margin-top: 56px; text-align: center; position: relative; overflow: hidden; }
+    .support-box::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 80% 20%, rgba(196,154,60,0.12) 0%, transparent 60%); pointer-events: none; }
+    .support-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: var(--white); margin-bottom: 10px; position: relative; }
+    .support-box p { font-size: 0.95rem; color: rgba(255,255,255,0.65); margin-bottom: 20px; font-weight: 300; position: relative; }
+    .support-email { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 12px 24px; font-size: 0.95rem; font-weight: 500; color: var(--white); transition: background 0.2s; position: relative; }
+    .support-email:hover { background: rgba(255,255,255,0.2); color: var(--white); }
+    footer { background: var(--ink); padding: 48px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.75); }
+    .footer-logo span { color: var(--gold-lt); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.3); margin-top: 6px; }
+    .footer-links { display: flex; gap: 28px; list-style: none; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.45); transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.8); }
+    @media (max-width: 768px) {
+      .help-grid { grid-template-columns: 1fr; gap: 16px; }
+      .page-hero { padding: 52px 0 40px; }
+      .help-body { padding: 48px 0 72px; }
+      .support-box { padding: 32px 24px; }
+      .nav-links-simple { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Florencia <span>OS</span></a>
+      <ul class="nav-links-simple">
+        <li><a href="about.html">About</a></li>
+        <li><a href="login.html">Se connecter</a></li>
+        <li><a href="signup.html"><span class="btn-nav">Acc&#233;der &#224; la b&#234;ta</span></a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="page-label">Help Center</span>
+    <h1 class="page-title">How can we help you?</h1>
+    <p class="page-intro">Find answers about how Florencia OS works, how to get started, and how to get the most out of the platform.</p>
+  </div>
+</div>
+
+<div class="help-body">
+  <div class="container">
+
+    <div class="help-grid">
+      <div class="help-card">
+        <div class="help-card-icon">&#128640;</div>
+        <h3>Getting Started</h3>
+        <p>Create your free account, set your first monthly revenue goal, and add your first lead to your pipeline. You can be up and running in under five minutes.</p>
+      </div>
+      <div class="help-card">
+        <div class="help-card-icon">&#127919;</div>
+        <h3>Setting Your Revenue Goal</h3>
+        <p>Your revenue goal is the engine of Florencia OS. Once set, the platform organizes your daily actions, pipeline, and AI suggestions around reaching that number.</p>
+      </div>
+      <div class="help-card">
+        <div class="help-card-icon">&#128101;</div>
+        <h3>Managing Your Pipeline</h3>
+        <p>Add leads to your pipeline and move them through stages &#8212; Prospects, Qualified, and Active. Florencia OS tracks the value of each lead and alerts you when follow-ups are due.</p>
+      </div>
+      <div class="help-card">
+        <div class="help-card-icon">&#129302;</div>
+        <h3>Using the AI Copilot</h3>
+        <p>The AI Strategy Copilot gives you personalized guidance based on your goals and pipeline. Ask it anything about your business &#8212; it gives specific, actionable advice, not generic tips.</p>
+      </div>
+    </div>
+
+    <div class="faq-section" id="faq">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-question">What is Florencia OS?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">Florencia OS is a business operating system built for freelancers, creators, and solo entrepreneurs. It combines lead pipeline management, daily action planning, revenue goal tracking, and AI strategic guidance into one focused tool &#8212; so you always know what to work on and how close you are to your income goals.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Who is Florencia OS for?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">Florencia OS is built for anyone who works independently &#8212; freelancers, consultants, coaches, creators, designers, developers, copywriters, and any skilled professional who generates income from their own work. If you run your own practice and want more structure and predictability, this platform is designed for you.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Is Florencia OS free?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">Yes &#8212; access to the beta version of Florencia OS is free. You can create an account and start using the platform at no cost. Pricing for future premium features will be announced before the official launch.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How does the daily action plan work?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">Every day, Florencia OS analyzes your revenue goal, your current pipeline, your pending tasks, and where you are in the month. Based on this, it generates a prioritized list of actions for the day &#8212; so you start each morning knowing exactly what to do without having to figure it out yourself.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Is my data secure?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">Yes. Florencia OS is built on Supabase, a secure cloud infrastructure provider. All data is stored in encrypted databases. Your email address and account information are never sold or shared with third parties. You can review our full <a href="privacy-policy.html">Privacy Policy</a> for details.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can I use Florencia OS on my phone?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">Yes. Florencia OS is fully responsive and works on mobile browsers. You can access your pipeline, check your daily plan, and interact with the AI Copilot from any device.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">I forgot my password. How do I reset it?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">Go to the <a href="login.html">login page</a> and enter your email address. Then click &#171;&#160;Mot de passe oubli&#233;&#160;?&#160;&#187; &#8212; we will send you a password reset email. Check your inbox (and spam folder) and follow the link to set a new password.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I delete my account?<span class="faq-icon">+</span></div>
+          <div class="faq-answer">To request account deletion, contact our support team at <a id="faq-delete-link" href="#">contactflorenciaos [at] gmail.com</a> with the subject &#171;&#160;Account Deletion Request&#160;&#187;. We will process your request within 5 business days.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="faq-section" id="troubleshooting">
+      <h2 class="section-title">Troubleshooting</h2>
+      <div class="trouble-list">
+        <div class="trouble-item">
+          <span class="trouble-icon">&#128231;</span>
+          <div>
+            <strong>I didn&#8217;t receive a confirmation email after signing up</strong>
+            <span>Check your spam or junk folder. If you don&#8217;t see the email after a few minutes, try signing up again with the same address &#8212; Supabase will resend the confirmation. If the issue persists, contact our support team.</span>
+          </div>
+        </div>
+        <div class="trouble-item">
+          <span class="trouble-icon">&#128274;</span>
+          <div>
+            <strong>I can&#8217;t log in even though I have an account</strong>
+            <span>Double-check that you&#8217;re using the correct email. Try resetting your password using the &#171;&#160;Mot de passe oubli&#233;&#160;?&#160;&#187; link on the login page. If your account was created during the waitlist phase, you may need to create a new full account.</span>
+          </div>
+        </div>
+        <div class="trouble-item">
+          <span class="trouble-icon">&#128241;</span>
+          <div>
+            <strong>The page doesn&#8217;t display correctly on my phone</strong>
+            <span>Try refreshing the page or clearing your browser cache. Florencia OS is designed for modern mobile browsers. If you&#8217;re using an older browser, try switching to Chrome or Safari.</span>
+          </div>
+        </div>
+        <div class="trouble-item">
+          <span class="trouble-icon">&#9889;</span>
+          <div>
+            <strong>The AI Copilot is not responding</strong>
+            <span>Check your internet connection. If the connection is stable and the issue persists, try logging out and back in. If the problem continues, please contact our support team so we can investigate.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="support-box">
+      <h3>Still need help?</h3>
+      <p>Our team is here for you. Reach out and we&#8217;ll get back to you as soon as possible.</p>
+      <a id="support-main-link" href="#" class="support-email">
+        &#9993; contactflorenciaos&#64;gmail.com
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">Florencia <span>OS</span></p>
+        <p class="footer-copy">&#169; 2025 Florencia OS. All rights reserved.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="help.html">Help</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-of-service.html">Terms of Service</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="signup.html">Sign Up</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Set email hrefs via JS to prevent environment obfuscation
+  (function() {
+    var u = 'contactflorenciaos';
+    var d = 'gmail.com';
+    var addr = u + '\u0040' + d;
+    var href = 'mai' + 'lto:' + addr;
+    var links = ['support-main-link', 'faq-delete-link'];
+    links.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.href = href;
+        if (id === 'support-main-link') el.textContent = '\u2709 ' + addr;
+        if (id === 'faq-delete-link') el.textContent = addr;
+      }
+    });
+  })();
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var item = q.closest('.faq-item');
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); });
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+
+</body>
+</html>

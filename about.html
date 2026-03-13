@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Florencia OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream:     #FAF7F2;
+      --cream-mid: #F2EDE5;
+      --cream-deep:#E8E0D4;
+      --ink:       #1C1A17;
+      --ink-soft:  #4A4540;
+      --ink-muted: #8A837A;
+      --forest:    #2C4A3E;
+      --forest-lt: #3D6456;
+      --gold:      #C49A3C;
+      --gold-lt:   #E8C270;
+      --gold-pale: #F5E9C8;
+      --white:     #FFFFFF;
+      --shadow-sm: 0 2px 12px rgba(28,26,23,0.07);
+      --shadow-md: 0 8px 32px rgba(28,26,23,0.10);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── NAV ── */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(250,247,242,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(28,26,23,0.07); }
+    .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.45rem; color: var(--ink); letter-spacing: -0.01em; }
+    .logo span { color: var(--forest); }
+    .nav-links-simple { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links-simple a { font-size: 0.875rem; color: var(--ink-soft); transition: color 0.2s; }
+    .nav-links-simple a:hover { color: var(--forest); }
+    .btn-nav {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--forest); color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500;
+      padding: 10px 22px; border-radius: 50px; border: none;
+      transition: background 0.22s;
+    }
+    .btn-nav:hover { background: var(--forest-lt); }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      padding: 80px 0 64px;
+      border-bottom: 1px solid var(--cream-deep);
+    }
+    .page-label {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--forest); margin-bottom: 16px;
+    }
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 600; color: var(--ink); line-height: 1.1;
+      margin-bottom: 20px; max-width: 680px;
+    }
+    .page-title em { color: var(--forest); font-style: italic; }
+    .page-intro {
+      font-size: 1.1rem; color: var(--ink-soft); line-height: 1.75; max-width: 580px; font-weight: 300;
+    }
+
+    /* ── CONTENT ── */
+    .content-body { padding: 72px 0 96px; }
+    .content-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+    .content-sidebar {
+      position: sticky;
+      top: 88px;
+    }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-nav a {
+      display: block;
+      font-size: 0.85rem; color: var(--ink-muted);
+      padding: 6px 0;
+      border-left: 2px solid var(--cream-deep);
+      padding-left: 16px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .sidebar-nav a:hover { color: var(--forest); border-color: var(--forest); }
+
+    .content-main { max-width: 680px; }
+    .content-section { margin-bottom: 56px; }
+    .content-section h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem; font-weight: 600; color: var(--ink);
+      margin-bottom: 16px; line-height: 1.2;
+    }
+    .content-section p {
+      font-size: 0.975rem; color: var(--ink-soft); line-height: 1.8; margin-bottom: 14px; font-weight: 300;
+    }
+    .content-section p:last-child { margin-bottom: 0; }
+    .content-section strong { color: var(--ink); font-weight: 500; }
+
+    /* Highlight box */
+    .highlight-box {
+      background: var(--white);
+      border-left: 3px solid var(--forest);
+      border-radius: 0 12px 12px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .highlight-box p { margin: 0; font-size: 1rem; color: var(--ink); font-weight: 400; line-height: 1.7; }
+
+    /* Value list */
+    .value-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
+    .value-list li {
+      display: flex; gap: 14px; align-items: flex-start;
+      font-size: 0.95rem; color: var(--ink-soft); font-weight: 300; line-height: 1.6;
+    }
+    .value-list li::before {
+      content: '';
+      display: block;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--forest);
+      flex-shrink: 0;
+      margin-top: 2px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      background-size: 12px;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    /* CTA strip */
+    .cta-strip {
+      background: var(--forest);
+      border-radius: 20px;
+      padding: 44px 40px;
+      margin-top: 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-strip::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 80% 20%, rgba(196,154,60,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-strip h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 600; color: var(--white);
+      margin-bottom: 10px; position: relative;
+    }
+    .cta-strip p { font-size: 0.95rem; color: rgba(255,255,255,0.65); margin-bottom: 24px; font-weight: 300; position: relative; }
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--gold) 0%, #B8883A 100%);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem;
+      padding: 13px 28px; border-radius: 50px; border: none; cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 18px rgba(196,154,60,0.3);
+      position: relative;
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(196,154,60,0.4); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--ink); padding: 48px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.75); }
+    .footer-logo span { color: var(--gold-lt); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.3); margin-top: 6px; }
+    .footer-links { display: flex; gap: 28px; list-style: none; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.45); transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.8); }
+
+    @media (max-width: 768px) {
+      .content-grid { grid-template-columns: 1fr; gap: 0; }
+      .content-sidebar { display: none; }
+      .page-hero { padding: 56px 0 44px; }
+      .content-body { padding: 48px 0 72px; }
+      .cta-strip { padding: 32px 24px; }
+      .nav-links-simple { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Florencia <span>OS</span></a>
+      <ul class="nav-links-simple">
+        <li><a href="help.html">Help</a></li>
+        <li><a href="login.html">Se connecter</a></li>
+        <li><a href="signup.html"><span class="btn-nav">Accéder à la bêta</span></a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="page-label">About Florencia OS</span>
+    <h1 class="page-title">Built for the people who<br><em>work for themselves.</em></h1>
+    <p class="page-intro">Florencia OS is a business operating system designed for freelancers, creators, and independent workers who want to stop guessing and start building something that actually works.</p>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-body">
+  <div class="container">
+    <div class="content-grid">
+
+      <!-- Sidebar -->
+      <aside class="content-sidebar">
+        <ul class="sidebar-nav">
+          <li><a href="#what">What is Florencia OS</a></li>
+          <li><a href="#mission">Our Mission</a></li>
+          <li><a href="#for-who">Who It's For</a></li>
+          <li><a href="#why">Why It Exists</a></li>
+          <li><a href="#philosophy">Philosophy</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main content -->
+      <main class="content-main">
+
+        <div class="content-section" id="what">
+          <h2>What is Florencia OS?</h2>
+          <p>Florencia OS is an AI-powered business operating system built specifically for people who work independently. It combines client pipeline management, daily task planning, revenue goal tracking, and strategic guidance into a single, focused tool.</p>
+          <p>Unlike generic productivity apps or broad AI assistants, Florencia OS is designed around one clear outcome: helping you build a predictable, sustainable income from your skills — without chaos, without guesswork, and without needing a team around you.</p>
+          <div class="highlight-box">
+            <p>"Most freelancers don't fail because of skill. They fail because they have no system. Florencia OS is that system."</p>
+          </div>
+        </div>
+
+        <div class="content-section" id="mission">
+          <h2>Our Mission</h2>
+          <p>Our mission is simple: make it possible for any skilled person — a designer, a consultant, a writer, a developer, a coach — to build a business that works for them, not against them.</p>
+          <p>We believe that <strong>working independently should not mean working without structure.</strong> The tools that exist today are either too complex, too generic, or built for teams. Florencia OS fills the gap: a single operating system designed around the specific reality of running your own practice.</p>
+          <p>We are not building yet another AI chatbot. We are building infrastructure for independent professionals — something that learns from your goals, helps you prioritize, and keeps you moving forward every day.</p>
+        </div>
+
+        <div class="content-section" id="for-who">
+          <h2>Who It's Built For</h2>
+          <p>Florencia OS is built for anyone who generates income from their own skills and works without a large team behind them. Specifically:</p>
+          <ul class="value-list">
+            <li><strong>Freelancers</strong> — designers, developers, copywriters, photographers, consultants, and any skilled professional working client to client.</li>
+            <li><strong>Creators</strong> — content creators, educators, coaches, and digital product builders who run their business independently.</li>
+            <li><strong>Solo entrepreneurs</strong> — people building a one-person business or early-stage venture who need structure without complexity.</li>
+            <li><strong>Independent workers in transition</strong> — professionals moving from employment to self-employment who need to build systems from scratch.</li>
+          </ul>
+          <p style="margin-top: 20px;">If your income depends on your own effort and judgment, and you want to build something stable and predictable, Florencia OS is built for you.</p>
+        </div>
+
+        <div class="content-section" id="why">
+          <h2>Why It Exists</h2>
+          <p>The world of freelancing and independent work has grown enormously. More people than ever are choosing to work for themselves. But the tools available to support them have not kept up.</p>
+          <p>CRMs are built for sales teams. Project management tools are built for agencies. AI assistants are built for everyone, which means they serve no one particularly well. The result is that most freelancers end up stitching together five or six different tools — and still feel like they have no real system.</p>
+          <p>Florencia OS exists because this gap is real, it is costly, and it is solvable. We built it because we experienced it ourselves, and because we believe that the people building their own path deserve better tools.</p>
+        </div>
+
+        <div class="content-section" id="philosophy">
+          <h2>The Philosophy Behind Florencia OS</h2>
+          <p>We built Florencia OS around a few core beliefs:</p>
+          <ul class="value-list">
+            <li><strong>Clarity over complexity.</strong> The right tool does not add to the chaos. It removes it. Every feature in Florencia OS exists to give you clarity, not noise.</li>
+            <li><strong>Action over advice.</strong> Good strategy means nothing if you don't know what to do next. Florencia OS is designed to give you specific, actionable next steps — not vague recommendations.</li>
+            <li><strong>One system, not ten.</strong> Switching between tools is friction. Florencia OS is designed to hold your entire business workflow in one place, so nothing gets lost and nothing gets forgotten.</li>
+            <li><strong>Built around your goals.</strong> Everything in the platform connects back to what you're trying to earn and achieve. Your revenue goal is not a vanity metric — it's the engine the whole system runs on.</li>
+            <li><strong>Respect for your time.</strong> We design every interaction to be fast, focused, and useful. You should be able to open Florencia OS, know exactly what to do, and get back to work.</li>
+          </ul>
+        </div>
+
+        <!-- CTA strip -->
+        <div class="cta-strip">
+          <h3>Ready to get started?</h3>
+          <p>Join the first freelancers using Florencia OS to build a more predictable income.</p>
+          <a href="signup.html" class="btn-gold">
+            Accéder à la bêta
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </div>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">Florencia <span>OS</span></p>
+        <p class="footer-copy">&#169; 2025 Florencia OS. All rights reserved.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="help.html">Help</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-of-service.html">Terms of Service</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="signup.html">Sign Up</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service &#8212; Florencia OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream:     #FAF7F2;
+      --cream-mid: #F2EDE5;
+      --cream-deep:#E8E0D4;
+      --ink:       #1C1A17;
+      --ink-soft:  #4A4540;
+      --ink-muted: #8A837A;
+      --forest:    #2C4A3E;
+      --forest-lt: #3D6456;
+      --gold:      #C49A3C;
+      --gold-lt:   #E8C270;
+      --white:     #FFFFFF;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(250,247,242,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(28,26,23,0.07); }
+    .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.45rem; color: var(--ink); letter-spacing: -0.01em; }
+    .logo span { color: var(--forest); }
+    .nav-links-simple { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links-simple a { font-size: 0.875rem; color: var(--ink-soft); transition: color 0.2s; }
+    .nav-links-simple a:hover { color: var(--forest); }
+    .page-hero { padding: 72px 0 52px; border-bottom: 1px solid var(--cream-deep); }
+    .page-label { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest); margin-bottom: 14px; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 16px; }
+    .page-meta { font-size: 0.85rem; color: var(--ink-muted); }
+    .legal-body { padding: 68px 0 96px; }
+    .legal-grid { display: grid; grid-template-columns: 200px 1fr; gap: 64px; align-items: start; }
+    .legal-sidebar { position: sticky; top: 88px; }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .sidebar-nav a { display: block; font-size: 0.82rem; color: var(--ink-muted); padding: 5px 0 5px 14px; border-left: 2px solid var(--cream-deep); transition: color 0.2s, border-color 0.2s; }
+    .sidebar-nav a:hover { color: var(--forest); border-color: var(--forest); }
+    .legal-main { max-width: 700px; }
+    .legal-section { margin-bottom: 48px; }
+    .legal-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--cream-deep); }
+    .legal-section p { font-size: 0.925rem; color: var(--ink-soft); line-height: 1.8; margin-bottom: 12px; font-weight: 300; }
+    .legal-section p:last-child { margin-bottom: 0; }
+    .legal-section strong { color: var(--ink); font-weight: 500; }
+    .legal-section ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+    .legal-section ul li { font-size: 0.925rem; color: var(--ink-soft); line-height: 1.7; font-weight: 300; padding-left: 16px; position: relative; }
+    .legal-section ul li::before { content: '–'; position: absolute; left: 0; color: var(--forest); }
+    .legal-section a { color: var(--forest); }
+    .legal-section a:hover { color: var(--forest-lt); }
+    footer { background: var(--ink); padding: 48px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.75); }
+    .footer-logo span { color: var(--gold-lt); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.3); margin-top: 6px; }
+    .footer-links { display: flex; gap: 28px; list-style: none; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.45); transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.8); }
+    @media (max-width: 768px) {
+      .legal-grid { grid-template-columns: 1fr; gap: 0; }
+      .legal-sidebar { display: none; }
+      .page-hero { padding: 52px 0 36px; }
+      .legal-body { padding: 44px 0 72px; }
+      .nav-links-simple { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Florencia <span>OS</span></a>
+      <ul class="nav-links-simple">
+        <li><a href="about.html">About</a></li>
+        <li><a href="help.html">Help</a></li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="page-label">Legal</span>
+    <h1 class="page-title">Terms of Service</h1>
+    <p class="page-meta">Last updated: January 2025</p>
+  </div>
+</div>
+
+<div class="legal-body">
+  <div class="container">
+    <div class="legal-grid">
+
+      <aside class="legal-sidebar">
+        <ul class="sidebar-nav">
+          <li><a href="#use">Use of the Platform</a></li>
+          <li><a href="#accounts">Account Responsibilities</a></li>
+          <li><a href="#acceptable">Acceptable Use</a></li>
+          <li><a href="#ip">Intellectual Property</a></li>
+          <li><a href="#availability">Service Availability</a></li>
+          <li><a href="#liability">Limitation of Liability</a></li>
+          <li><a href="#changes">Changes to Service</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </aside>
+
+      <main class="legal-main">
+
+        <div class="legal-section">
+          <p>These Terms of Service (&#8220;Terms&#8221;) govern your access to and use of Florencia OS, its website, platform, and related services (collectively, the &#8220;Service&#8221;), operated by Florencia OS (&#8220;we&#8221;, &#8220;our&#8221;, or &#8220;us&#8221;). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree, do not use the Service.</p>
+        </div>
+
+        <div class="legal-section" id="use">
+          <h2>1. Use of the Platform</h2>
+          <p>Florencia OS provides an AI-powered business operating platform designed for freelancers, creators, and independent workers. The Service includes lead pipeline management, daily action planning, revenue tracking, and AI strategic guidance tools.</p>
+          <p>To use the platform, you must:</p>
+          <ul>
+            <li>Be at least 18 years old or the age of legal majority in your jurisdiction.</li>
+            <li>Provide accurate and complete information when creating your account.</li>
+            <li>Use the Service only for lawful business purposes.</li>
+            <li>Comply with all applicable laws and regulations in your country of use.</li>
+          </ul>
+          <p>We reserve the right to refuse access to the Service to any person or entity at our discretion.</p>
+        </div>
+
+        <div class="legal-section" id="accounts">
+          <h2>2. Account Responsibilities</h2>
+          <p>You are responsible for maintaining the confidentiality of your account credentials. Do not share your password with others or allow unauthorized access to your account.</p>
+          <p>You are fully responsible for all activity that occurs under your account, including data entered into the platform and any actions taken through the platform&#8217;s features.</p>
+          <p>If you believe your account has been compromised, contact us immediately at <a id="tos-security-link" href="#">contactflorenciaos&#64;gmail.com</a> and change your password without delay.</p>
+          <p>You may not create more than one account per individual unless explicitly authorized by Florencia OS in writing.</p>
+        </div>
+
+        <div class="legal-section" id="acceptable">
+          <h2>3. Acceptable Use</h2>
+          <p>You agree not to use Florencia OS to:</p>
+          <ul>
+            <li>Upload, transmit, or store any content that is unlawful, fraudulent, harmful, abusive, threatening, or otherwise objectionable.</li>
+            <li>Attempt to gain unauthorized access to any part of the platform, other user accounts, or related systems.</li>
+            <li>Interfere with or disrupt the integrity or performance of the Service.</li>
+            <li>Use automated scripts, bots, or other automated methods to interact with the platform in ways not explicitly permitted.</li>
+            <li>Reverse engineer, decompile, or attempt to extract the source code of the platform.</li>
+            <li>Resell, sublicense, or commercially redistribute access to the Service without written permission.</li>
+            <li>Use the Service to violate the privacy of others or to collect data about other users without their consent.</li>
+          </ul>
+          <p>We reserve the right to suspend or terminate accounts that violate these terms, with or without prior notice depending on the severity of the violation.</p>
+        </div>
+
+        <div class="legal-section" id="ip">
+          <h2>4. Intellectual Property</h2>
+          <p><strong>Our content:</strong> All content, design, code, text, branding, and features of Florencia OS are the intellectual property of Florencia OS and are protected by applicable copyright and intellectual property law. You may not reproduce, distribute, or create derivative works from our platform without explicit written permission.</p>
+          <p><strong>Your content:</strong> Any data, leads, notes, goals, or other information you enter into Florencia OS remains your property. You grant Florencia OS a limited, non-exclusive license to store and process this data solely to provide the Service to you. We do not claim ownership of your business data.</p>
+          <p>We will not sell or share your content with third parties for their own commercial purposes.</p>
+        </div>
+
+        <div class="legal-section" id="availability">
+          <h2>5. Service Availability</h2>
+          <p>We aim to keep Florencia OS available and functional at all times. However, we do not guarantee uninterrupted access. The Service may be temporarily unavailable due to:</p>
+          <ul>
+            <li>Scheduled maintenance or system updates, which we will communicate in advance when possible.</li>
+            <li>Technical failures, including server outages or third-party infrastructure issues.</li>
+            <li>Force majeure events beyond our reasonable control.</li>
+          </ul>
+          <p>Florencia OS is provided as-is during the beta period. Features, availability, and performance may change as the platform evolves.</p>
+        </div>
+
+        <div class="legal-section" id="liability">
+          <h2>6. Limitation of Liability</h2>
+          <p>To the fullest extent permitted by applicable law, Florencia OS and its operators shall not be liable for:</p>
+          <ul>
+            <li>Any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the Service.</li>
+            <li>Any loss of profits, revenue, data, or business opportunities arising from use of the platform.</li>
+            <li>Any errors or omissions in AI-generated recommendations provided by the platform.</li>
+            <li>Any unauthorized access to your data resulting from breaches outside our reasonable control.</li>
+          </ul>
+          <p>The AI Strategy Copilot and other AI-powered features provide guidance for informational purposes only. They do not constitute legal, financial, or professional business advice. You remain solely responsible for all business decisions you make.</p>
+          <p>In no event shall our total liability exceed the amount you have paid (if any) to use the Service in the twelve months preceding the claim.</p>
+        </div>
+
+        <div class="legal-section" id="changes">
+          <h2>7. Changes to the Service</h2>
+          <p>We may modify, add, or remove features from the Service at any time. We may also update these Terms. When we make material changes, we will notify registered users by email before the changes take effect.</p>
+          <p>Your continued use of Florencia OS after the effective date of any changes constitutes your acceptance of the updated Terms. If you do not agree with the updated Terms, you should stop using the Service and may request account deletion.</p>
+          <p>We reserve the right to discontinue the Service entirely, with reasonable advance notice to users where possible.</p>
+        </div>
+
+        <div class="legal-section" id="contact">
+          <h2>8. Contact</h2>
+          <p>If you have questions about these Terms or need to report a concern, please contact us:</p>
+          <p><strong>Email:</strong> <a id="tos-contact-link" href="#">contactflorenciaos&#64;gmail.com</a></p>
+          <p>We will do our best to respond to all legitimate inquiries within 5 business days.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">Florencia <span>OS</span></p>
+        <p class="footer-copy">&#169; 2025 Florencia OS. All rights reserved.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="help.html">Help</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-of-service.html">Terms of Service</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="signup.html">Sign Up</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    var u = 'contactflorenciaos';
+    var d = 'gmail.com';
+    var addr = u + '\u0040' + d;
+    var href = 'mai' + 'lto:' + addr;
+    ['tos-security-link', 'tos-contact-link'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.href = href; el.textContent = addr; }
+    });
+  })();
+</script>
+
+</body>
+</html>

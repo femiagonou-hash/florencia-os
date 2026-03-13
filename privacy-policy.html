@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy &#8212; Florencia OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream:     #FAF7F2;
+      --cream-mid: #F2EDE5;
+      --cream-deep:#E8E0D4;
+      --ink:       #1C1A17;
+      --ink-soft:  #4A4540;
+      --ink-muted: #8A837A;
+      --forest:    #2C4A3E;
+      --forest-lt: #3D6456;
+      --gold:      #C49A3C;
+      --gold-lt:   #E8C270;
+      --white:     #FFFFFF;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(250,247,242,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(28,26,23,0.07); }
+    .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.45rem; color: var(--ink); letter-spacing: -0.01em; }
+    .logo span { color: var(--forest); }
+    .nav-links-simple { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links-simple a { font-size: 0.875rem; color: var(--ink-soft); transition: color 0.2s; }
+    .nav-links-simple a:hover { color: var(--forest); }
+    .page-hero { padding: 72px 0 52px; border-bottom: 1px solid var(--cream-deep); }
+    .page-label { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest); margin-bottom: 14px; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 16px; }
+    .page-meta { font-size: 0.85rem; color: var(--ink-muted); }
+    .legal-body { padding: 68px 0 96px; }
+    .legal-grid { display: grid; grid-template-columns: 200px 1fr; gap: 64px; align-items: start; }
+    .legal-sidebar { position: sticky; top: 88px; }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .sidebar-nav a { display: block; font-size: 0.82rem; color: var(--ink-muted); padding: 5px 0 5px 14px; border-left: 2px solid var(--cream-deep); transition: color 0.2s, border-color 0.2s; }
+    .sidebar-nav a:hover { color: var(--forest); border-color: var(--forest); }
+    .legal-main { max-width: 700px; }
+    .legal-section { margin-bottom: 48px; }
+    .legal-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--cream-deep); }
+    .legal-section p { font-size: 0.925rem; color: var(--ink-soft); line-height: 1.8; margin-bottom: 12px; font-weight: 300; }
+    .legal-section p:last-child { margin-bottom: 0; }
+    .legal-section strong { color: var(--ink); font-weight: 500; }
+    .legal-section ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+    .legal-section ul li { font-size: 0.925rem; color: var(--ink-soft); line-height: 1.7; font-weight: 300; padding-left: 16px; position: relative; }
+    .legal-section ul li::before { content: '&#8211;'; position: absolute; left: 0; color: var(--forest); }
+    .legal-section a { color: var(--forest); }
+    .legal-section a:hover { color: var(--forest-lt); }
+    footer { background: var(--ink); padding: 48px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.75); }
+    .footer-logo span { color: var(--gold-lt); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.3); margin-top: 6px; }
+    .footer-links { display: flex; gap: 28px; list-style: none; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.45); transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.8); }
+    @media (max-width: 768px) {
+      .legal-grid { grid-template-columns: 1fr; gap: 0; }
+      .legal-sidebar { display: none; }
+      .page-hero { padding: 52px 0 36px; }
+      .legal-body { padding: 44px 0 72px; }
+      .nav-links-simple { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Florencia <span>OS</span></a>
+      <ul class="nav-links-simple">
+        <li><a href="about.html">About</a></li>
+        <li><a href="help.html">Help</a></li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="page-label">Legal</span>
+    <h1 class="page-title">Privacy Policy</h1>
+    <p class="page-meta">Last updated: January 2025</p>
+  </div>
+</div>
+
+<div class="legal-body">
+  <div class="container">
+    <div class="legal-grid">
+
+      <aside class="legal-sidebar">
+        <ul class="sidebar-nav">
+          <li><a href="#information">Information We Collect</a></li>
+          <li><a href="#use">How We Use It</a></li>
+          <li><a href="#protection">Data Protection</a></li>
+          <li><a href="#cookies">Cookies</a></li>
+          <li><a href="#third-parties">Third-Party Services</a></li>
+          <li><a href="#rights">Your Rights</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </aside>
+
+      <main class="legal-main">
+
+        <div class="legal-section">
+          <p>This Privacy Policy describes how Florencia OS (&#8220;we&#8221;, &#8220;our&#8221;, or &#8220;us&#8221;) collects, uses, and protects the personal information of users (&#8220;you&#8221;) who access or use our platform. By creating an account or using Florencia OS, you agree to the practices described in this policy.</p>
+        </div>
+
+        <div class="legal-section" id="information">
+          <h2>1. Information We Collect</h2>
+          <p>We collect information you provide directly and information generated through your use of the platform.</p>
+          <p><strong>Information you provide:</strong></p>
+          <ul>
+            <li>Your name and email address when you create an account or join the waitlist.</li>
+            <li>Your password, stored in encrypted form and never readable by our team.</li>
+            <li>Business data you enter into the platform &#8212; leads, revenue goals, tasks, and notes.</li>
+          </ul>
+          <p><strong>Information collected automatically:</strong></p>
+          <ul>
+            <li>Basic usage data such as pages visited, features used, and session duration.</li>
+            <li>Device type, browser type, and operating system.</li>
+            <li>IP address and approximate geographic location (country or region level).</li>
+          </ul>
+          <p>We do not collect payment information directly. If payment processing is introduced in the future, it will be handled entirely by a certified third-party payment provider.</p>
+        </div>
+
+        <div class="legal-section" id="use">
+          <h2>2. How We Use Your Information</h2>
+          <p>We use the information we collect for the following purposes:</p>
+          <ul>
+            <li>To create and maintain your account and provide access to the platform.</li>
+            <li>To personalize your experience based on your goals and usage patterns.</li>
+            <li>To send transactional emails such as email confirmation, password resets, and account updates.</li>
+            <li>To communicate important product updates, new features, or changes to our terms.</li>
+            <li>To analyze usage in aggregate to improve the product and fix issues.</li>
+            <li>To prevent fraud, unauthorized access, and other harmful activity.</li>
+          </ul>
+          <p>We do not use your data to train AI models for sale to third parties. AI features within Florencia OS use your data only to provide you with contextual suggestions within your own account.</p>
+        </div>
+
+        <div class="legal-section" id="protection">
+          <h2>3. Data Protection</h2>
+          <p>We take data security seriously. The following measures are in place to protect your information:</p>
+          <ul>
+            <li>All data is stored in encrypted databases hosted on Supabase, compliant with industry security standards.</li>
+            <li>All connections to the platform are secured via HTTPS/TLS encryption.</li>
+            <li>Passwords are hashed using bcrypt and are never stored or transmitted in plain text.</li>
+            <li>Access to the database is restricted to authorized systems only.</li>
+          </ul>
+          <p>If you become aware of any security concern related to your account, please contact us immediately at <a id="privacy-security-link" href="#">contactflorenciaos&#64;gmail.com</a>.</p>
+        </div>
+
+        <div class="legal-section" id="cookies">
+          <h2>4. Cookies and Local Storage</h2>
+          <p>Florencia OS uses minimal browser storage to keep the platform functional. This includes:</p>
+          <ul>
+            <li><strong>Authentication tokens:</strong> stored securely to keep you logged in across sessions.</li>
+            <li><strong>Session preferences:</strong> such as your display settings, stored locally in your browser.</li>
+          </ul>
+          <p>We do not use advertising cookies or tracking cookies. We do not share browser data with advertising networks. You can clear cookies and local storage at any time through your browser settings.</p>
+        </div>
+
+        <div class="legal-section" id="third-parties">
+          <h2>5. Third-Party Services</h2>
+          <p>Florencia OS uses a limited number of third-party services to operate the platform:</p>
+          <ul>
+            <li><strong>Supabase</strong> &#8212; our database and authentication provider. Data stored in Supabase is governed by Supabase&#8217;s own privacy policy and security certifications.</li>
+            <li><strong>Google Fonts</strong> &#8212; used to load typefaces. Google may set cookies or collect data through this service, subject to Google&#8217;s privacy policy.</li>
+          </ul>
+          <p>We do not sell, rent, or share your personal information with third parties for marketing purposes. We do not work with data brokers.</p>
+        </div>
+
+        <div class="legal-section" id="rights">
+          <h2>6. Your Rights</h2>
+          <p>You have the following rights with respect to your personal data:</p>
+          <ul>
+            <li><strong>Access:</strong> You may request a copy of the personal data we hold about you.</li>
+            <li><strong>Correction:</strong> You may request that inaccurate or incomplete data be corrected.</li>
+            <li><strong>Deletion:</strong> You may request that your account and associated data be permanently deleted.</li>
+            <li><strong>Portability:</strong> You may request your data in a commonly used, machine-readable format.</li>
+            <li><strong>Objection:</strong> You may object to certain uses of your data, including direct marketing.</li>
+          </ul>
+          <p>To exercise any of these rights, please contact us at <a id="privacy-rights-link" href="#">contactflorenciaos&#64;gmail.com</a>. We will respond to requests within 30 days.</p>
+        </div>
+
+        <div class="legal-section" id="contact">
+          <h2>7. Contact</h2>
+          <p>If you have questions or concerns about this Privacy Policy or how your data is handled, please reach out:</p>
+          <p><strong>Email:</strong> <a id="privacy-contact-link" href="#">contactflorenciaos&#64;gmail.com</a></p>
+          <p>If we update this policy in a way that materially affects your rights, we will notify registered users by email before the changes take effect.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">Florencia <span>OS</span></p>
+        <p class="footer-copy">&#169; 2025 Florencia OS. All rights reserved.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="help.html">Help</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-of-service.html">Terms of Service</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="signup.html">Sign Up</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    var u = 'contactflorenciaos';
+    var d = 'gmail.com';
+    var addr = u + '\u0040' + d;
+    var href = 'mai' + 'lto:' + addr;
+    ['privacy-security-link','privacy-rights-link','privacy-contact-link'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.href = href; el.textContent = addr; }
+    });
+  })();
+</script>
+
+</body>
+</html>
