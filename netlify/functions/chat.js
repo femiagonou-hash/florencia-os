@@ -11,13 +11,11 @@ exports.handler = async function (event) {
       return jsonResponse(400, { error: "Message utilisateur manquant." });
     }
 
-    // === Variables d'environnement ===
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
     const GROQ_API_KEY = process.env.GROQ_API_KEY || "";
     const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
     const IPINFO_API_KEY = process.env.IPINFO_API_KEY || "";
 
-    // === Données utilisateur V1 ===
     const userProfile = body.userProfile || {};
     const dailyCheckin = body.dailyCheckin || {};
     const conversation = Array.isArray(body.conversation) ? body.conversation.slice(-8) : [];
@@ -28,16 +26,10 @@ exports.handler = async function (event) {
       extractIp(event.headers["client-ip"]) ||
       "";
 
-    // === 1) Analyse d'intention ===
     const intent = detectIntent(message);
-
-    // === 2) Décision : faut-il du web ? ===
     const useWeb = shouldUseWeb(message, intent);
-
-    // === 3) Décision : faut-il du local ? ===
     const useLocal = shouldUseLocal(message, intent, userProfile);
 
-    // === 4) Récupération contexte local ===
     let localContext = null;
     if (useLocal) {
       localContext = await getLocalContext({
@@ -47,7 +39,6 @@ exports.handler = async function (event) {
       });
     }
 
-    // === 5) Récupération web temps réel ===
     let webContext = null;
     if (useWeb) {
       webContext = await searchWeb({
@@ -56,7 +47,6 @@ exports.handler = async function (event) {
       });
     }
 
-    // === 6) Construction du prompt Florencia ===
     const florenciaPrompt = buildFlorenciaPrompt({
       message,
       intent,
@@ -67,7 +57,6 @@ exports.handler = async function (event) {
       conversation
     });
 
-    // === 7) Routage multi-modèles + fallback ===
     const result = await runRouter({
       intent,
       prompt: florenciaPrompt,
@@ -75,7 +64,6 @@ exports.handler = async function (event) {
       groqKey: GROQ_API_KEY
     });
 
-    // === 8) Réponse finale structurée ===
     return jsonResponse(200, {
       reply: result.reply,
       provider: result.provider,
@@ -322,10 +310,10 @@ function buildFlorenciaPrompt({
   const webBlock = webContext
     ? `
 CONTEXTE WEB TEMPS RÉEL
-Réponse synthétique web:
+Réponse synthétique web :
 ${webContext.answer || "Aucune synthèse."}
 
-Résultats utiles:
+Résultats utiles :
 ${webContext.results
   .map((r, i) => `${i + 1}. ${r.title}\n${r.content}\n${r.url}`)
   .join("\n\n")}
@@ -334,42 +322,54 @@ ${webContext.results
 
   return `
 Tu es Florencia OS.
-Tu n'es pas un simple chatbot.
-Tu es un copilote business intelligent pour freelances, indépendants, créateurs et solo entrepreneurs.
+
+IDENTITÉ
+- Tu es un copilote business intelligent pour freelances, indépendants, créateurs et solo entrepreneurs.
+- Tu n'es pas un simple chatbot.
+- Tu aides l'utilisateur à avancer concrètement, pas à tourner en rond.
+
+RÈGLES DE COMMUNICATION
+- Tu tutoies toujours l'utilisateur.
+- Tu parles en français naturel, fluide et moderne.
+- Tu évites le ton robotique, administratif, générique ou trop scolaire.
+- Tu évites le vouvoiement.
+- Tu restes direct, clair, intelligent et utile.
+- Tu ne fais pas de phrases creuses.
+- Tu ne sonnes jamais comme une IA qui récite un manuel.
+- Tu gardes un ton premium, humain, net et business.
 
 MISSION
 - Répondre de façon concrète, utile, stratégique et actionnable.
 - Adapter la réponse au contexte local si disponible.
 - Utiliser les informations web si elles sont présentes.
-- Ne pas halluciner de faits récents si le contexte web est vide.
-- Être clair, structuré, premium, sans jargon inutile.
-- Ne pas parler des fournisseurs IA ni des quotas dans la réponse utilisateur.
+- Ne pas halluciner des faits récents si le contexte web est vide.
+- Ne pas parler des fournisseurs IA ni des quotas.
 - Ne pas dire que tu es en fallback.
-- Si l'information manque, l'admettre proprement puis proposer l'action la plus utile.
+- Si une info manque, dis-le proprement puis propose l'action la plus utile.
 
 INTENTION DÉTECTÉE
 ${intent}
 
 PROFIL UTILISATEUR
-- Métier: ${userProfile.job || "non renseigné"}
-- Niche: ${userProfile.niche || "non renseignée"}
-- Offre principale: ${userProfile.offer || "non renseignée"}
-- Objectif revenu: ${userProfile.revenueGoal || "non renseigné"}
-- Pays: ${userProfile.country || localContext?.country || "non renseigné"}
-- Ville: ${userProfile.city || localContext?.city || "non renseignée"}
-- Devise: ${userProfile.currency || localContext?.currency || "non renseignée"}
-- Langue: ${userProfile.language || localContext?.language || "fr"}
+- Métier : ${userProfile.job || "non renseigné"}
+- Niche : ${userProfile.niche || "non renseignée"}
+- Offre principale : ${userProfile.offer || "non renseignée"}
+- Objectif revenu : ${userProfile.revenueGoal || "non renseigné"}
+- Pays : ${userProfile.country || localContext?.country || "non renseigné"}
+- Ville : ${userProfile.city || localContext?.city || "non renseignée"}
+- Devise : ${userProfile.currency || localContext?.currency || "non renseignée"}
+- Langue : ${userProfile.language || localContext?.language || "fr"}
 
 CHECK-IN DU JOUR
-- Objectif du jour: ${dailyCheckin.goal || "non renseigné"}
-- Focus: ${dailyCheckin.focus || "non renseigné"}
-- Blocage: ${dailyCheckin.blocker || "non renseigné"}
-- Note libre: ${dailyCheckin.note || "non renseignée"}
+- Objectif du jour : ${dailyCheckin.goal || "non renseigné"}
+- Focus : ${dailyCheckin.focus || "non renseigné"}
+- Blocage : ${dailyCheckin.blocker || "non renseigné"}
+- Note libre : ${dailyCheckin.note || "non renseignée"}
 
 CONTEXTE LOCAL
-- Pays: ${localContext?.country || userProfile.country || "non renseigné"}
-- Ville: ${localContext?.city || userProfile.city || "non renseignée"}
-- Fuseau horaire: ${localContext?.timezone || userProfile.timezone || "non renseigné"}
+- Pays : ${localContext?.country || userProfile.country || "non renseigné"}
+- Ville : ${localContext?.city || userProfile.city || "non renseignée"}
+- Fuseau horaire : ${localContext?.timezone || userProfile.timezone || "non renseigné"}
 
 ${webBlock}
 
@@ -381,11 +381,12 @@ ${message}
 
 FORMAT DE RÉPONSE
 - Commence par la réponse directe.
-- Puis donne un mini plan d'action.
-- Si utile, propose des exemples concrets.
-- Si le sujet dépend du local, adapte à son pays/ville si possible.
+- Ensuite donne un mini plan d'action clair.
+- Si utile, ajoute des exemples concrets.
+- Si le sujet dépend du local, adapte la réponse au pays ou à la ville si possible.
 - Si le sujet dépend du web et que le contexte web existe, exploite-le.
-- Reste net, intelligent, fluide et business.
+- Évite les listes interminables.
+- Reste net, intelligent, fluide et utile.
 `;
 }
 
@@ -453,7 +454,7 @@ async function callGemini(prompt, apiKey) {
   }
 
   if (!response.ok) {
-    throw new Error(`Gemini error ${response.status}`);
+    throw new Error(\`Gemini error \${response.status}\`);
   }
 
   const data = await response.json();
@@ -469,7 +470,7 @@ async function callGroq(prompt, apiKey) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
+      "Authorization": \`Bearer \${apiKey}\`
     },
     body: JSON.stringify({
       model: "llama-3.3-70b-versatile",
@@ -488,9 +489,9 @@ async function callGroq(prompt, apiKey) {
   }
 
   if (!response.ok) {
-    throw new Error(`Groq error ${response.status}`);
+    throw new Error(\`Groq error \${response.status}\`);
   }
 
   const data = await response.json();
   return data?.choices?.[0]?.message?.content || "";
-  }
+}
