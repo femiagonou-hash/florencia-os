@@ -1,207 +1,229 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Florencia OS | Chat</title>
 
-<title>Florencia OS | Chat</title>
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:#0f172a;
+      color:white;
+      display:flex;
+      height:100vh;
+    }
 
-<style>
+    /* SIDEBAR */
 
-body{
-margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:#0f172a;
-color:white;
-display:flex;
-height:100vh;
-}
+    .sidebar{
+      width:260px;
+      background:#020617;
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      border-right:1px solid #1e293b;
+    }
 
-/* SIDEBAR */
+    .logo{
+      font-size:20px;
+      font-weight:bold;
+      color:#7c5cff;
+    }
 
-.sidebar{
-width:260px;
-background:#020617;
-padding:20px;
-display:flex;
-flex-direction:column;
-gap:20px;
-border-right:1px solid #1e293b;
-}
+    .newchat{
+      padding:10px;
+      border:none;
+      background:#7c5cff;
+      color:white;
+      border-radius:8px;
+      cursor:pointer;
+    }
 
-.logo{
-font-size:20px;
-font-weight:bold;
-color:#7c5cff;
-}
+    .conversations{
+      flex:1;
+      overflow:auto;
+    }
 
-.newchat{
-padding:10px;
-border:none;
-background:#7c5cff;
-color:white;
-border-radius:8px;
-cursor:pointer;
-}
+    .convo{
+      padding:10px;
+      border-radius:6px;
+      margin-bottom:6px;
+      background:#0f172a;
+      cursor:pointer;
+    }
 
-.conversations{
-flex:1;
-overflow:auto;
-}
+    /* CHAT AREA */
 
-.convo{
-padding:10px;
-border-radius:6px;
-margin-bottom:6px;
-background:#0f172a;
-cursor:pointer;
-}
+    .chat-container{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+    }
 
-/* CHAT AREA */
+    .messages{
+      flex:1;
+      padding:30px;
+      overflow-y:auto;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
 
-.chat-container{
-flex:1;
-display:flex;
-flex-direction:column;
-}
+    /* messages */
 
-.messages{
-flex:1;
-padding:30px;
-overflow-y:auto;
-display:flex;
-flex-direction:column;
-gap:20px;
-}
+    .message{
+      max-width:700px;
+      padding:15px;
+      border-radius:12px;
+      white-space:pre-wrap;
+      line-height:1.5;
+    }
 
-/* messages */
+    .user{
+      background:#7c5cff;
+      align-self:flex-end;
+    }
 
-.message{
-max-width:700px;
-padding:15px;
-border-radius:12px;
-}
+    .ai{
+      background:#1e293b;
+      align-self:flex-start;
+    }
 
-.user{
-background:#7c5cff;
-align-self:flex-end;
-}
+    /* input zone */
 
-.ai{
-background:#1e293b;
-align-self:flex-start;
-}
+    .input-area{
+      padding:20px;
+      border-top:1px solid #1e293b;
+      display:flex;
+      gap:10px;
+    }
 
-/* input zone */
+    input{
+      flex:1;
+      padding:12px;
+      border-radius:8px;
+      border:none;
+      background:#1e293b;
+      color:white;
+      outline:none;
+    }
 
-.input-area{
-padding:20px;
-border-top:1px solid #1e293b;
-display:flex;
-gap:10px;
-}
+    button{
+      padding:12px 16px;
+      background:#7c5cff;
+      border:none;
+      color:white;
+      border-radius:8px;
+      cursor:pointer;
+    }
 
-input{
-flex:1;
-padding:12px;
-border-radius:8px;
-border:none;
-background:#1e293b;
-color:white;
-}
-
-button{
-padding:12px 16px;
-background:#7c5cff;
-border:none;
-color:white;
-border-radius:8px;
-cursor:pointer;
-}
-
-</style>
+    button:disabled{
+      opacity:0.7;
+      cursor:not-allowed;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">
+      Florencia AI
+    </div>
 
-<div class="sidebar">
+    <button class="newchat" onclick="newChat()">
+      + Nouveau chat
+    </button>
 
-<div class="logo">
-Florencia AI
-</div>
+    <div class="conversations">
+      <div class="convo">Discussion 1</div>
+      <div class="convo">Discussion 2</div>
+    </div>
+  </div>
 
-<button class="newchat">
-+ Nouveau chat
-</button>
-
-<div class="conversations">
-
-<div class="convo">Discussion 1</div>
-<div class="convo">Discussion 2</div>
-
-</div>
-
-</div>
-
-<!-- CHAT -->
-
-<div class="chat-container">
-
-<div class="messages" id="messages">
-
-<div class="message ai">
+  <!-- CHAT -->
+  <div class="chat-container">
+    <div class="messages" id="messages">
+      <div class="message ai">
 Bonjour. Je suis Florencia. Comment puis-je t'aider ?
-</div>
+      </div>
+    </div>
 
-</div>
+    <div class="input-area">
+      <input id="userInput" placeholder="Écris ton message...">
+      <button id="sendBtn" onclick="sendMessage()">Envoyer</button>
+    </div>
+  </div>
 
-<div class="input-area">
+  <script>
+    const input = document.getElementById("userInput");
+    const messages = document.getElementById("messages");
+    const sendBtn = document.getElementById("sendBtn");
 
-<input id="userInput" placeholder="Écris ton message...">
+    input.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
 
-<button onclick="sendMessage()">Envoyer</button>
+    function newChat() {
+      messages.innerHTML = `
+        <div class="message ai">
+Bonjour. Je suis Florencia. Comment puis-je t'aider ?
+        </div>
+      `;
+      input.value = "";
+      input.focus();
+    }
 
-</div>
+    async function sendMessage() {
+      const text = input.value.trim();
 
-</div>
+      if (text === "") return;
 
-<script>
+      const user = document.createElement("div");
+      user.className = "message user";
+      user.innerText = text;
+      messages.appendChild(user);
 
-function sendMessage(){
+      input.value = "";
+      messages.scrollTop = messages.scrollHeight;
 
-let input=document.getElementById("userInput")
-let text=input.value
+      const thinking = document.createElement("div");
+      thinking.className = "message ai";
+      thinking.innerText = "Florencia réfléchit...";
+      messages.appendChild(thinking);
+      messages.scrollTop = messages.scrollHeight;
 
-if(text==="") return
+      sendBtn.disabled = true;
 
-let messages=document.getElementById("messages")
+      try {
+        const response = await fetch("/.netlify/functions/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: text
+          })
+        });
 
-let user=document.createElement("div")
-user.className="message user"
-user.innerText=text
+        const data = await response.json();
 
-messages.appendChild(user)
-
-input.value=""
-
-setTimeout(()=>{
-
-let ai=document.createElement("div")
-ai.className="message ai"
-ai.innerText="Florencia réfléchit..."
-
-messages.appendChild(ai)
-
-messages.scrollTop=messages.scrollHeight
-
-},500)
-
-}
-
-</script>
+        thinking.innerText = data.reply || data.error || "Erreur inconnue.";
+      } catch (error) {
+        thinking.innerText = "Erreur de connexion avec l'IA.";
+      } finally {
+        sendBtn.disabled = false;
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+  </script>
 
 </body>
 </html>
