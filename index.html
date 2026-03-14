@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Florencia OS — Turn your skills into a predictable income system</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       Florencia OS — Inline Styles
+       ============================================================ */
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:     #FAF7F2;
+      --cream-mid: #F2EDE5;
+      --cream-deep:#E8E0D4;
+      --ink:       #1C1A17;
+      --ink-soft:  #4A4540;
+      --ink-muted: #8A837A;
+      --forest:    #2C4A3E;
+      --forest-lt: #3D6456;
+      --gold:      #C49A3C;
+      --gold-lt:   #E8C270;
+      --gold-pale: #F5E9C8;
+      --white:     #FFFFFF;
+      --shadow-sm: 0 2px 12px rgba(28,26,23,0.07);
+      --shadow-md: 0 8px 32px rgba(28,26,23,0.10);
+      --shadow-lg: 0 20px 60px rgba(28,26,23,0.13);
+      --radius:    16px;
+      --radius-sm: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Scroll Animations (only active when JS has loaded) ── */
+    .js-ready .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+      will-change: opacity, transform;
+    }
+    .js-ready .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+      will-change: auto;
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── Typography ── */
+    .display {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      line-height: 1.10;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Layout ── */
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--forest);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      padding: 14px 32px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+      box-shadow: 0 4px 18px rgba(44,74,62,0.25);
+    }
+    .btn-primary:hover {
+      background: var(--forest-lt);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(44,74,62,0.32);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--forest);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 13px 30px;
+      border-radius: 50px;
+      border: 1.5px solid var(--forest);
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background 0.22s ease, color 0.22s ease, transform 0.2s ease;
+    }
+    .btn-outline:hover {
+      background: var(--forest);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .btn-gold {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--gold) 0%, #B8883A 100%);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      padding: 17px 42px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.22s ease, box-shadow 0.25s ease, filter 0.22s ease;
+      box-shadow: 0 6px 24px rgba(196,154,60,0.35);
+    }
+    .btn-gold:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(196,154,60,0.42);
+      filter: brightness(1.06);
+    }
+    .btn-gold:active { transform: translateY(0); }
+
+    /* Arrow icon */
+    .arrow-icon {
+      width: 18px; height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.2s ease;
+    }
+    .btn-primary:hover .arrow-icon,
+    .btn-gold:hover .arrow-icon { transform: translateX(3px); }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250,247,242,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(28,26,23,0.07);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: var(--shadow-sm); }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      font-size: 1.45rem;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .logo span { color: var(--forest); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--ink-soft);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--forest); }
+    .nav-cta { display: flex; align-items: center; gap: 14px; }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .mobile-menu {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      background: var(--cream);
+      border-bottom: 1px solid var(--cream-deep);
+      padding: 8px 0 20px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      padding: 13px 24px;
+      font-size: 0.95rem;
+      color: var(--ink-soft);
+      border-bottom: 1px solid rgba(28,26,23,0.05);
+      transition: background 0.15s, color 0.15s;
+    }
+    .mobile-menu a:hover { background: var(--cream-mid); color: var(--forest); }
+    .mobile-menu .btn-primary { margin: 16px 24px 0; width: calc(100% - 48px); justify-content: center; }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      overflow: hidden;
+      padding: 110px 0 100px;
+      background: var(--cream);
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 20%, rgba(44,74,62,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(196,154,60,0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 80% 85%, rgba(44,74,62,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    #hero::after {
+      content: '';
+      position: absolute;
+      right: -180px; top: -120px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      border: 1px solid rgba(44,74,62,0.08);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-pale);
+      border: 1px solid rgba(196,154,60,0.3);
+      border-radius: 50px;
+      padding: 6px 16px 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #8A6A20;
+      margin-bottom: 28px;
+    }
+    .hero-badge-dot {
+      width: 7px; height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+    .hero-headline {
+      font-size: clamp(2.8rem, 5vw, 4.2rem);
+      color: var(--ink);
+      margin-bottom: 24px;
+    }
+    .hero-headline em {
+      color: var(--forest);
+      font-style: italic;
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      max-width: 460px;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .hero-note {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      margin-top: 18px;
+    }
+
+    /* Hero visual */
+    .hero-visual { position: relative; }
+    .hero-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(28,26,23,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--forest), var(--gold));
+      border-radius: 20px 20px 0 0;
+    }
+    .hcard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .hcard-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .hcard-badge {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #2C7A4E;
+      background: #E6F5ED;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
+    .hcard-goal {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .hcard-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .hcard-label { font-size: 0.82rem; color: var(--ink-muted); }
+    .progress-bar {
+      height: 6px;
+      background: var(--cream-deep);
+      border-radius: 50px;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 68%;
+      background: linear-gradient(90deg, var(--forest), var(--gold));
+      border-radius: 50px;
+    }
+    .progress-label {
+      font-size: 0.72rem;
+      color: var(--ink-muted);
+      text-align: right;
+    }
+    .hcard-divider { height: 1px; background: var(--cream-deep); margin: 18px 0; }
+    .hcard-tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+    }
+    .task-check {
+      width: 17px; height: 17px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .task-check.done { background: var(--forest); }
+    .task-check.done::after {
+      content: '';
+      display: block;
+      width: 5px; height: 9px;
+      border: 1.5px solid white;
+      border-top: none; border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+    .task-check.pending { background: var(--cream-deep); }
+    .task-text.done { text-decoration: line-through; color: var(--ink-muted); }
+
+    /* Floating accent cards */
+    .float-card {
+      position: absolute;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(28,26,23,0.06);
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .float-card-1 {
+      bottom: -24px; left: -40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .float-card-2 {
+      top: -20px; right: -36px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .float-icon { font-size: 1rem; }
+    .float-label { font-weight: 600; color: var(--ink); }
+    .float-sub { color: var(--ink-muted); font-size: 0.72rem; }
+
+    /* ── SECTION BASE ── */
+    section { padding: 100px 0; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--forest);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(2.1rem, 4vw, 3rem);
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--ink-soft);
+      line-height: 1.75;
+      max-width: 560px;
+      font-weight: 300;
+    }
+
+    /* ── PROBLEM ── */
+    #problem {
+      background: var(--ink);
+      position: relative;
+      overflow: hidden;
+    }
+    #problem::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 90% 10%, rgba(196,154,60,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10% 90%, rgba(44,74,62,0.15) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    #problem .section-label { color: var(--gold-lt); }
+    #problem .section-title { color: var(--white); }
+    #problem .section-sub { color: rgba(255,255,255,0.55); max-width: 100%; }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+    }
+    .problem-items {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      margin-top: 40px;
+    }
+    .problem-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .problem-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: -3px;
+    }
+    .problem-item-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--white);
+      margin-bottom: 5px;
+    }
+    .problem-item-desc {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .problem-visual {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .chaos-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background 0.2s;
+    }
+    .chaos-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .chaos-text strong {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 2px;
+    }
+    .chaos-text span {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── SOLUTION ── */
+    #solution {
+      background: var(--cream);
+      position: relative;
+      overflow: hidden;
+    }
+    #solution::before {
+      content: '';
+      position: absolute;
+      left: -200px; top: 50%;
+      transform: translateY(-50%);
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(44,74,62,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .solution-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .solution-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-top: 36px;
+    }
+    .solution-step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .step-icon-wrap {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--forest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-icon-wrap svg {
+      width: 20px; height: 20px;
+      stroke: white; fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .step-title { font-size: 1rem; font-weight: 500; color: var(--ink); margin-bottom: 5px; }
+    .step-desc { font-size: 0.875rem; color: var(--ink-soft); line-height: 1.65; font-weight: 300; }
+    .solution-visual { position: relative; }
+    .pipeline-widget {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(28,26,23,0.06);
+    }
+    .pw-header {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 18px;
+    }
+    .pipeline-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .pcol-head {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid;
+    }
+    .pcol-head.prospects { border-color: #B8C8E8; color: #5070A0; }
+    .pcol-head.qualified  { border-color: var(--gold-lt); color: var(--gold); }
+    .pcol-head.active     { border-color: var(--forest); color: var(--forest); }
+    .plead {
+      background: var(--cream);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 0.76rem;
+    }
+    .plead-name { font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+    .plead-val  { font-size: 0.68rem; color: var(--ink-muted); }
+    .plead-dot  { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
+    .plead-dot.blue  { background: #7090C0; }
+    .plead-dot.gold  { background: var(--gold); }
+    .plead-dot.green { background: var(--forest); }
+
+    /* ── FEATURES ── */
+    #features { background: var(--cream-mid); }
+    .features-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 64px;
+    }
+    .features-header .section-sub {
+      margin: 0 auto;
+      text-align: center;
+      max-width: 480px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      border: 1px solid rgba(28,26,23,0.06);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--forest), var(--gold));
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: var(--cream-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+      transition: background 0.25s;
+    }
+    .feature-card:hover .feature-icon { background: rgba(44,74,62,0.10); }
+    .feature-icon svg {
+      width: 24px; height: 24px;
+      stroke: var(--forest); fill: none;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .feature-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 10px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+    .feature-tag {
+      display: inline-block;
+      margin-top: 18px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--forest);
+      background: rgba(44,74,62,0.07);
+      padding: 4px 10px;
+      border-radius: 50px;
+    }
+
+    /* ── DIFFERENT ── */
+    #different { background: var(--cream); }
+    .different-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .diff-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 36px;
+    }
+    .diff-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .diff-check {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--forest);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .diff-check::after {
+      content: '';
+      display: block;
+      width: 6px; height: 10px;
+      border: 2px solid white;
+      border-top: none; border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+    .diff-text strong { display: block; font-size: 0.95rem; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .diff-text span { font-size: 0.85rem; color: var(--ink-soft); font-weight: 300; line-height: 1.6; }
+    .comparison-box {
+      background: var(--white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(28,26,23,0.06);
+    }
+    .comp-header { display: grid; grid-template-columns: 1fr 1fr; }
+    .comp-col {
+      padding: 18px 22px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .comp-col.others    { background: var(--cream-mid); color: var(--ink-muted); }
+    .comp-col.florencia { background: var(--forest); color: rgba(255,255,255,0.9); }
+    .comp-rows { display: flex; flex-direction: column; }
+    .comp-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--cream-deep);
+    }
+    .comp-cell {
+      padding: 14px 22px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .comp-cell.bad  { color: var(--ink-muted); }
+    .comp-cell.good { color: var(--forest); font-weight: 500; background: rgba(44,74,62,0.025); }
+    .comp-cell.bad::before  { content: '✕'; font-size: 0.75rem; color: #C0756A; flex-shrink: 0; }
+    .comp-cell.good::before { content: '✓'; font-size: 0.8rem; color: var(--forest); font-weight: 700; flex-shrink: 0; }
+
+    /* ── CTA ── */
+    #cta {
+      background: var(--forest);
+      position: relative;
+      overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 80% 20%, rgba(196,154,60,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(255,255,255,0.04) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    #cta::after {
+      content: '';
+      position: absolute;
+      right: -160px; bottom: -160px;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.05);
+      pointer-events: none;
+    }
+    .cta-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .cta-label { color: rgba(255,255,255,0.55); }
+    .cta-title {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+    .cta-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 44px;
+      font-weight: 300;
+    }
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .cta-note {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 20px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      padding: 48px 0;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+    }
+    .footer-logo span { color: var(--gold-lt); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.3); }
+    .footer-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,0.8); }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
+    /* Tablet large: 1024px and below */
+    @media (max-width: 1024px) {
+      .hero-inner {
+        grid-template-columns: 55fr 45fr;
+        gap: 44px;
+      }
+      .float-card-1, .float-card-2 { display: none; }
+      .solution-inner { gap: 52px; }
+      .different-inner { gap: 52px; }
+    }
+
+    /* Tablet: 769px–1024px */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      section { padding: 84px 0; }
+      #hero { padding: 88px 0 84px; }
+      .features-grid { gap: 20px; }
+      .feature-card { padding: 28px 26px; }
+    }
+
+    /* Mobile: 768px and below */
+    @media (max-width: 768px) {
+      section { padding: 68px 0; }
+      .section-label { margin-bottom: 12px; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      #hero { padding: 64px 0 72px; }
+      .hero-headline { font-size: clamp(2.35rem, 8.5vw, 3.2rem); }
+      .hero-sub { max-width: 100%; font-size: 1rem; }
+      .hero-visual { max-width: 440px; margin: 0 auto; }
+
+      .problem-grid { grid-template-columns: 1fr; gap: 44px; }
+
+      .solution-inner { grid-template-columns: 1fr; gap: 44px; }
+      .pipeline-cols { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card { padding: 28px 24px; }
+
+      .different-inner { grid-template-columns: 1fr; gap: 44px; }
+      .comp-cell { padding: 12px 16px; font-size: 0.8rem; }
+      .comp-col { padding: 14px 16px; }
+
+      .cta-sub { font-size: 0.975rem; margin-bottom: 36px; }
+
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 24px; }
+    }
+
+    /* Small mobile: 480px and below */
+    @media (max-width: 480px) {
+      .container { padding: 0 18px; }
+      .hero-headline { font-size: 2.15rem; line-height: 1.12; }
+      .hero-badge { font-size: 0.73rem; margin-bottom: 20px; }
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .hero-actions .btn-primary,
+      .hero-actions .btn-outline { width: 100%; justify-content: center; }
+      .cta-actions { flex-direction: column; align-items: stretch; }
+      .cta-actions .btn-gold { width: 100%; justify-content: center; }
+      .pipeline-cols { grid-template-columns: 1fr; gap: 14px; }
+      .features-header { margin-bottom: 44px; }
+      .comp-cell { padding: 11px 14px; font-size: 0.775rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .js-ready .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      .hero-badge-dot { animation: none !important; }
+      .btn-primary, .btn-outline, .btn-gold,
+      .feature-card { transition: none !important; }
+    }
+
+    /* Focus styles */
+    :focus-visible {
+      outline: 2px solid var(--forest);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    .btn-primary:focus-visible,
+    .btn-outline:focus-visible,
+    .btn-gold:focus-visible {
+      outline-offset: 4px;
+      border-radius: 50px;
+    }
+
+    /* ── CTA ACTIONS ── */
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 480px) {
+      .cta-actions { flex-direction: column; align-items: stretch; }
+      .cta-actions .btn-gold { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Florencia <span>OS</span></a>
+      <ul class="nav-links">
+        <li><a href="#problem">The Problem</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#different">Why Different</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="login.html" style="font-size:0.875rem;font-weight:400;color:var(--ink-soft);transition:color 0.2s;" onmouseover="this.style.color='var(--forest)'" onmouseout="this.style.color='var(--ink-soft)'">Log In</a>
+        <a href="signup.html" class="btn-primary">
+          Access the Beta
+          <svg class="arrow-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#problem">The Problem</a>
+    <a href="#features">Features</a>
+    <a href="#different">Why Different</a>
+    <a href="about.html">About</a>
+    <a href="help.html">Help</a>
+    <a href="login.html">Log In</a>
+    <a href="signup.html" class="btn-primary">
+      Access the Beta
+      <svg class="arrow-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+  </div>
+</nav>
+
+
+<!-- ══════════════ HERO ══════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+
+      <!-- Copy -->
+      <div>
+        <div class="hero-badge reveal">
+          <span class="hero-badge-dot"></span>
+          Now accepting early access
+        </div>
+        <h1 class="display hero-headline reveal reveal-delay-1">
+          Turn your skills into a<br>
+          <em>predictable income</em><br>
+          system.
+        </h1>
+        <p class="hero-sub reveal reveal-delay-2">
+          Florencia OS is an AI business operating system that helps freelancers and solo entrepreneurs find clients, organize their work, and reach their first consistent monthly income.
+        </p>
+        <div class="hero-actions reveal reveal-delay-3">
+          <a href="signup.html" class="btn-primary">
+            Access the Beta
+            <svg class="arrow-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+          <a href="#features" class="btn-outline">See How It Works</a>
+        </div>
+        <p class="hero-note reveal reveal-delay-4">Free to join &middot; No credit card required</p>
+      </div>
+
+      <!-- Visual -->
+      <div class="hero-visual reveal reveal-delay-2">
+        <div class="hero-card">
+          <div class="hcard-header">
+            <span class="hcard-title">Revenue Goal</span>
+            <span class="hcard-badge">On Track &#8593;</span>
+          </div>
+          <div class="hcard-goal">
+            <span class="hcard-amount">$6,800</span>
+            <span class="hcard-label">/ $10,000 goal</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <p class="progress-label">68% &middot; 11 days left</p>
+          <div class="hcard-divider"></div>
+          <div class="hcard-tasks">
+            <div class="task-row">
+              <span class="task-check done"></span>
+              <span class="task-text done">Follow up with 3 prospects</span>
+            </div>
+            <div class="task-row">
+              <span class="task-check done"></span>
+              <span class="task-text done">Send proposal to DesignCo</span>
+            </div>
+            <div class="task-row">
+              <span class="task-check pending"></span>
+              <span class="task-text">Review AI strategy suggestions</span>
+            </div>
+            <div class="task-row">
+              <span class="task-check pending"></span>
+              <span class="task-text">Update pipeline &#8212; 2 new leads</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="float-card float-card-1">
+          <span class="float-icon">&#9889;</span>
+          <div>
+            <p class="float-label">AI Insight</p>
+            <p class="float-sub">You&#8217;re 2 calls away from $10K</p>
+          </div>
+        </div>
+        <div class="float-card float-card-2">
+          <span class="float-icon">&#127919;</span>
+          <div>
+            <p class="float-label">New Lead</p>
+            <p class="float-sub">Sarah M. &#8212; $2,400 potential</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ PROBLEM ══════════════ -->
+<section id="problem">
+  <div class="container">
+    <div class="problem-grid">
+
+      <div>
+        <span class="section-label reveal">The Real Problem</span>
+        <h2 class="display section-title reveal reveal-delay-1">
+          You&#8217;re not failing<br>because of skill.
+        </h2>
+        <p class="section-sub reveal reveal-delay-2">
+          Most freelancers have everything they need to succeed &#8212; except the system to make it work consistently. The chaos takes over before the money does.
+        </p>
+        <div class="problem-items">
+          <div class="problem-item reveal reveal-delay-1">
+            <span class="problem-num">01</span>
+            <div>
+              <p class="problem-item-title">No structure, no momentum</p>
+              <p class="problem-item-desc">Without a clear daily system, your best intentions disappear into scattered to-do lists and missed follow-ups.</p>
+            </div>
+          </div>
+          <div class="problem-item reveal reveal-delay-2">
+            <span class="problem-num">02</span>
+            <div>
+              <p class="problem-item-title">Feast or famine cycles</p>
+              <p class="problem-item-desc">You land clients when you hustle, then lose momentum while you&#8217;re busy delivering. Income stays unpredictable.</p>
+            </div>
+          </div>
+          <div class="problem-item reveal reveal-delay-3">
+            <span class="problem-num">03</span>
+            <div>
+              <p class="problem-item-title">Decision fatigue every single day</p>
+              <p class="problem-item-desc">What should I work on? Who should I contact? Most days feel like guessing &#8212; and that guessing costs you money.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="problem-visual reveal reveal-delay-2">
+        <div class="chaos-card">
+          <span class="chaos-icon">&#128089;</span>
+          <div class="chaos-text">
+            <strong>Inbox overflowing, no follow-up system</strong>
+            <span>3 potential clients never heard back from you</span>
+          </div>
+        </div>
+        <div class="chaos-card">
+          <span class="chaos-icon">&#128197;</span>
+          <div class="chaos-text">
+            <strong>Sporadic client acquisition</strong>
+            <span>Last outreach was 3 weeks ago</span>
+          </div>
+        </div>
+        <div class="chaos-card">
+          <span class="chaos-icon">&#128184;</span>
+          <div class="chaos-text">
+            <strong>Income unpredictability</strong>
+            <span>$1,200 in March &middot; $5,800 in April &middot; $800 in May</span>
+          </div>
+        </div>
+        <div class="chaos-card">
+          <span class="chaos-icon">&#127744;</span>
+          <div class="chaos-text">
+            <strong>No clarity on what to do next</strong>
+            <span>6 open browser tabs, no clear priority</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SOLUTION ══════════════ -->
+<section id="solution">
+  <div class="container">
+    <div class="solution-inner">
+
+      <div>
+        <span class="section-label reveal">The Solution</span>
+        <h2 class="display section-title reveal reveal-delay-1">
+          One operating system<br>for your entire business.
+        </h2>
+        <p class="section-sub reveal reveal-delay-2">
+          Florencia OS replaces the chaos with a clear, daily-driven system &#8212; so you always know what to do, who to talk to, and how close you are to your goals.
+        </p>
+        <div class="solution-steps">
+          <div class="solution-step reveal reveal-delay-1">
+            <div class="step-icon-wrap">
+              <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <div>
+              <p class="step-title">Organize your leads and opportunities</p>
+              <p class="step-desc">Your lead pipeline tracks every potential client from first contact to closed deal &#8212; nothing falls through the cracks.</p>
+            </div>
+          </div>
+          <div class="solution-step reveal reveal-delay-2">
+            <div class="step-icon-wrap">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <p class="step-title">Get a clear daily action plan</p>
+              <p class="step-desc">Every morning, Florencia OS tells you exactly what to work on &#8212; eliminating decision fatigue and wasted time.</p>
+            </div>
+          </div>
+          <div class="solution-step reveal reveal-delay-3">
+            <div class="step-icon-wrap">
+              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <p class="step-title">Track your way to consistent income</p>
+              <p class="step-desc">Set your monthly revenue goal and watch real progress in real time &#8212; with AI suggestions to close the gap faster.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-visual reveal reveal-delay-2">
+        <div class="pipeline-widget">
+          <p class="pw-header">Lead Pipeline &#8212; March</p>
+          <div class="pipeline-cols">
+            <div>
+              <p class="pcol-head prospects">Prospects</p>
+              <div class="plead">
+                <p class="plead-name"><span class="plead-dot blue"></span>Jordan K.</p>
+                <p class="plead-val">$1,800 potential</p>
+              </div>
+              <div class="plead">
+                <p class="plead-name"><span class="plead-dot blue"></span>Maya R.</p>
+                <p class="plead-val">$900 potential</p>
+              </div>
+            </div>
+            <div>
+              <p class="pcol-head qualified">Qualified</p>
+              <div class="plead">
+                <p class="plead-name"><span class="plead-dot gold"></span>Alex T.</p>
+                <p class="plead-val">$3,200 potential</p>
+              </div>
+              <div class="plead">
+                <p class="plead-name"><span class="plead-dot gold"></span>Studio Co.</p>
+                <p class="plead-val">$2,400 potential</p>
+              </div>
+            </div>
+            <div>
+              <p class="pcol-head active">Active</p>
+              <div class="plead">
+                <p class="plead-name"><span class="plead-dot green"></span>NovaBrand</p>
+                <p class="plead-val">$4,500 active</p>
+              </div>
+              <div class="plead">
+                <p class="plead-name"><span class="plead-dot green"></span>Hana S.</p>
+                <p class="plead-val">$2,300 active</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ FEATURES ══════════════ -->
+<section id="features">
+  <div class="container">
+    <div class="features-header">
+      <span class="section-label reveal">Features</span>
+      <h2 class="display section-title reveal reveal-delay-1">Everything you need.<br>Nothing you don&#8217;t.</h2>
+      <p class="section-sub reveal reveal-delay-2">Four focused tools that work together as one system &#8212; built specifically for solo operators who want results, not complexity.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <h3 class="feature-title">AI Strategy Copilot</h3>
+        <p class="feature-desc">Your personal business advisor &#8212; always available, always focused on your goals. Get strategic guidance, next-step recommendations, and honest feedback on your decisions.</p>
+        <span class="feature-tag">Powered by AI</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3 class="feature-title">Lead Pipeline</h3>
+        <p class="feature-desc">A visual, structured system to track every lead from first contact to paid client. Know who to follow up with, when, and exactly what to say to move deals forward.</p>
+        <span class="feature-tag">Client Acquisition</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h3 class="feature-title">Daily Action System</h3>
+        <p class="feature-desc">Wake up knowing exactly what to do. Florencia OS generates a prioritized daily plan based on your goals, pipeline status, and where you are in the month.</p>
+        <span class="feature-tag">Productivity</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-4">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3 class="feature-title">Revenue Goal Tracking</h3>
+        <p class="feature-desc">Set your monthly income target and track real progress in real time. See exactly how much you need, where it&#8217;ll come from, and what actions will get you there fastest.</p>
+        <span class="feature-tag">Income Goals</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ DIFFERENT ══════════════ -->
+<section id="different">
+  <div class="container">
+    <div class="different-inner">
+
+      <div>
+        <span class="section-label reveal">Why It&#8217;s Different</span>
+        <h2 class="display section-title reveal reveal-delay-1">
+          Not another AI chatbot.<br>A real business system.
+        </h2>
+        <p class="section-sub reveal reveal-delay-2">
+          There are thousands of AI tools. Florencia OS is the only one designed specifically to help you build a predictable income &#8212; not just answer questions.
+        </p>
+        <div class="diff-list">
+          <div class="diff-item reveal reveal-delay-1">
+            <span class="diff-check"></span>
+            <div class="diff-text">
+              <strong>Built for solo operators, not enterprises</strong>
+              <span>Every feature is designed for freelancers and solo entrepreneurs &#8212; not teams, not corporations.</span>
+            </div>
+          </div>
+          <div class="diff-item reveal reveal-delay-2">
+            <span class="diff-check"></span>
+            <div class="diff-text">
+              <strong>Focused on one outcome: consistent income</strong>
+              <span>Everything Florencia OS does is connected to your revenue goal. No fluff, no feature bloat.</span>
+            </div>
+          </div>
+          <div class="diff-item reveal reveal-delay-3">
+            <span class="diff-check"></span>
+            <div class="diff-text">
+              <strong>Practical and action-oriented</strong>
+              <span>You get specific, doable actions &#8212; not vague advice. Less thinking, more doing.</span>
+            </div>
+          </div>
+          <div class="diff-item reveal reveal-delay-4">
+            <span class="diff-check"></span>
+            <div class="diff-text">
+              <strong>One system, not ten disconnected tools</strong>
+              <span>Your leads, tasks, strategy, and goals all live in one place &#8212; working together.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comparison-box reveal reveal-delay-2">
+        <div class="comp-header">
+          <div class="comp-col others">Generic AI Tools</div>
+          <div class="comp-col florencia">Florencia OS</div>
+        </div>
+        <div class="comp-rows">
+          <div class="comp-row">
+            <div class="comp-cell bad">Answers questions</div>
+            <div class="comp-cell good">Drives your income forward</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell bad">No memory of your goals</div>
+            <div class="comp-cell good">Tracks your revenue in real time</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell bad">One-off responses</div>
+            <div class="comp-cell good">A daily operating system</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell bad">Built for everyone</div>
+            <div class="comp-cell good">Built for solo operators</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell bad">Reactive &#8212; you prompt it</div>
+            <div class="comp-cell good">Proactive &#8212; tells you what to do</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell bad">No client acquisition system</div>
+            <div class="comp-cell good">Lead pipeline built in</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ CTA ══════════════ -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-inner">
+      <span class="section-label cta-label reveal">Early Access</span>
+      <h2 class="display cta-title reveal reveal-delay-1">
+        Ready to build something<br><em>that actually works?</em>
+      </h2>
+      <p class="cta-sub reveal reveal-delay-2">
+        Join the first freelancers using Florencia OS to build a clear, structured path to consistent monthly income.
+      </p>
+      <div class="cta-actions reveal reveal-delay-3">
+        <a href="signup.html" class="btn-gold">
+          Access the Beta
+          <svg class="arrow-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      <p class="cta-note reveal reveal-delay-4">No credit card &middot; No commitment &middot; Just early access</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">Florencia <span>OS</span></p>
+        <p class="footer-copy" style="margin-top:8px;">&#169; 2025 Florencia OS. All rights reserved.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="help.html">Help</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-of-service.html">Terms of Service</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="signup.html">Sign Up</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  /* ============================================================
+     Florencia OS — Inline Script
+     ============================================================ */
+
+  (function () {
+    'use strict';
+
+    // Mark JS as active so scroll-reveal opacity:0 state engages.
+    // Without this class, content stays fully visible if JS is blocked or slow.
+    document.documentElement.classList.add('js-ready');
+    document.body.classList.add('js-ready');
+
+    // ── Scroll Reveal ──
+    var reveals = document.querySelectorAll('.reveal');
+
+    var revealObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -32px 0px' }
+    );
+
+    reveals.forEach(function (el) {
+      revealObserver.observe(el);
+    });
+
+    // ── Nav Scroll Shadow ──
+    var navbar = document.getElementById('navbar');
+
+    window.addEventListener('scroll', function () {
+      navbar.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // ── Mobile Menu Toggle ──
+    var hamburger  = document.getElementById('hamburger');
+    var mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', function () {
+      mobileMenu.classList.toggle('open');
+      var isOpen = mobileMenu.classList.contains('open');
+      hamburger.setAttribute('aria-expanded', String(isOpen));
+
+      var bars = hamburger.querySelectorAll('span');
+      if (isOpen) {
+        bars[0].style.cssText = 'transform: rotate(45deg) translate(5px, 5px)';
+        bars[1].style.cssText = 'opacity: 0; transform: scaleX(0)';
+        bars[2].style.cssText = 'transform: rotate(-45deg) translate(5px, -5px)';
+      } else {
+        bars.forEach(function (b) { b.removeAttribute('style'); });
+      }
+    });
+
+    // Close mobile menu when any link inside it is clicked
+    mobileMenu.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        mobileMenu.classList.remove('open');
+        hamburger.querySelectorAll('span').forEach(function (b) {
+          b.removeAttribute('style');
+        });
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // ── Waitlist form removed — CTA links directly to signup.html ──
+
+  }());
+</script>
+
+</body>
+</html>
