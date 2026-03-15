@@ -203,7 +203,7 @@ Bonjour. Je suis Florencia. Comment puis-je t'aider ?
       sendBtn.disabled = true;
 
       try {
-        const response = await fetch("/.netlify/functions/chat", {
+        const response = await fetch("/api/chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -215,7 +215,11 @@ Bonjour. Je suis Florencia. Comment puis-je t'aider ?
 
         const data = await response.json();
 
-        thinking.innerText = data.reply || data.error || "Erreur inconnue.";
+        if (!response.ok) {
+          thinking.innerText = data.error || "Erreur backend.";
+        } else {
+          thinking.innerText = data.reply || "Aucune réponse reçue.";
+        }
       } catch (error) {
         thinking.innerText = "Erreur de connexion avec l'IA.";
       } finally {
