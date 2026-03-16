@@ -1,878 +1,1660 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Florencia OS | Chat</title>
-
-  <style>
-    :root{
-      --bg:#0b1120;
-      --panel:#111827;
-      --panel-2:#0f172a;
-      --card:#182235;
-      --card-2:#1e293b;
-      --text:#f8fafc;
-      --muted:#94a3b8;
-      --border:#243244;
-      --accent:#7c5cff;
-      --accent-2:#8b6bff;
-      --danger:#ef4444;
-      --shadow:0 12px 40px rgba(0,0,0,.28);
-      --radius:18px;
-      --radius-sm:12px;
-    }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    html,body{
-      margin:0;
-      padding:0;
-      width:100%;
-      height:100%;
-      font-family:Arial, Helvetica, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
-
-    body{
-      display:flex;
-      min-height:100vh;
-      overflow:hidden;
-    }
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    button,input{
-      font:inherit;
-    }
-
-    .app{
-      display:flex;
-      width:100%;
-      height:100vh;
-      overflow:hidden;
-      position:relative;
-      background:
-        radial-gradient(circle at top left, rgba(124,92,255,.14), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(124,92,255,.09), transparent 25%),
-        var(--bg);
-    }
-
-    /* =========================
-       SIDEBAR
-    ========================= */
-
-    .sidebar{
-      width:280px;
-      min-width:280px;
-      background:rgba(2,6,23,.92);
-      border-right:1px solid var(--border);
-      display:flex;
-      flex-direction:column;
-      padding:18px 14px;
-      gap:16px;
-      z-index:20;
-      transition:transform .28s ease;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:8px 8px 2px;
-    }
-
-    .brand-left{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
-
-    .brand-badge{
-      width:38px;
-      height:38px;
-      border-radius:14px;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:700;
-      box-shadow:var(--shadow);
-      flex-shrink:0;
-    }
-
-    .brand-text{
-      min-width:0;
-    }
-
-    .brand-title{
-      font-size:16px;
-      font-weight:700;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .brand-subtitle{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:2px;
-    }
-
-    .close-sidebar{
-      display:none;
-      border:none;
-      background:transparent;
-      color:var(--muted);
-      font-size:22px;
-      cursor:pointer;
-      padding:4px 8px;
-      border-radius:10px;
-    }
-
-    .close-sidebar:hover{
-      background:rgba(255,255,255,.04);
-      color:var(--text);
-    }
-
-    .sidebar-actions{
-      display:flex;
-      gap:10px;
-      padding:0 6px;
-    }
-
-    .newchat{
-      flex:1;
-      border:none;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      color:white;
-      border-radius:14px;
-      padding:12px 14px;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:var(--shadow);
-    }
-
-    .nav-link{
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.02);
-      color:var(--text);
-      border-radius:14px;
-      padding:12px 14px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-width:48px;
-    }
-
-    .nav-link:hover,
-    .newchat:hover{
-      filter:brightness(1.05);
-    }
-
-    .sidebar-section{
-      padding:0 6px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-
-    .section-label{
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      padding:0 4px;
-    }
-
-    .sidebar-menu{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-
-    .menu-item{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:12px 14px;
-      border-radius:14px;
-      color:var(--text);
-      background:transparent;
-      border:1px solid transparent;
-      transition:.2s ease;
-    }
-
-    .menu-item:hover,
-    .menu-item.active{
-      background:rgba(255,255,255,.04);
-      border-color:var(--border);
-    }
-
-    .conversations{
-      flex:1;
-      overflow:auto;
-      padding-right:2px;
-    }
-
-    .conversations::-webkit-scrollbar,
-    .messages::-webkit-scrollbar{
-      width:8px;
-    }
-
-    .conversations::-webkit-scrollbar-thumb,
-    .messages::-webkit-scrollbar-thumb{
-      background:#233146;
-      border-radius:999px;
-    }
-
-    .convo{
-      padding:12px 14px;
-      border-radius:14px;
-      margin-bottom:8px;
-      background:rgba(255,255,255,.03);
-      border:1px solid transparent;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-
-    .convo:hover{
-      border-color:var(--border);
-      background:rgba(255,255,255,.05);
-    }
-
-    .convo-title{
-      font-size:14px;
-      font-weight:600;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .convo-meta{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:4px;
-    }
-
-    /* =========================
-       MAIN CHAT
-    ========================= */
-
-    .main{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-      height:100vh;
-    }
-
-    .topbar{
-      height:72px;
-      border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:0 18px;
-      background:rgba(11,17,32,.86);
-      backdrop-filter:blur(10px);
-      z-index:5;
-    }
-
-    .topbar-left{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
-
-    .menu-toggle{
-      display:none;
-      border:none;
-      width:42px;
-      height:42px;
-      border-radius:12px;
-      background:rgba(255,255,255,.04);
-      color:var(--text);
-      font-size:18px;
-      cursor:pointer;
-    }
-
-    .page-title-wrap{
-      min-width:0;
-    }
-
-    .page-title{
-      font-size:16px;
-      font-weight:700;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .page-subtitle{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:3px;
-    }
-
-    .topbar-right{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-
-    .ghost-btn{
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.03);
-      color:var(--text);
-      border-radius:12px;
-      padding:10px 14px;
-      cursor:pointer;
-    }
-
-    .ghost-btn:hover{
-      background:rgba(255,255,255,.05);
-    }
-
-    .chat-shell{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-      width:100%;
-      max-width:980px;
-      margin:0 auto;
-      padding:0 18px 18px;
-    }
-
-    .welcome{
-      padding:28px 0 12px;
-    }
-
-    .welcome h1{
-      margin:0;
-      font-size:30px;
-      line-height:1.08;
-      letter-spacing:-.03em;
-    }
-
-    .welcome p{
-      margin:12px 0 0;
-      color:var(--muted);
-      line-height:1.55;
-      max-width:760px;
-    }
-
-    .starter-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:12px;
-      margin-top:18px;
-    }
-
-    .starter{
-      border:1px solid var(--border);
-      background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));
-      color:var(--text);
-      border-radius:16px;
-      padding:14px;
-      cursor:pointer;
-      text-align:left;
-      transition:.2s ease;
-    }
-
-    .starter:hover{
-      transform:translateY(-1px);
-      border-color:#334155;
-      background:rgba(255,255,255,.05);
-    }
-
-    .starter-title{
-      font-size:14px;
-      font-weight:700;
-      margin-bottom:6px;
-    }
-
-    .starter-desc{
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .messages{
-      flex:1;
-      overflow-y:auto;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-      padding:10px 0 22px;
-      min-height:0;
-      scroll-behavior:smooth;
-    }
-
-    .message-row{
-      display:flex;
-      width:100%;
-    }
-
-    .message-row.user{
-      justify-content:flex-end;
-    }
-
-    .message-row.ai{
-      justify-content:flex-start;
-    }
-
-    .message{
-      max-width:min(760px,92%);
-      padding:16px 18px;
-      border-radius:18px;
-      white-space:pre-wrap;
-      line-height:1.65;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow);
-    }
-
-    .message.user{
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      color:white;
-      border:none;
-      border-bottom-right-radius:8px;
-    }
-
-    .message.ai{
-      background:rgba(24,34,53,.9);
-      color:var(--text);
-      border-bottom-left-radius:8px;
-    }
-
-    .input-wrap{
-      padding-top:10px;
-    }
-
-    .composer{
-      border:1px solid var(--border);
-      background:rgba(15,23,42,.94);
-      border-radius:22px;
-      padding:12px;
-      display:flex;
-      align-items:flex-end;
-      gap:10px;
-      box-shadow:var(--shadow);
-    }
-
-    .composer textarea{
-      flex:1;
-      min-height:22px;
-      max-height:180px;
-      resize:none;
-      border:none;
-      outline:none;
-      background:transparent;
-      color:var(--text);
-      font-size:15px;
-      line-height:1.55;
-      padding:10px 6px 8px;
-    }
-
-    .composer textarea::placeholder{
-      color:var(--muted);
-    }
-
-    .send-btn{
-      border:none;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      color:white;
-      border-radius:16px;
-      min-width:56px;
-      height:48px;
-      font-weight:700;
-      cursor:pointer;
-      padding:0 16px;
-      flex-shrink:0;
-    }
-
-    .send-btn:disabled{
-      opacity:.65;
-      cursor:not-allowed;
-    }
-
-    .helper-line{
-      color:var(--muted);
-      font-size:12px;
-      text-align:center;
-      margin-top:10px;
-      padding:0 10px;
-    }
-
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(2,6,23,.55);
-      opacity:0;
-      pointer-events:none;
-      transition:.2s ease;
-      z-index:15;
-    }
-
-    .overlay.show{
-      opacity:1;
-      pointer-events:auto;
-    }
-
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
-    @media (max-width: 920px){
-      .starter-grid{
-        grid-template-columns:1fr;
-      }
-    }
-
-    @media (max-width: 768px){
-      .sidebar{
-        position:fixed;
-        top:0;
-        left:0;
-        height:100vh;
-        transform:translateX(-100%);
-      }
-
-      .sidebar.open{
-        transform:translateX(0);
-      }
-
-      .close-sidebar{
-        display:block;
-      }
-
-      .menu-toggle{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-      }
-
-      .topbar{
-        padding:0 14px;
-        height:68px;
-      }
-
-      .chat-shell{
-        padding:0 12px 12px;
-      }
-
-      .welcome{
-        padding:22px 0 8px;
-      }
-
-      .welcome h1{
-        font-size:24px;
-      }
-
-      .page-subtitle{
-        display:none;
-      }
-
-      .ghost-btn{
-        padding:10px 12px;
-      }
-
-      .message{
-        max-width:96%;
-        font-size:14px;
-      }
-
-      .helper-line{
-        font-size:11px;
-      }
-    }
-
-    @media (max-width: 480px){
-      .topbar-right{
-        gap:8px;
-      }
-
-      .ghost-btn{
-        font-size:13px;
-        padding:9px 10px;
-      }
-
-      .welcome h1{
-        font-size:22px;
-      }
-
-      .starter{
-        padding:13px;
-      }
-
-      .composer{
-        border-radius:18px;
-        padding:10px;
-      }
-
-      .send-btn{
-        min-width:50px;
-        height:44px;
-        border-radius:14px;
-      }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Florencia OS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+/* ── VARIABLES ─────────────────────────────────────────── */
+:root{
+  --bg:#080c14;
+  --panel:#0e1420;
+  --card:#131d2e;
+  --card2:#1a2640;
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.12);
+  --text:#f0f4ff;
+  --muted:#8896b0;
+  --muted2:#64748b;
+  --accent:#7c5cff;
+  --accent2:#9b7eff;
+  --accentg:linear-gradient(135deg,#7c5cff,#9b7eff);
+  --green:#22c55e;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --shadow:0 20px 60px rgba(0,0,0,.5);
+  --r:20px;
+  --rs:14px;
+}
+
+/* ── RESET ─────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  line-height:1.6;
+}
+button,input,textarea{font:inherit;outline:none;border:none;}
+a{color:inherit;text-decoration:none;}
+
+/* ── SCROLLBAR ─────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:99px;}
+
+/* ═══════════════════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════════════════ */
+.app{
+  display:flex;
+  width:100%;
+  height:100vh;
+  position:relative;
+  background:
+    radial-gradient(ellipse at 10% 0%, rgba(124,92,255,.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 100%, rgba(124,92,255,.1) 0%, transparent 45%),
+    var(--bg);
+}
+
+/* ── OVERLAY ───────────────────────────────────────────── */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(4px);
+  z-index:40;
+}
+.overlay.show{display:block;}
+
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════════ */
+.sidebar{
+  width:280px;
+  min-width:280px;
+  background:rgba(8,12,20,.96);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  padding:20px 14px 24px;
+  gap:20px;
+  z-index:50;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:4px 6px;
+}
+.brand-left{display:flex;align-items:center;gap:12px;}
+.brand-badge{
+  width:40px;height:40px;
+  border-radius:14px;
+  background:var(--accentg);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:18px;
+  box-shadow:0 4px 20px rgba(124,92,255,.4);
+  flex-shrink:0;
+}
+.brand-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.close-sb{
+  display:none;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  color:var(--muted);
+  width:36px;height:36px;
+  border-radius:10px;
+  cursor:pointer;font-size:18px;
+  align-items:center;justify-content:center;
+}
+.close-sb:hover{color:var(--text);background:rgba(255,255,255,.09);}
+
+/* sidebar actions */
+.sb-actions{display:flex;gap:8px;padding:0 4px;}
+.btn-newchat{
+  flex:1;
+  background:var(--accentg);
+  color:#fff;
+  border-radius:var(--rs);
+  padding:12px;
+  font-weight:700;font-size:14px;
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(124,92,255,.35);
+  transition:.2s;
+}
+.btn-newchat:hover{filter:brightness(1.1);}
+.sb-icon-btn{
+  width:44px;height:44px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;
+  transition:.2s;color:var(--muted);
+}
+.sb-icon-btn:hover{background:rgba(255,255,255,.08);color:var(--text);}
+
+/* nav */
+.sb-section{display:flex;flex-direction:column;gap:6px;}
+.sb-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;padding:0 6px;margin-bottom:2px;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  border-radius:var(--rs);
+  color:var(--muted);
+  background:transparent;
+  border:1px solid transparent;
+  cursor:pointer;
+  font-size:14px;font-weight:500;
+  transition:.2s;
+}
+.nav-item:hover,.nav-item.active{
+  background:rgba(124,92,255,.12);
+  border-color:rgba(124,92,255,.25);
+  color:var(--text);
+}
+.nav-item.active .nav-dot{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  margin-left:auto;
+}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+
+/* history */
+.sb-history{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px;}
+.hist-item{
+  padding:11px 14px;
+  border-radius:var(--rs);
+  background:rgba(255,255,255,.03);
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:.2s;
+}
+.hist-item:hover{background:rgba(255,255,255,.06);border-color:var(--border);}
+.hist-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* user footer */
+.sb-footer{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;
+  border-radius:var(--rs);
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:.2s;
+}
+.sb-footer:hover{background:rgba(255,255,255,.06);}
+.user-avatar{
+  width:34px;height:34px;
+  border-radius:50%;
+  background:var(--accentg);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;
+  flex-shrink:0;
+}
+.user-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-plan{font-size:11px;color:var(--muted);}
+
+/* ═══════════════════════════════════════════════════════
+   MAIN AREA
+═══════════════════════════════════════════════════════ */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  height:100vh;
+}
+
+/* topbar */
+.topbar{
+  height:64px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  background:rgba(8,12,20,.88);
+  backdrop-filter:blur(16px);
+  z-index:10;flex-shrink:0;
+}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.menu-toggle{
+  display:none;
+  width:40px;height:40px;
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  color:var(--text);
+  font-size:18px;
+  cursor:pointer;
+  align-items:center;justify-content:center;
+  border:1px solid var(--border);
+}
+.topbar-title{font-weight:700;font-size:15px;}
+.topbar-sub{font-size:12px;color:var(--muted);}
+.topbar-right{display:flex;gap:8px;align-items:center;}
+.tb-btn{
+  padding:9px 16px;
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-size:13px;font-weight:500;
+  cursor:pointer;
+  transition:.2s;
+}
+.tb-btn:hover{background:rgba(255,255,255,.09);color:var(--text);}
+.tb-btn.primary{
+  background:rgba(124,92,255,.15);
+  border-color:rgba(124,92,255,.35);
+  color:var(--accent2);
+}
+.tb-btn.primary:hover{background:rgba(124,92,255,.25);}
+
+/* ── CHAT SHELL ────────────────────────────────────────── */
+.chat-shell{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+
+/* messages */
+.messages-wrap{
+  flex:1;
+  overflow-y:auto;
+  padding:0 20px 16px;
+  display:flex;
+  flex-direction:column;
+}
+
+/* welcome screen */
+.welcome{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:48px 20px 32px;
+  max-width:680px;
+  margin:0 auto;
+  width:100%;
+}
+.welcome-badge{
+  width:64px;height:64px;
+  border-radius:20px;
+  background:var(--accentg);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:28px;
+  box-shadow:0 8px 32px rgba(124,92,255,.5);
+  margin-bottom:24px;
+}
+.welcome h1{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:28px;
+  line-height:1.2;
+  margin-bottom:12px;
+  background:linear-gradient(135deg,#fff 40%,#a78bfa);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.welcome-sub{
+  color:var(--muted);
+  font-size:15px;
+  max-width:480px;
+  margin-bottom:36px;
+  line-height:1.7;
+}
+
+/* checkin banner */
+.checkin-banner{
+  display:none;
+  width:100%;max-width:680px;margin:0 auto 24px;
+  background:rgba(124,92,255,.1);
+  border:1px solid rgba(124,92,255,.3);
+  border-radius:var(--rs);
+  padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;
+  transition:.2s;
+}
+.checkin-banner:hover{background:rgba(124,92,255,.18);}
+.checkin-banner-icon{font-size:20px;flex-shrink:0;}
+.checkin-banner-text{flex:1;}
+.checkin-banner-title{font-size:14px;font-weight:600;color:var(--accent2);}
+.checkin-banner-desc{font-size:12px;color:var(--muted);margin-top:2px;}
+.checkin-banner-arrow{color:var(--accent);font-size:18px;}
+
+/* starters */
+.starters{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  width:100%;max-width:680px;
+  margin:0 auto;
+}
+.starter{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:16px;
+  text-align:left;
+  cursor:pointer;
+  transition:.2s;
+  color:var(--text);
+}
+.starter:hover{
+  background:rgba(124,92,255,.1);
+  border-color:rgba(124,92,255,.3);
+  transform:translateY(-2px);
+}
+.starter-icon{font-size:20px;margin-bottom:8px;}
+.starter-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.starter-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* messages */
+.msg-row{display:flex;padding:6px 0;animation:fadeUp .25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.msg-row.user{justify-content:flex-end;}
+.msg-row.ai{justify-content:flex-start;gap:12px;}
+.ai-avatar{
+  width:32px;height:32px;min-width:32px;
+  border-radius:10px;
+  background:var(--accentg);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;
+  align-self:flex-end;
+  box-shadow:0 2px 12px rgba(124,92,255,.3);
+}
+.msg{
+  max-width:72%;
+  padding:14px 18px;
+  border-radius:18px;
+  font-size:14px;
+  line-height:1.7;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.msg.user{
+  background:var(--accentg);
+  color:#fff;
+  border-radius:18px 18px 4px 18px;
+  box-shadow:0 4px 20px rgba(124,92,255,.3);
+}
+.msg.ai{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px 18px 18px 4px;
+}
+.msg.thinking{
+  color:var(--muted);
+  font-style:italic;
+}
+.msg.thinking::after{
+  content:'';
+  display:inline-block;
+  width:4px;height:4px;
+  border-radius:50%;
+  background:var(--accent);
+  margin-left:4px;
+  animation:blink 1s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* ── INPUT ZONE ─────────────────────────────────────────── */
+.input-zone{
+  padding:12px 20px 20px;
+  background:linear-gradient(to top, var(--bg) 80%, transparent);
+  flex-shrink:0;
+}
+.composer{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  background:var(--card);
+  border:1.5px solid var(--border2);
+  border-radius:var(--r);
+  padding:12px 12px 12px 18px;
+  transition:.2s;
+  max-width:760px;
+  margin:0 auto;
+}
+.composer:focus-within{
+  border-color:rgba(124,92,255,.5);
+  box-shadow:0 0 0 4px rgba(124,92,255,.08);
+}
+.composer textarea{
+  flex:1;
+  background:transparent;
+  color:var(--text);
+  resize:none;
+  max-height:160px;
+  min-height:24px;
+  font-size:14px;
+  line-height:1.6;
+  overflow-y:auto;
+}
+.composer textarea::placeholder{color:var(--muted2);}
+.send-btn{
+  width:44px;height:44px;
+  border-radius:14px;
+  background:var(--accentg);
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s;
+  box-shadow:0 4px 16px rgba(124,92,255,.4);
+}
+.send-btn:hover{filter:brightness(1.12);}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;}
+.helper-txt{
+  text-align:center;
+  font-size:11px;
+  color:var(--muted2);
+  margin-top:10px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PANELS (Settings / Dashboard views inside main)
+═══════════════════════════════════════════════════════ */
+.panel-view{
+  display:none;
+  flex:1;
+  overflow-y:auto;
+  padding:28px 24px;
+}
+.panel-view.active{display:flex;flex-direction:column;gap:20px;}
+.panel-header{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:4px;
+}
+.panel-back{
+  width:36px;height:36px;
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--muted);
+  transition:.2s;
+}
+.panel-back:hover{color:var(--text);background:rgba(255,255,255,.09);}
+.panel-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;}
+.panel-sub{font-size:13px;color:var(--muted);}
+
+/* settings cards */
+.settings-section{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+}
+.settings-section-title{
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--border);
+}
+.setting-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  gap:12px;
+}
+.setting-row:last-child{border-bottom:none;}
+.setting-left{flex:1;min-width:0;}
+.setting-label{font-size:14px;font-weight:500;}
+.setting-desc{font-size:12px;color:var(--muted);margin-top:2px;}
+.setting-value{
+  font-size:13px;
+  color:var(--accent2);
+  text-align:right;
+  max-width:150px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.setting-edit{
+  padding:7px 14px;
+  border-radius:10px;
+  background:rgba(124,92,255,.12);
+  border:1px solid rgba(124,92,255,.25);
+  color:var(--accent2);
+  font-size:12px;font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+  flex-shrink:0;
+}
+.setting-edit:hover{background:rgba(124,92,255,.22);}
+
+/* danger row */
+.setting-row.danger .setting-label{color:var(--red);}
+.btn-danger{
+  padding:9px 16px;
+  border-radius:10px;
+  background:rgba(239,68,68,.1);
+  border:1px solid rgba(239,68,68,.3);
+  color:var(--red);
+  font-size:13px;font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+}
+.btn-danger:hover{background:rgba(239,68,68,.2);}
+
+/* memory section */
+.memory-chips{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:16px 20px;
+}
+.mem-chip{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:99px;
+  padding:6px 14px;
+  font-size:12px;
+}
+.mem-chip-label{color:var(--muted);margin-right:2px;}
+.mem-chip-val{font-weight:600;color:var(--text);}
+.mem-chip-del{
+  color:var(--muted2);
+  cursor:pointer;font-size:14px;
+  transition:.2s;margin-left:4px;
+}
+.mem-chip-del:hover{color:var(--red);}
+
+/* ═══════════════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════════════ */
+.modal-backdrop{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px);
+  z-index:100;
+  align-items:flex-end;
+  justify-content:center;
+}
+.modal-backdrop.show{display:flex;}
+@media(min-width:600px){
+  .modal-backdrop{align-items:center;}
+}
+
+.modal{
+  background:var(--panel);
+  border:1px solid var(--border2);
+  border-radius:var(--r) var(--r) 0 0;
+  padding:28px 24px 40px;
+  width:100%;
+  max-width:520px;
+  max-height:90vh;
+  overflow-y:auto;
+  animation:slideUp .3s cubic-bezier(.4,0,.2,1);
+}
+@media(min-width:600px){
+  .modal{border-radius:var(--r);max-height:85vh;}
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.modal-handle{
+  width:40px;height:4px;
+  background:rgba(255,255,255,.15);
+  border-radius:99px;
+  margin:0 auto 24px;
+}
+@media(min-width:600px){.modal-handle{display:none;}}
+
+.modal-step-label{
+  font-size:11px;
+  color:var(--accent2);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:10px;
+}
+.modal-title{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:22px;
+  line-height:1.2;
+  margin-bottom:8px;
+}
+.modal-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px;}
+
+/* progress bar */
+.modal-progress{
+  display:flex;gap:6px;
+  margin-bottom:28px;
+}
+.prog-dot{
+  height:4px;flex:1;
+  border-radius:99px;
+  background:rgba(255,255,255,.1);
+  transition:.3s;
+}
+.prog-dot.done{background:var(--accent);}
+.prog-dot.active{background:var(--accent2);}
+
+/* form fields */
+.field{margin-bottom:18px;}
+.field-label{
+  font-size:12px;font-weight:600;
+  color:var(--muted);
+  text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:8px;display:block;
+}
+.field input,.field textarea,.field select{
+  width:100%;
+  background:var(--card);
+  border:1.5px solid var(--border2);
+  border-radius:var(--rs);
+  padding:13px 16px;
+  color:var(--text);
+  font-size:14px;
+  transition:.2s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+  border-color:rgba(124,92,255,.5);
+  outline:none;
+  box-shadow:0 0 0 3px rgba(124,92,255,.1);
+}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted2);}
+.field textarea{resize:none;min-height:80px;}
+.field select{appearance:none;cursor:pointer;}
+
+/* chips choices */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  padding:8px 16px;
+  border-radius:99px;
+  background:rgba(255,255,255,.04);
+  border:1.5px solid var(--border);
+  color:var(--muted);
+  font-size:13px;font-weight:500;
+  cursor:pointer;
+  transition:.2s;
+  user-select:none;
+}
+.chip:hover{border-color:rgba(124,92,255,.4);color:var(--text);}
+.chip.selected{
+  background:rgba(124,92,255,.15);
+  border-color:rgba(124,92,255,.5);
+  color:var(--accent2);
+  font-weight:600;
+}
+
+/* modal buttons */
+.modal-actions{display:flex;gap:10px;margin-top:28px;}
+.btn-primary{
+  flex:1;
+  background:var(--accentg);
+  color:#fff;
+  border-radius:var(--rs);
+  padding:14px;
+  font-size:15px;font-weight:700;
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(124,92,255,.4);
+  transition:.2s;
+  border:none;
+}
+.btn-primary:hover{filter:brightness(1.1);}
+.btn-secondary{
+  padding:14px 20px;
+  border-radius:var(--rs);
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-size:14px;font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.09);color:var(--text);}
+.btn-skip{
+  width:100%;
+  background:transparent;
+  color:var(--muted2);
+  font-size:13px;
+  cursor:pointer;
+  padding:12px;
+  border-radius:var(--rs);
+  margin-top:8px;
+  border:none;
+  transition:.2s;
+}
+.btn-skip:hover{color:var(--muted);}
+
+/* ── DAILY CHECKIN MODAL ─────────────────────────────── */
+.checkin-icon{
+  width:56px;height:56px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  margin-bottom:20px;
+}
+
+/* ── TOAST ──────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:100px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:99px;
+  padding:10px 20px;
+  font-size:13px;font-weight:600;
+  opacity:0;
+  transition:.3s;
+  z-index:200;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+═══════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  .sidebar{
+    position:fixed;top:0;left:0;
+    height:100%;
+    transform:translateX(-100%);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .close-sb{display:flex;}
+  .menu-toggle{display:flex;}
+  .topbar-right .tb-btn:not(.primary){display:none;}
+  .starters{grid-template-columns:1fr;}
+  .msg{max-width:88%;font-size:14px;}
+  .welcome h1{font-size:22px;}
+  .messages-wrap{padding:0 14px 12px;}
+  .input-zone{padding:10px 14px 24px;}
+  .composer{padding:10px 10px 10px 16px;}
+  .panel-view{padding:20px 16px;}
+}
+@media(max-width:400px){
+  .welcome h1{font-size:20px;}
+  .starter{padding:14px;}
+  .starter-title{font-size:13px;}
+  .modal{padding:24px 18px 36px;}
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-left">
-          <div class="brand-badge">F</div>
-          <div class="brand-text">
-            <div class="brand-title">Florencia OS</div>
-            <div class="brand-subtitle">Business AI Copilot</div>
-          </div>
-        </div>
+<div class="toast" id="toast"></div>
 
-        <button class="close-sidebar" onclick="closeSidebar()">×</button>
-      </div>
+<!-- ═══════════ APP ═══════════ -->
+<div class="app">
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-      <div class="sidebar-actions">
-        <button class="newchat" onclick="newChat()">+ Nouveau</button>
-        <a class="nav-link" href="dashboard.html" title="Dashboard">⌂</a>
-        <a class="nav-link" href="settings.html" title="Paramètres">⚙</a>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="section-label">Navigation</div>
-        <div class="sidebar-menu">
-          <a class="menu-item active" href="chat.html">💬 Assistant</a>
-          <a class="menu-item" href="dashboard.html">📊 Dashboard</a>
-          <a class="menu-item" href="settings.html">⚙ Paramètres</a>
+  <!-- ── SIDEBAR ─────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <div class="brand-badge">F</div>
+        <div>
+          <div class="brand-title">Florencia OS</div>
+          <div class="brand-sub">Business AI Copilot</div>
         </div>
       </div>
+      <button class="close-sb" onclick="closeSidebar()">×</button>
+    </div>
 
-      <div class="sidebar-section">
-        <div class="section-label">Historique</div>
-        <div class="conversations">
-          <div class="convo">
-            <div class="convo-title">Clarifier mon offre</div>
-            <div class="convo-meta">Conversation récente</div>
-          </div>
-          <div class="convo">
-            <div class="convo-title">Plan d’action clients</div>
-            <div class="convo-meta">Conversation récente</div>
-          </div>
-          <div class="convo">
-            <div class="convo-title">Contenu de la semaine</div>
-            <div class="convo-meta">Conversation récente</div>
-          </div>
+    <div class="sb-actions">
+      <button class="btn-newchat" onclick="newChat()">+ Nouvelle conv.</button>
+      <button class="sb-icon-btn" onclick="showPanel('dashboard')" title="Dashboard">📊</button>
+      <button class="sb-icon-btn" onclick="showPanel('settings')" title="Paramètres">⚙️</button>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Navigation</div>
+      <button class="nav-item active" id="nav-chat" onclick="showChat()">
+        <span class="nav-icon">💬</span> Assistant IA
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item" id="nav-dashboard" onclick="showPanel('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" id="nav-settings" onclick="showPanel('settings')">
+        <span class="nav-icon">⚙️</span> Paramètres
+      </button>
+    </div>
+
+    <div class="sb-section" style="flex:1;min-height:0;">
+      <div class="sb-label">Historique</div>
+      <div class="sb-history" id="historyList">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <div class="sb-footer" onclick="showPanel('settings')">
+      <div class="user-avatar" id="userAvatarSb">?</div>
+      <div style="flex:1;min-width:0;">
+        <div class="user-name" id="userNameSb">Mon profil</div>
+        <div class="user-plan">Florencia OS Pro</div>
+      </div>
+      <span style="color:var(--muted);font-size:18px;">›</span>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ────────────────────────────────── -->
+  <main class="main" id="mainArea">
+
+    <!-- topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="openSidebar()">☰</button>
+        <div>
+          <div class="topbar-title" id="topbarTitle">Assistant Florencia</div>
+          <div class="topbar-sub" id="topbarSub">Ton copilote business</div>
         </div>
       </div>
-    </aside>
+      <div class="topbar-right">
+        <button class="tb-btn" onclick="showPanel('dashboard')">Dashboard</button>
+        <button class="tb-btn primary" onclick="openCheckin()">Check-in</button>
+      </div>
+    </header>
 
-    <!-- MAIN -->
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <button class="menu-toggle" onclick="openSidebar()">☰</button>
-          <div class="page-title-wrap">
-            <div class="page-title">Assistant Florencia</div>
-            <div class="page-subtitle">Ton copilote business du quotidien</div>
-          </div>
-        </div>
+    <!-- ── CHAT VIEW ─────────────────────────── -->
+    <div class="chat-shell" id="chatView">
 
-        <div class="topbar-right">
-          <a class="ghost-btn" href="dashboard.html">Dashboard</a>
-          <a class="ghost-btn" href="settings.html">Paramètres</a>
-        </div>
-      </header>
+      <div class="messages-wrap" id="messagesWrap">
 
-      <section class="chat-shell">
-        <div class="welcome" id="welcomeBlock">
-          <h1>Que veux-tu débloquer aujourd’hui ?</h1>
-          <p>
-            Florencia peut t’aider à clarifier ton offre, structurer ton activité,
-            trouver tes prochaines priorités et avancer concrètement dans ton business.
-          </p>
+        <!-- welcome -->
+        <div id="welcomeBlock">
+          <div class="welcome">
+            <div class="welcome-badge">F</div>
+            <h1 id="welcomeTitle">Que veux-tu débloquer aujourd'hui ?</h1>
+            <p class="welcome-sub">Florencia connaît ton business, tes objectifs et ton contexte. Dis-lui ce que tu veux clarifier, organiser ou faire avancer.</p>
 
-          <div class="starter-grid">
-            <button class="starter" onclick="useStarter('Aide-moi à clarifier mon offre actuelle.')">
-              <div class="starter-title">Clarifier mon offre</div>
-              <div class="starter-desc">Définis une offre plus claire, vendable et compréhensible.</div>
-            </button>
+            <!-- daily checkin banner -->
+            <div class="checkin-banner" id="checkinBanner" onclick="openCheckin()" style="display:none;">
+              <span class="checkin-banner-icon">☀️</span>
+              <div class="checkin-banner-text">
+                <div class="checkin-banner-title">Check-in du jour</div>
+                <div class="checkin-banner-desc">Définis ton objectif et ton focus de la journée</div>
+              </div>
+              <span class="checkin-banner-arrow">›</span>
+            </div>
 
-            <button class="starter" onclick="useStarter('Aide-moi à trouver mes prochains clients.')">
-              <div class="starter-title">Trouver des clients</div>
-              <div class="starter-desc">Obtiens un plan d’action concret pour décrocher tes premiers prospects.</div>
-            </button>
-
-            <button class="starter" onclick="useStarter('Aide-moi à organiser ma semaine de travail.')">
-              <div class="starter-title">Organiser ma semaine</div>
-              <div class="starter-desc">Transforme ton chaos actuel en plan simple et exécutable.</div>
-            </button>
-
-            <button class="starter" onclick="useStarter('Analyse mon business et dis-moi ma priorité numéro 1.')">
-              <div class="starter-title">Analyser mon business</div>
-              <div class="starter-desc">Identifie le vrai problème et la priorité la plus importante.</div>
-            </button>
-          </div>
-        </div>
-
-        <div class="messages" id="messages">
-          <div class="message-row ai">
-            <div class="message ai">
-Florencia est prête. Dis-moi ce que tu veux clarifier, organiser ou débloquer.
+            <div class="starters" id="starters">
+              <button class="starter" onclick="useStarter('Aide-moi à clarifier mon offre actuelle et la rendre plus vendable.')">
+                <div class="starter-icon">🎯</div>
+                <div class="starter-title">Clarifier mon offre</div>
+                <div class="starter-desc">Définis une offre claire et irrésistible.</div>
+              </button>
+              <button class="starter" onclick="useStarter('Aide-moi à trouver mes prochains clients et créer un plan de prospection concret.')">
+                <div class="starter-icon">🚀</div>
+                <div class="starter-title">Trouver des clients</div>
+                <div class="starter-desc">Plan d'action pour décrocher tes premiers prospects.</div>
+              </button>
+              <button class="starter" onclick="useStarter('Aide-moi à organiser ma semaine et définir mes 3 priorités.')">
+                <div class="starter-icon">📅</div>
+                <div class="starter-title">Organiser ma semaine</div>
+                <div class="starter-desc">Transforme le chaos en plan simple et exécutable.</div>
+              </button>
+              <button class="starter" onclick="useStarter('Analyse mon business et dis-moi ma priorité numéro 1 en ce moment.')">
+                <div class="starter-icon">🔍</div>
+                <div class="starter-title">Analyser mon business</div>
+                <div class="starter-desc">Identifie le vrai problème et la priorité clé.</div>
+              </button>
+              <button class="starter" onclick="useStarter('Aide-moi à créer du contenu pour attirer des clients.')">
+                <div class="starter-icon">✍️</div>
+                <div class="starter-title">Créer du contenu</div>
+                <div class="starter-desc">Scripts, posts et idées adaptés à ta niche.</div>
+              </button>
+              <button class="starter" onclick="useStarter('Donne-moi un récapitulatif de mon avancement business.')">
+                <div class="starter-icon">📋</div>
+                <div class="starter-title">Récap de mon business</div>
+                <div class="starter-desc">Bilan de ta situation et prochaines étapes.</div>
+              </button>
             </div>
           </div>
         </div>
 
-        <div class="input-wrap">
-          <div class="composer">
-            <textarea
-              id="userInput"
-              rows="1"
-              placeholder="Écris ton message à Florencia..."
-            ></textarea>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
-          </div>
+        <!-- messages -->
+        <div id="messages"></div>
+      </div>
 
-          <div class="helper-line">
-            Florencia t’aide à voir clair, décider et agir plus vite.
-          </div>
+      <!-- input -->
+      <div class="input-zone">
+        <div class="composer">
+          <textarea id="userInput" rows="1" placeholder="Écris ton message à Florencia..."></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
         </div>
-      </section>
-    </main>
+        <div class="helper-txt">Florencia retient le contexte de votre conversation · Appuyez sur Entrée pour envoyer</div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PANEL ─────────────────────── -->
+    <div class="panel-view" id="settingsView">
+      <div class="panel-header">
+        <button class="panel-back" onclick="showChat()">←</button>
+        <div>
+          <div class="panel-title">Paramètres</div>
+          <div class="panel-sub">Ton profil et ta mémoire Florencia</div>
+        </div>
+      </div>
+
+      <!-- profile -->
+      <div class="settings-section">
+        <div class="settings-section-title">👤 Profil Business</div>
+        <div id="profileRows"><!-- generated --></div>
+      </div>
+
+      <!-- memory -->
+      <div class="settings-section">
+        <div class="settings-section-title">🧠 Mémoire Florencia</div>
+        <div class="memory-chips" id="memoryChips"><!-- generated --></div>
+      </div>
+
+      <!-- last checkin -->
+      <div class="settings-section">
+        <div class="settings-section-title">☀️ Dernier Check-in</div>
+        <div id="lastCheckinRows"><!-- generated --></div>
+      </div>
+
+      <!-- account -->
+      <div class="settings-section">
+        <div class="settings-section-title">⚙️ Compte</div>
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-label">Modifier mon profil</div>
+            <div class="setting-desc">Mettre à jour mes informations business</div>
+          </div>
+          <button class="setting-edit" onclick="openOnboarding(true)">Modifier</button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-label">Effacer la mémoire</div>
+            <div class="setting-desc">Réinitialiser ce que Florencia retient sur toi</div>
+          </div>
+          <button class="setting-edit" onclick="clearMemory()">Effacer</button>
+        </div>
+        <div class="setting-row danger">
+          <div class="setting-left">
+            <div class="setting-label">Se déconnecter</div>
+            <div class="setting-desc">Effacer toutes les données locales</div>
+          </div>
+          <button class="btn-danger" onclick="logout()">Déconnexion</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD PANEL ────────────────────── -->
+    <div class="panel-view" id="dashboardView">
+      <div class="panel-header">
+        <button class="panel-back" onclick="showChat()">←</button>
+        <div>
+          <div class="panel-title">Dashboard</div>
+          <div class="panel-sub" id="dashDate"></div>
+        </div>
+      </div>
+
+      <!-- today -->
+      <div class="settings-section">
+        <div class="settings-section-title">🎯 Objectifs du jour</div>
+        <div id="dashTodayRows"></div>
+      </div>
+
+      <!-- stats -->
+      <div class="settings-section">
+        <div class="settings-section-title">📊 Ton activité</div>
+        <div id="dashStats"></div>
+      </div>
+
+      <!-- quick actions -->
+      <div class="settings-section">
+        <div class="settings-section-title">⚡ Actions rapides</div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+          <button class="btn-primary" onclick="useStarter('Quelles sont mes 3 priorités les plus importantes aujourd\'hui ?');showChat();">
+            Obtenir mes priorités du jour →
+          </button>
+          <button class="btn-secondary" onclick="openCheckin()">Faire mon check-in →</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════ ONBOARDING MODAL ═══════════ -->
+<div class="modal-backdrop" id="onboardingModal">
+  <div class="modal" id="onboardingContent">
+    <div class="modal-handle"></div>
+    <!-- Steps generated by JS -->
   </div>
+</div>
 
-  <script>
-    const input = document.getElementById("userInput");
-    const messages = document.getElementById("messages");
-    const sendBtn = document.getElementById("sendBtn");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    const welcomeBlock = document.getElementById("welcomeBlock");
+<!-- ═══════════ DAILY CHECKIN MODAL ═══════════ -->
+<div class="modal-backdrop" id="checkinModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="checkin-icon">☀️</div>
+    <div class="modal-step-label">Check-in quotidien</div>
+    <div class="modal-title">Comment se passe ta journée ?</div>
+    <div class="modal-desc">Ces informations aident Florencia à t'accompagner avec plus de précision aujourd'hui.</div>
 
-    input.addEventListener("keydown", function(event) {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
+    <div class="field">
+      <label class="field-label">Ton objectif principal du jour</label>
+      <input type="text" id="ci-goal" placeholder="Ex : Contacter 3 prospects, finaliser mon offre..."/>
+    </div>
+    <div class="field">
+      <label class="field-label">Ton focus prioritaire</label>
+      <div class="chip-group" id="ci-focus-chips">
+        <div class="chip" onclick="toggleChip(this,'ci-focus')">Acquisition clients</div>
+        <div class="chip" onclick="toggleChip(this,'ci-focus')">Création contenu</div>
+        <div class="chip" onclick="toggleChip(this,'ci-focus')">Organisation</div>
+        <div class="chip" onclick="toggleChip(this,'ci-focus')">Offre & Pricing</div>
+        <div class="chip" onclick="toggleChip(this,'ci-focus')">Stratégie</div>
+        <div class="chip" onclick="toggleChip(this,'ci-focus')">Production</div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Blocage actuel (optionnel)</label>
+      <input type="text" id="ci-blocker" placeholder="Ex : Je ne sais pas comment m'y prendre pour..."/>
+    </div>
+    <div class="field">
+      <label class="field-label">Note libre (optionnel)</label>
+      <textarea id="ci-note" placeholder="Quelque chose d'important à mentionner aujourd'hui..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeCheckin()">Passer</button>
+      <button class="btn-primary" onclick="saveCheckin()">Enregistrer ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE & STORAGE
+// ══════════════════════════════════════════════════════
+
+let profile  = JSON.parse(localStorage.getItem('flo_profile')  || 'null') || {};
+let memory   = JSON.parse(localStorage.getItem('flo_memory')   || '{}');
+let checkin  = JSON.parse(localStorage.getItem('flo_checkin')  || '{}');
+let history  = JSON.parse(localStorage.getItem('flo_history')  || '[]');
+let conversation = [];
+
+const save = (key, val) => localStorage.setItem('flo_' + key, JSON.stringify(val));
+
+// ══════════════════════════════════════════════════════
+// ONBOARDING STEPS
+// ══════════════════════════════════════════════════════
+
+const ONBOARDING_STEPS = [
+  {
+    id: 'job',
+    label: 'Étape 1 / 5',
+    title: 'Que fais-tu dans la vie ?',
+    desc: 'Florencia adapte chaque conseil à ton activité réelle.',
+    type: 'chips_or_text',
+    key: 'job',
+    placeholder: 'Ou décris ton activité...',
+    chips: ['Freelance','Consultant','Coach','Créateur de contenu','Développeur','Designer','Formateur','E-commerce','Autre']
+  },
+  {
+    id: 'niche',
+    label: 'Étape 2 / 5',
+    title: 'Quelle est ta niche ou spécialité ?',
+    desc: 'Plus c\'est précis, plus Florencia est utile pour toi.',
+    type: 'text',
+    key: 'niche',
+    placeholder: 'Ex : Marketing digital pour restaurants, coaching fitness pour femmes...'
+  },
+  {
+    id: 'offer',
+    label: 'Étape 3 / 5',
+    title: 'Quelle est ton offre principale ?',
+    desc: 'Qu\'est-ce que tu vends ou veux vendre ?',
+    type: 'text',
+    key: 'offer',
+    placeholder: 'Ex : Accompagnement 3 mois, formation en ligne, création de sites...'
+  },
+  {
+    id: 'revenue',
+    label: 'Étape 4 / 5',
+    title: 'Quel est ton objectif de revenu mensuel ?',
+    desc: 'Florencia va t\'aider à atteindre cet objectif concrètement.',
+    type: 'chips_or_text',
+    key: 'revenueGoal',
+    placeholder: 'Ou entre un montant personnalisé...',
+    chips: ['500€ / mois','1 000€ / mois','2 000€ / mois','3 000€ / mois','5 000€ / mois','10 000€ / mois +']
+  },
+  {
+    id: 'country',
+    label: 'Étape 5 / 5',
+    title: 'Où es-tu basé ?',
+    desc: 'Pour adapter les conseils à ton marché local et ta devise.',
+    type: 'chips_or_text',
+    key: 'country',
+    placeholder: 'Ou entre ton pays...',
+    chips: ['France','Bénin','Sénégal','Côte d\'Ivoire','Cameroun','Canada','Belgique','Suisse','Maroc','Autre']
+  }
+];
+
+let currentStep = 0;
+let tempProfile = {};
+
+function openOnboarding(isEdit = false) {
+  currentStep = 0;
+  tempProfile = isEdit ? {...profile} : {};
+  renderOnboardingStep();
+  document.getElementById('onboardingModal').classList.add('show');
+}
+
+function renderOnboardingStep() {
+  const step = ONBOARDING_STEPS[currentStep];
+  const total = ONBOARDING_STEPS.length;
+
+  // progress dots
+  let dots = '';
+  for(let i=0;i<total;i++){
+    const cls = i < currentStep ? 'done' : (i === currentStep ? 'active' : '');
+    dots += `<div class="prog-dot ${cls}"></div>`;
+  }
+
+  // chips
+  let chipsHtml = '';
+  if(step.chips){
+    const currentVal = tempProfile[step.key] || '';
+    chipsHtml = `<div class="chip-group" id="step-chips" style="margin-bottom:14px;">
+      ${step.chips.map(c => `<div class="chip ${currentVal===c?'selected':''}" onclick="selectChip(this,'${c}')">${c}</div>`).join('')}
+    </div>`;
+  }
+
+  // input
+  const inputHtml = `<div class="field">
+    <input type="text" id="stepInput" placeholder="${step.placeholder||''}" value="${tempProfile[step.key]||''}"/>
+  </div>`;
+
+  document.getElementById('onboardingContent').innerHTML = `
+    <div class="modal-handle"></div>
+    <div class="modal-progress">${dots}</div>
+    <div class="modal-step-label">${step.label}</div>
+    <div class="modal-title">${step.title}</div>
+    <div class="modal-desc">${step.desc}</div>
+    ${chipsHtml}
+    ${(step.type === 'text' || step.type === 'chips_or_text') ? inputHtml : ''}
+    <div class="modal-actions">
+      ${currentStep > 0 ? `<button class="btn-secondary" onclick="prevStep()">← Retour</button>` : ''}
+      <button class="btn-primary" onclick="nextStep()" id="nextBtn">
+        ${currentStep === total-1 ? 'Commencer ✓' : 'Continuer →'}
+      </button>
+    </div>
+    ${currentStep < total-1 ? `<button class="btn-skip" onclick="skipStep()">Passer cette étape</button>` : ''}
+  `;
+}
+
+function selectChip(el, val) {
+  document.querySelectorAll('#step-chips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const inp = document.getElementById('stepInput');
+  if(inp) inp.value = val;
+}
+
+function getStepValue() {
+  const inp = document.getElementById('stepInput');
+  return inp ? inp.value.trim() : '';
+}
+
+function nextStep() {
+  const step = ONBOARDING_STEPS[currentStep];
+  const val = getStepValue();
+  if(val) tempProfile[step.key] = val;
+  if(currentStep === ONBOARDING_STEPS.length - 1) {
+    finishOnboarding();
+  } else {
+    currentStep++;
+    renderOnboardingStep();
+  }
+}
+
+function prevStep() {
+  if(currentStep > 0){ currentStep--; renderOnboardingStep(); }
+}
+
+function skipStep() {
+  currentStep++;
+  renderOnboardingStep();
+}
+
+function finishOnboarding() {
+  profile = {...profile, ...tempProfile};
+  save('profile', profile);
+  document.getElementById('onboardingModal').classList.remove('show');
+  updateUI();
+  showToast('✓ Profil enregistré');
+  if(!checkin.date || checkin.date !== today()) {
+    setTimeout(() => openCheckin(), 600);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// DAILY CHECK-IN
+// ══════════════════════════════════════════════════════
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function openCheckin() {
+  // reset form
+  document.getElementById('ci-goal').value = checkin.goal || '';
+  document.getElementById('ci-blocker').value = checkin.blocker || '';
+  document.getElementById('ci-note').value = checkin.note || '';
+  document.querySelectorAll('#ci-focus-chips .chip').forEach(c => {
+    c.classList.toggle('selected', c.textContent === checkin.focus);
+  });
+  document.getElementById('checkinModal').classList.add('show');
+}
+
+function closeCheckin() {
+  document.getElementById('checkinModal').classList.remove('show');
+}
+
+function saveCheckin() {
+  const focus = document.querySelector('#ci-focus-chips .chip.selected');
+  checkin = {
+    date: today(),
+    goal: document.getElementById('ci-goal').value.trim(),
+    focus: focus ? focus.textContent : '',
+    blocker: document.getElementById('ci-blocker').value.trim(),
+    note: document.getElementById('ci-note').value.trim()
+  };
+  save('checkin', checkin);
+  closeCheckin();
+  showToast('✓ Check-in enregistré');
+  document.getElementById('checkinBanner').style.display = 'none';
+  renderDashboard();
+}
+
+function toggleChip(el, group) {
+  const container = el.parentElement;
+  container.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ══════════════════════════════════════════════════════
+// CHAT LOGIC
+// ══════════════════════════════════════════════════════
+
+const messagesEl = document.getElementById('messages');
+const inputEl = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const welcomeBlock = document.getElementById('welcomeBlock');
+
+inputEl.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px';
+});
+
+function useStarter(text) {
+  inputEl.value = text;
+  sendMessage();
+}
+
+function newChat() {
+  conversation = [];
+  messagesEl.innerHTML = '';
+  welcomeBlock.style.display = '';
+  inputEl.value = '';
+  closeSidebar();
+}
+
+function appendMsg(type, text) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + type;
+  if(type === 'ai') {
+    const av = document.createElement('div');
+    av.className = 'ai-avatar';
+    av.textContent = 'F';
+    row.appendChild(av);
+  }
+  const bubble = document.createElement('div');
+  bubble.className = 'msg ' + type;
+  bubble.textContent = text;
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  document.getElementById('messagesWrap').scrollTop = 99999;
+  return bubble;
+}
+
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if(!text) return;
+
+  welcomeBlock.style.display = 'none';
+  appendMsg('user', text);
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+
+  const thinking = appendMsg('ai', '...');
+  thinking.classList.add('thinking');
+  sendBtn.disabled = true;
+
+  conversation.push({ role:'user', content: text });
+
+  // save to history
+  if(conversation.length === 1) {
+    history.unshift({ title: text.slice(0,40), date: today(), messages: [] });
+    if(history.length > 20) history.pop();
+    save('history', history);
+    renderHistory();
+  }
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        message: text,
+        userProfile: profile,
+        dailyCheckin: checkin,
+        memory: memory,
+        conversation: conversation.slice(-10)
+      })
     });
+    const data = await res.json();
 
-    input.addEventListener("input", autoResize);
+    const reply = res.ok ? (data.reply || 'Aucune réponse.') : (data.error || 'Erreur backend.');
+    thinking.textContent = reply;
+    thinking.classList.remove('thinking');
 
-    function autoResize() {
-      input.style.height = "auto";
-      input.style.height = Math.min(input.scrollHeight, 180) + "px";
+    conversation.push({ role:'assistant', content: reply });
+
+    // update memory
+    if(data.memoryUpdate) {
+      memory = { ...memory, ...data.memoryUpdate };
+      save('memory', memory);
     }
 
-    function openSidebar() {
-      sidebar.classList.add("open");
-      overlay.classList.add("show");
-    }
+  } catch(err) {
+    thinking.textContent = 'Erreur de connexion avec Florencia.';
+    thinking.classList.remove('thinking');
+  } finally {
+    sendBtn.disabled = false;
+    document.getElementById('messagesWrap').scrollTop = 99999;
+  }
+}
 
-    function closeSidebar() {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("show");
-    }
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
 
-    function hideWelcomeBlock() {
-      if (welcomeBlock) {
-        welcomeBlock.style.display = "none";
-      }
-    }
+function showChat() {
+  document.getElementById('chatView').style.display = 'flex';
+  document.getElementById('settingsView').classList.remove('active');
+  document.getElementById('dashboardView').classList.remove('active');
+  document.getElementById('topbarTitle').textContent = 'Assistant Florencia';
+  document.getElementById('topbarSub').textContent = 'Ton copilote business';
+  setActiveNav('nav-chat');
+  closeSidebar();
+}
 
-    function useStarter(text) {
-      input.value = text;
-      autoResize();
-      sendMessage();
-    }
+function showPanel(name) {
+  document.getElementById('chatView').style.display = 'none';
+  document.getElementById('settingsView').classList.remove('active');
+  document.getElementById('dashboardView').classList.remove('active');
 
-    function newChat() {
-      messages.innerHTML = `
-        <div class="message-row ai">
-          <div class="message ai">
-Florencia est prête. Dis-moi ce que tu veux clarifier, organiser ou débloquer.
-          </div>
-        </div>
-      `;
-      if (welcomeBlock) {
-        welcomeBlock.style.display = "block";
-      }
-      input.value = "";
-      autoResize();
-      input.focus();
-      closeSidebar();
-    }
+  if(name === 'settings') {
+    document.getElementById('settingsView').classList.add('active');
+    document.getElementById('topbarTitle').textContent = 'Paramètres';
+    document.getElementById('topbarSub').textContent = 'Profil et mémoire';
+    setActiveNav('nav-settings');
+    renderSettings();
+  }
+  if(name === 'dashboard') {
+    document.getElementById('dashboardView').classList.add('active');
+    document.getElementById('topbarTitle').textContent = 'Dashboard';
+    document.getElementById('topbarSub').textContent = today();
+    setActiveNav('nav-dashboard');
+    renderDashboard();
+  }
+  closeSidebar();
+}
 
-    function appendMessage(type, text) {
-      const row = document.createElement("div");
-      row.className = "message-row " + type;
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+}
 
-      const bubble = document.createElement("div");
-      bubble.className = "message " + type;
-      bubble.innerText = text;
+// ══════════════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════════════
 
-      row.appendChild(bubble);
-      messages.appendChild(row);
-      messages.scrollTop = messages.scrollHeight;
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
 
-      return bubble;
-    }
+// ══════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ══════════════════════════════════════════════════════
 
-    async function sendMessage() {
-      const text = input.value.trim();
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if(!history.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:8px 6px;">Aucune conversation encore.</div>';
+    return;
+  }
+  el.innerHTML = history.slice(0,10).map(h => `
+    <div class="hist-item" onclick="newChat()">
+      <div class="hist-title">${h.title}</div>
+      <div class="hist-meta">${h.date}</div>
+    </div>
+  `).join('');
+}
 
-      if (text === "") return;
+function renderSettings() {
+  // profile rows
+  const pFields = [
+    { key:'job',         label:'Activité',           icon:'💼' },
+    { key:'niche',       label:'Niche',               icon:'🎯' },
+    { key:'offer',       label:'Offre principale',    icon:'📦' },
+    { key:'revenueGoal', label:'Objectif revenu',     icon:'💰' },
+    { key:'country',     label:'Pays',                icon:'🌍' },
+  ];
+  const profileRows = document.getElementById('profileRows');
+  profileRows.innerHTML = pFields.map(f => `
+    <div class="setting-row">
+      <div class="setting-left">
+        <div class="setting-label">${f.icon} ${f.label}</div>
+      </div>
+      <div class="setting-value">${profile[f.key] || '<span style="color:var(--muted2)">Non renseigné</span>'}</div>
+      <button class="setting-edit" onclick="editProfileField('${f.key}','${f.label}')">Éditer</button>
+    </div>
+  `).join('');
 
-      hideWelcomeBlock();
-      appendMessage("user", text);
+  // memory chips
+  const memKeys = {
+    lastProjectMentioned: '🗂 Projet',
+    lastMentionedRevenue: '💰 Revenu',
+    lastBlocker: '🚧 Blocage',
+    lastDecision: '✅ Décision',
+    lastClientMention: '👤 Client',
+    lastIntent: '🎯 Dernière intention'
+  };
+  const memEl = document.getElementById('memoryChips');
+  const memItems = Object.entries(memKeys)
+    .filter(([k]) => memory[k])
+    .map(([k,label]) => `
+      <div class="mem-chip">
+        <span class="mem-chip-label">${label}</span>
+        <span class="mem-chip-val">${String(memory[k]).slice(0,30)}${String(memory[k]).length>30?'…':''}</span>
+        <span class="mem-chip-del" onclick="deleteMemKey('${k}')">×</span>
+      </div>
+    `);
+  memEl.innerHTML = memItems.length
+    ? memItems.join('')
+    : '<div style="padding:0 0 8px;font-size:13px;color:var(--muted2);">Florencia n\'a encore rien mémorisé.</div>';
 
-      input.value = "";
-      autoResize();
-      messages.scrollTop = messages.scrollHeight;
+  // last checkin
+  const ciEl = document.getElementById('lastCheckinRows');
+  if(checkin.date) {
+    ciEl.innerHTML = `
+      <div class="setting-row"><div class="setting-label">Date</div><div class="setting-value">${checkin.date}</div></div>
+      <div class="setting-row"><div class="setting-label">Objectif</div><div class="setting-value">${checkin.goal||'—'}</div></div>
+      <div class="setting-row"><div class="setting-label">Focus</div><div class="setting-value">${checkin.focus||'—'}</div></div>
+      <div class="setting-row"><div class="setting-label">Blocage</div><div class="setting-value">${checkin.blocker||'—'}</div></div>
+    `;
+  } else {
+    ciEl.innerHTML = '<div class="setting-row"><div style="color:var(--muted2);font-size:13px;">Aucun check-in effectué.</div></div>';
+  }
+}
 
-      const thinking = appendMessage("ai", "Florencia réfléchit...");
-      sendBtn.disabled = true;
-      closeSidebar();
+function editProfileField(key, label) {
+  const val = prompt(`Modifier "${label}" :`, profile[key] || '');
+  if(val !== null) {
+    profile[key] = val.trim();
+    save('profile', profile);
+    renderSettings();
+    showToast('✓ Profil mis à jour');
+  }
+}
 
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: text
-          })
-        });
+function deleteMemKey(key) {
+  delete memory[key];
+  save('memory', memory);
+  renderSettings();
+  showToast('Mémoire supprimée');
+}
 
-        const data = await response.json();
+function clearMemory() {
+  if(confirm('Effacer toute la mémoire de Florencia ?')) {
+    memory = {};
+    save('memory', memory);
+    renderSettings();
+    showToast('✓ Mémoire effacée');
+  }
+}
 
-        if (!response.ok) {
-          thinking.innerText = data.error || "Erreur backend.";
-        } else {
-          thinking.innerText = data.reply || "Aucune réponse reçue.";
-        }
-      } catch (error) {
-        thinking.innerText = "Erreur de connexion avec l'IA.";
-      } finally {
-        sendBtn.disabled = false;
-        messages.scrollTop = messages.scrollHeight;
-      }
-    }
-  </script>
+function logout() {
+  if(confirm('Se déconnecter et effacer toutes les données locales ?')) {
+    ['flo_profile','flo_memory','flo_checkin','flo_history'].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  }
+}
+
+function renderDashboard() {
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+
+  // today rows
+  const todayEl = document.getElementById('dashTodayRows');
+  todayEl.innerHTML = `
+    <div class="setting-row">
+      <div class="setting-left"><div class="setting-label">🎯 Objectif</div></div>
+      <div class="setting-value">${checkin.goal || 'Non défini'}</div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-left"><div class="setting-label">🔥 Focus</div></div>
+      <div class="setting-value">${checkin.focus || 'Non défini'}</div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-left"><div class="setting-label">🚧 Blocage</div></div>
+      <div class="setting-value">${checkin.blocker || 'Aucun'}</div>
+    </div>
+  `;
+
+  // stats
+  const statsEl = document.getElementById('dashStats');
+  statsEl.innerHTML = `
+    <div class="setting-row">
+      <div class="setting-left"><div class="setting-label">💬 Conversations</div></div>
+      <div class="setting-value">${history.length}</div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-left"><div class="setting-label">🧠 Éléments mémorisés</div></div>
+      <div class="setting-value">${Object.keys(memory).length}</div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-left"><div class="setting-label">☀️ Dernier check-in</div></div>
+      <div class="setting-value">${checkin.date || 'Jamais'}</div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-left"><div class="setting-label">💰 Objectif revenu</div></div>
+      <div class="setting-value">${profile.revenueGoal || 'Non défini'}</div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// UI UPDATES
+// ══════════════════════════════════════════════════════
+
+function updateUI() {
+  // sidebar user
+  const name = profile.job || 'Mon profil';
+  document.getElementById('userNameSb').textContent = name;
+  document.getElementById('userAvatarSb').textContent = name.charAt(0).toUpperCase();
+
+  // welcome title
+  if(profile.job) {
+    document.getElementById('welcomeTitle').textContent =
+      `Bonjour ! Que veux-tu débloquer aujourd'hui ?`;
+  }
+
+  // checkin banner
+  const banner = document.getElementById('checkinBanner');
+  if(!checkin.date || checkin.date !== today()) {
+    banner.style.display = 'flex';
+  }
+
+  renderHistory();
+}
+
+// ══════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+
+function init() {
+  updateUI();
+  // first visit → onboarding
+  if(!profile.job) {
+    setTimeout(() => openOnboarding(), 400);
+  } else if(!checkin.date || checkin.date !== today()) {
+    // show checkin banner (already handled in updateUI)
+  }
+}
+
+init();
+</script>
 </body>
 </html>
