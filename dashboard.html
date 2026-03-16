@@ -1,1336 +1,1646 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Florencia OS | Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-  <style>
-    /* ============================================================
-       RESET & TOKENS
-    ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:          #f8f4ee;
-      --bg-2:        #f0e9df;
-      --card:        rgba(255,255,255,0.84);
-      --card-solid:  #ffffff;
-      --ink:         #1c1a16;
-      --ink-soft:    #4a443a;
-      --muted:       #7a7268;
-      --line:        #e0d5c6;
-      --line-soft:   #ede6db;
-      --forest:      #2c4a3e;
-      --forest-2:    #3a5e50;
-      --forest-3:    #1f3830;
-      --gold:        #c49a3c;
-      --gold-soft:   #f5e9c8;
-      --gold-muted:  #e8c270;
-      --success:     #2a7b4f;
-      --danger:      #a64949;
-      --shadow-sm:   0 2px 12px rgba(28,26,22,0.06);
-      --shadow-md:   0 8px 32px rgba(28,26,22,0.10);
-      --shadow-lg:   0 20px 56px rgba(28,26,22,0.12);
-      --r-xl:        28px;
-      --r-lg:        20px;
-      --r-md:        14px;
-      --r-sm:        10px;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background:
-        radial-gradient(ellipse 60% 50% at 92% 8%,  rgba(44,74,62,0.07)  0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at 8%  92%, rgba(196,154,60,0.09) 0%, transparent 50%),
-        linear-gradient(170deg, #faf6f0 0%, #f0e9de 100%);
-      color: var(--ink);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a { text-decoration: none; color: inherit; }
-    button, input, textarea, select { font: inherit; }
-
-    /* ============================================================
-       LAYOUT
-    ============================================================ */
-    .app {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 268px 1fr;
-    }
-
-    /* ============================================================
-       SIDEBAR
-    ============================================================ */
-    .sidebar {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-right: 1px solid rgba(28,26,22,0.07);
-      padding: 26px 18px 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    .brand {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.9rem;
-      font-weight: 600;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      margin-bottom: 4px;
-      padding: 4px 6px;
-    }
-    .brand span { color: var(--forest); }
-
-    .sidebar-tagline {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.6;
-      padding: 0 6px;
-      margin-bottom: 10px;
-    }
-
-    .nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-
-    .nav-section {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: #9a9088;
-      font-weight: 700;
-      padding: 14px 10px 6px;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 11px 12px;
-      border-radius: var(--r-md);
-      color: var(--ink-soft);
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: background 0.18s, color 0.18s, transform 0.16s;
-      cursor: pointer;
-    }
-    .nav-link:hover { background: rgba(44,74,62,0.07); color: var(--forest); transform: translateX(2px); }
-    .nav-link.active { background: var(--forest); color: white; box-shadow: 0 6px 18px rgba(44,74,62,0.22); }
-    .nav-link.active .nav-icon-wrap { opacity: 1; }
-
-    .nav-icon-wrap {
-      width: 28px; height: 28px;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.04);
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
-    .nav-link.active .nav-icon-wrap { background: rgba(255,255,255,0.15); }
-
-    .sidebar-footer {
-      margin-top: 16px;
-      display: grid;
-      gap: 10px;
-      padding-top: 14px;
-      border-top: 1px solid var(--line-soft);
-    }
-
-    .mini-profile {
-      background: rgba(255,255,255,0.75);
-      border: 1px solid rgba(28,26,22,0.07);
-      border-radius: var(--r-lg);
-      padding: 13px 14px;
-    }
-    .mini-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: #9a9088; font-weight: 700; margin-bottom: 6px; }
-    .mini-name { font-weight: 600; font-size: 0.93rem; margin-bottom: 3px; }
-    .mini-email { font-size: 0.82rem; color: var(--muted); word-break: break-all; }
-
-    .logout-btn {
-      border: none;
-      background: rgba(166,73,73,0.08);
-      color: var(--danger);
-      padding: 12px 16px;
-      border-radius: var(--r-md);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.88rem;
-      transition: background 0.18s, transform 0.16s;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .logout-btn:hover { background: rgba(166,73,73,0.14); transform: translateY(-1px); }
-
-    /* ============================================================
-       MAIN CONTENT
-    ============================================================ */
-    .main {
-      padding: 28px 32px;
-      display: grid;
-      gap: 24px;
-      align-content: start;
-    }
-
-    /* ============================================================
-       MOBILE TOP BAR
-    ============================================================ */
-    .mobile-top {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      background: rgba(255,255,255,0.78);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(28,26,22,0.07);
-      padding: 14px 18px;
-      border-radius: var(--r-lg);
-    }
-    .mobile-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 600; letter-spacing: -0.02em; }
-    .mobile-brand span { color: var(--forest); }
-
-    /* ============================================================
-       WELCOME
-    ============================================================ */
-    .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-
-    .welcome .eyebrow { margin-bottom: 10px; }
-    .welcome h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.2rem, 3.8vw, 3.2rem);
-      font-weight: 600;
-      line-height: 1;
-      letter-spacing: -0.03em;
-      margin-bottom: 12px;
-    }
-    .welcome h1 em { color: var(--forest); font-style: italic; }
-    .welcome p { color: var(--muted); font-size: 0.97rem; line-height: 1.75; max-width: 580px; font-weight: 400; }
-
-    .top-actions { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; padding-top: 8px; }
-
-    /* ============================================================
-       BUTTONS
-    ============================================================ */
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      border: none; border-radius: 999px;
-      padding: 13px 22px; cursor: pointer; font-weight: 600; font-size: 0.9rem;
-      transition: transform 0.18s, box-shadow 0.2s, background 0.18s, filter 0.18s;
-      white-space: nowrap;
-    }
-    .btn:hover { transform: translateY(-1px); }
-
-    .btn-primary {
-      background: var(--forest); color: white;
-      box-shadow: 0 6px 20px rgba(44,74,62,0.22);
-    }
-    .btn-primary:hover { background: var(--forest-2); box-shadow: 0 10px 28px rgba(44,74,62,0.28); }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.82); color: var(--ink);
-      border: 1px solid rgba(28,26,22,0.09);
-    }
-    .btn-secondary:hover { background: white; }
-
-    .btn-gold {
-      background: linear-gradient(135deg, var(--gold) 0%, #b88230 100%);
-      color: white; box-shadow: 0 6px 20px rgba(196,154,60,0.28);
-    }
-    .btn-gold:hover { filter: brightness(1.06); box-shadow: 0 10px 28px rgba(196,154,60,0.36); }
-
-    .btn-danger {
-      background: rgba(166,73,73,0.09); color: var(--danger);
-      border: 1px solid rgba(166,73,73,0.14);
-    }
-    .btn-danger:hover { background: rgba(166,73,73,0.15); }
-
-    .btn-sm { padding: 9px 16px; font-size: 0.83rem; }
-    .btn-full { width: 100%; justify-content: center; }
-
-    /* ============================================================
-       EYEBROW / LABELS
-    ============================================================ */
-    .eyebrow {
-      display: inline-block;
-      padding: 5px 11px;
-      border-radius: 999px;
-      background: rgba(196,154,60,0.13);
-      color: #8c6418;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      font-weight: 700;
-    }
-    .eyebrow-forest {
-      background: rgba(44,74,62,0.1);
-      color: var(--forest);
-    }
-    .eyebrow-white {
-      background: rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.78);
-    }
-
-    /* ============================================================
-       CARDS
-    ============================================================ */
-    .card {
-      background: var(--card);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.7);
-      border-radius: var(--r-xl);
-      box-shadow: var(--shadow-md);
-      padding: 26px;
-    }
-
-    .card-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      gap: 14px; margin-bottom: 6px; flex-wrap: wrap;
-    }
-    .card-header-left { display: flex; flex-direction: column; gap: 10px; }
-
-    .card h2, .card h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 600; letter-spacing: -0.02em; line-height: 1;
-    }
-    .card h2 { font-size: 1.9rem; }
-    .card h3 { font-size: 1.55rem; }
-
-    .card-sub {
-      color: var(--muted); font-size: 0.92rem; line-height: 1.7;
-      margin-top: 8px; margin-bottom: 6px;
-    }
-
-    /* ============================================================
-       LAYOUT HELPERS
-    ============================================================ */
-    .grid-2col { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 24px; }
-    .stack { display: grid; gap: 24px; align-content: start; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-
-    /* ============================================================
-       STATS SNAPSHOT
-    ============================================================ */
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; }
-
-    .stat {
-      background: rgba(255,255,255,0.88);
-      border: 1px solid rgba(28,26,22,0.06);
-      border-radius: var(--r-lg);
-      padding: 18px 16px;
-      transition: transform 0.18s, box-shadow 0.18s;
-    }
-    .stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-
-    .stat-label {
-      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.09em;
-      color: #918880; font-weight: 700; margin-bottom: 10px;
-    }
-    .stat-value {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2.1rem; font-weight: 600; line-height: 1; margin-bottom: 6px;
-    }
-    .stat-note { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
-
-    .stat-pill {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: rgba(42,123,79,0.1); color: var(--success);
-      font-size: 0.72rem; font-weight: 700; padding: 3px 9px;
-      border-radius: 999px; margin-top: 8px;
-    }
-
-    /* ============================================================
-       PROGRESS BAR
-    ============================================================ */
-    .progress-track {
-      height: 5px; background: var(--line-soft); border-radius: 99px;
-      overflow: hidden; margin-top: 10px;
-    }
-    .progress-fill {
-      height: 100%; border-radius: 99px;
-      background: linear-gradient(90deg, var(--forest), var(--gold));
-      transition: width 0.6s ease;
-    }
-
-    /* ============================================================
-       DAILY CHECK-IN FORM
-    ============================================================ */
-    .checkin-form { display: grid; gap: 16px; margin-top: 18px; }
-
-    .field { display: grid; gap: 7px; }
-    .field label { font-size: 0.87rem; font-weight: 600; color: var(--ink-soft); }
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%; border: 1.5px solid var(--line); background: rgba(252,250,246,0.9);
-      border-radius: var(--r-md); padding: 12px 15px; outline: none; color: var(--ink);
-      transition: border-color 0.2s, box-shadow 0.2s; resize: none;
-    }
-    .field textarea { min-height: 100px; resize: vertical; }
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus {
-      border-color: var(--forest);
-      box-shadow: 0 0 0 3px rgba(44,74,62,0.08);
-      background: white;
-    }
-
-    .checkin-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
-
-    /* ============================================================
-       STATUS MESSAGE
-    ============================================================ */
-    .status-msg { display: none; margin-top: 12px; padding: 12px 15px; border-radius: var(--r-sm); font-size: 0.88rem; font-weight: 600; }
-    .status-msg.show { display: block; }
-    .status-msg.success { background: #edf8f1; color: var(--success); border: 1px solid #cfe6d6; }
-    .status-msg.error   { background: #fff1f1; color: var(--danger);  border: 1px solid #efcdcd; }
-
-    /* ============================================================
-       LIST ITEMS
-    ============================================================ */
-    .item-list { display: grid; gap: 10px; margin-top: 16px; }
-
-    .item-row {
-      display: flex; align-items: flex-start; gap: 14px;
-      background: rgba(255,255,255,0.82); border: 1px solid rgba(28,26,22,0.06);
-      border-radius: var(--r-lg); padding: 14px 16px;
-      transition: border-color 0.18s, box-shadow 0.18s;
-    }
-    .item-row:hover { border-color: rgba(44,74,62,0.15); box-shadow: var(--shadow-sm); }
-
-    .item-icon {
-      width: 34px; height: 34px; border-radius: 10px;
-      background: var(--gold-soft); display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0; margin-top: 1px;
-    }
-    .item-icon.green { background: rgba(44,74,62,0.1); }
-    .item-icon.blue  { background: rgba(80,120,200,0.1); }
-    .item-icon.red   { background: rgba(166,73,73,0.1); }
-
-    .item-body { flex: 1; min-width: 0; }
-    .item-title { font-weight: 600; font-size: 0.9rem; color: var(--ink); margin-bottom: 3px; }
-    .item-sub   { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
-
-    .item-badge {
-      display: inline-flex; align-items: center;
-      padding: 3px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
-      flex-shrink: 0; align-self: flex-start; margin-top: 1px;
-    }
-    .badge-green   { background: rgba(42,123,79,0.1);  color: var(--success); }
-    .badge-gold    { background: rgba(196,154,60,0.12); color: #8c6418; }
-    .badge-orange  { background: rgba(200,100,40,0.1);  color: #a04820; }
-    .badge-neutral { background: var(--line-soft);       color: var(--muted); }
-
-    /* ============================================================
-       AI CARD
-    ============================================================ */
-    .ai-card {
-      background:
-        radial-gradient(ellipse 70% 55% at 90% 10%, rgba(196,154,60,0.20) 0%, transparent 50%),
-        linear-gradient(145deg, #223d33 0%, var(--forest) 50%, var(--forest-3) 100%);
-      border: none;
-      color: white;
-    }
-    .ai-card .card-sub   { color: rgba(255,255,255,0.72); }
-    .ai-card h2, .ai-card h3 { color: white; }
-
-    .ai-points { display: grid; gap: 8px; margin: 16px 0 20px; }
-    .ai-point {
-      display: flex; align-items: flex-start; gap: 10px;
-      background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: var(--r-md); padding: 11px 13px;
-      font-size: 0.88rem; line-height: 1.6;
-    }
-    .ai-point-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-muted); flex-shrink: 0; margin-top: 6px; }
-
-    .ai-cta-btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      width: 100%; background: white; color: var(--forest);
-      border: none; border-radius: 999px; padding: 14px;
-      font-weight: 700; font-size: 0.9rem; cursor: pointer;
-      transition: transform 0.18s, box-shadow 0.2s, background 0.18s;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-    .ai-cta-btn:hover { transform: translateY(-1px); background: #f8f8f6; box-shadow: 0 10px 28px rgba(0,0,0,0.18); }
-
-    /* ============================================================
-       OFFERS / POSITIONING
-    ============================================================ */
-    .offer-list { display: grid; gap: 8px; margin-top: 16px; }
-    .offer-row {
-      background: rgba(255,255,255,0.84); border: 1px solid rgba(28,26,22,0.06);
-      border-radius: var(--r-md); padding: 13px 15px;
-      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
-    }
-    .offer-row-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #9a9088; font-weight: 700; margin-bottom: 4px; }
-    .offer-row-value { font-weight: 600; font-size: 0.92rem; color: var(--ink); }
-    .offer-row-value.empty { color: var(--muted); font-weight: 400; font-style: italic; }
-
-    /* ============================================================
-       QUICK ACTIONS
-    ============================================================ */
-    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
-    .quick-card {
-      display: block; background: rgba(255,255,255,0.86); border: 1px solid rgba(28,26,22,0.07);
-      border-radius: var(--r-lg); padding: 15px 14px; cursor: pointer;
-      transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
-    }
-    .quick-card:hover { transform: translateY(-2px); border-color: rgba(44,74,62,0.22); box-shadow: 0 8px 24px rgba(28,26,22,0.08); }
-    .quick-card-icon { font-size: 1.3rem; margin-bottom: 8px; }
-    .quick-card-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; color: var(--ink); }
-    .quick-card-sub { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
-
-    /* ============================================================
-       SETTINGS PREVIEW
-    ============================================================ */
-    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
-    .setting-box { background: rgba(255,255,255,0.84); border: 1px solid rgba(28,26,22,0.06); border-radius: var(--r-md); padding: 13px 15px; }
-    .setting-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: #9a9088; font-weight: 700; margin-bottom: 5px; }
-    .setting-value { font-weight: 600; font-size: 0.88rem; color: var(--ink); }
-    .setting-value.empty { font-weight: 400; color: var(--muted); font-style: italic; }
-
-    /* ============================================================
-       BUSINESS PROFILE EDITOR
-    ============================================================ */
-    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
-    .profile-grid .field.full { grid-column: 1 / -1; }
-
-    .profile-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line-soft); }
-    .profile-status { margin-top: 12px; }
-
-    /* ============================================================
-       DIVIDER
-    ============================================================ */
-    .section-divider {
-      display: flex; align-items: center; gap: 14px;
-      margin: 4px 0;
-    }
-    .section-divider span { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #9a9088; white-space: nowrap; }
-    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
-
-    /* ============================================================
-       CLIENT PIPELINE COLUMNS
-    ============================================================ */
-    .pipeline-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
-    .pipeline-col {}
-    .pipeline-col-head {
-      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-      padding: 0 4px 8px; border-bottom: 2px solid;
-      margin-bottom: 10px;
-    }
-    .pipeline-col-head.stage-prospect { border-color: #a0b4d8; color: #4060a0; }
-    .pipeline-col-head.stage-active   { border-color: var(--gold-muted); color: #8c6418; }
-    .pipeline-col-head.stage-done     { border-color: var(--forest); color: var(--forest); }
-
-    .pipeline-card {
-      background: rgba(255,255,255,0.84); border: 1px solid rgba(28,26,22,0.06);
-      border-radius: var(--r-sm); padding: 11px 12px; margin-bottom: 8px;
-    }
-    .pipeline-card-name { font-weight: 600; font-size: 0.84rem; color: var(--ink); margin-bottom: 3px; }
-    .pipeline-card-meta { font-size: 0.76rem; color: var(--muted); }
-    .pipeline-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
-    .dot-blue   { background: #7090c0; }
-    .dot-gold   { background: var(--gold); }
-    .dot-green  { background: var(--forest); }
-
-    /* ============================================================
-       NOTE / HELPER TEXT
-    ============================================================ */
-    .helper-text { font-size: 0.83rem; color: var(--muted); line-height: 1.65; margin-top: 10px; }
-    .helper-text a { color: var(--forest); font-weight: 500; }
-
-    /* ============================================================
-       REVENUE GOAL DISPLAY
-    ============================================================ */
-    .goal-display {
-      display: flex; align-items: baseline; gap: 6px; margin-top: 10px;
-    }
-    .goal-amount {
-      font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 600; color: var(--ink); line-height: 1;
-    }
-    .goal-label { font-size: 0.88rem; color: var(--muted); }
-
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-    @media (max-width: 1200px) {
-      .stats { grid-template-columns: repeat(2, 1fr); }
-      .grid-2col { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 920px) {
-      .app { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
-      .mobile-top { display: flex; }
-      .main { padding: 16px; gap: 18px; }
-      .pipeline-cols { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .stats { grid-template-columns: 1fr; }
-      .quick-grid  { grid-template-columns: 1fr; }
-      .settings-grid { grid-template-columns: 1fr; }
-      .profile-grid { grid-template-columns: 1fr; }
-      .pipeline-cols { grid-template-columns: 1fr; }
-      .topbar { flex-direction: column; }
-      .card { padding: 20px; }
-      .welcome h1 { font-size: 2.1rem; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { transition: none !important; animation: none !important; }
-    }
-
-    :focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-radius: 4px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Florencia OS — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --bg:       #080c14;
+  --bg2:      #0c1220;
+  --panel:    #0e1520;
+  --card:     #111927;
+  --card2:    #172035;
+  --border:   rgba(255,255,255,.07);
+  --border2:  rgba(255,255,255,.12);
+  --text:     #eef2ff;
+  --soft:     #c8d3e8;
+  --muted:    #7b8aaa;
+  --muted2:   #4a5568;
+  --accent:   #7c5cff;
+  --accent2:  #9b7eff;
+  --accentg:  linear-gradient(135deg,#7c5cff 0%,#9b7eff 100%);
+  --gold:     #f0b429;
+  --goldg:    linear-gradient(135deg,#f0b429,#e09000);
+  --green:    #22c55e;
+  --greeng:   linear-gradient(135deg,#22c55e,#16a34a);
+  --red:      #ef4444;
+  --blue:     #3b82f6;
+  --orange:   #f97316;
+  --shadow:   0 20px 60px rgba(0,0,0,.55);
+  --shadow-s: 0 4px 20px rgba(0,0,0,.3);
+  --r:        20px;
+  --rs:       14px;
+  --rx:       26px;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 5%, rgba(124,92,255,.15) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 40% at 88% 95%, rgba(124,92,255,.09) 0%, transparent 50%),
+    var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit;}
+button,input,textarea,select{font:inherit;outline:none;border:none;}
+img{display:block;max-width:100%;}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:99px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18);}
+
+/* ═══════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════ */
+.app{
+  display:grid;
+  grid-template-columns:270px 1fr;
+  min-height:100vh;
+}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════ */
+.sidebar{
+  background:rgba(8,12,20,.97);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  padding:22px 14px 20px;
+  gap:6px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  z-index:30;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+
+/* brand */
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:6px 8px 16px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:8px;
+}
+.brand-logo{
+  width:40px;height:40px;
+  border-radius:14px;
+  background:var(--accentg);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:19px;
+  box-shadow:0 4px 18px rgba(124,92,255,.45);
+  flex-shrink:0;
+}
+.brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:-.02em;}
+.brand-tag{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* nav sections */
+.nav-section-label{
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--muted2);
+  padding:14px 10px 6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:11px 12px;
+  border-radius:var(--rs);
+  color:var(--muted);
+  background:transparent;
+  border:1px solid transparent;
+  cursor:pointer;
+  font-size:13.5px;font-weight:500;
+  transition:all .18s;
+  position:relative;
+}
+.nav-item:hover{background:rgba(124,92,255,.09);color:var(--soft);border-color:rgba(124,92,255,.15);}
+.nav-item.active{
+  background:rgba(124,92,255,.15);
+  border-color:rgba(124,92,255,.3);
+  color:var(--text);
+  font-weight:600;
+}
+.nav-item.active::before{
+  content:'';
+  position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:60%;
+  background:var(--accentg);
+  border-radius:0 3px 3px 0;
+}
+.nav-icon{
+  width:28px;height:28px;
+  border-radius:9px;
+  background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.nav-item.active .nav-icon{background:rgba(124,92,255,.2);}
+.nav-badge{
+  margin-left:auto;
+  background:var(--accent);
+  color:#fff;
+  font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:99px;
+}
+
+/* sidebar footer */
+.sb-footer{
+  margin-top:auto;
+  padding-top:14px;
+  border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:8px;
+}
+.user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 12px;
+  border-radius:var(--rs);
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:.18s;
+}
+.user-card:hover{background:rgba(255,255,255,.07);}
+.user-av{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--accentg);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;flex-shrink:0;
+}
+.user-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-email{font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.logout-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px;border-radius:var(--rs);
+  background:rgba(239,68,68,.08);
+  border:1px solid rgba(239,68,68,.2);
+  color:var(--red);
+  font-size:13px;font-weight:600;
+  cursor:pointer;transition:.18s;
+}
+.logout-btn:hover{background:rgba(239,68,68,.15);}
+
+/* close button (mobile) */
+.sb-close{
+  display:none;
+  position:absolute;top:18px;right:14px;
+  width:34px;height:34px;
+  border-radius:10px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-size:18px;
+  align-items:center;justify-content:center;
+  cursor:pointer;
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════════ */
+.main{
+  display:flex;flex-direction:column;
+  min-width:0;
+  min-height:100vh;
+}
+
+/* ── TOPBAR ────────────────────────────────── */
+.topbar{
+  height:66px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  background:rgba(8,12,20,.9);
+  backdrop-filter:blur(16px);
+  position:sticky;top:0;z-index:20;
+  flex-shrink:0;
+}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.menu-toggle{
+  display:none;
+  width:40px;height:40px;
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:18px;
+  align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.topbar-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+.topbar-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 16px;border-radius:12px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-size:13px;font-weight:500;
+  cursor:pointer;transition:.18s;
+  white-space:nowrap;
+}
+.tb-btn:hover{background:rgba(255,255,255,.09);color:var(--text);}
+.tb-btn.accent{
+  background:rgba(124,92,255,.15);
+  border-color:rgba(124,92,255,.35);
+  color:var(--accent2);
+}
+.tb-btn.accent:hover{background:rgba(124,92,255,.25);}
+.tb-btn.gold{
+  background:rgba(240,180,41,.12);
+  border-color:rgba(240,180,41,.3);
+  color:var(--gold);
+}
+.tb-btn.gold:hover{background:rgba(240,180,41,.2);}
+
+/* ── PAGE CONTENT ──────────────────────────── */
+.page{padding:28px 28px 48px;display:grid;gap:22px;align-content:start;}
+
+/* ═══════════════════════════════════════════════
+   WELCOME HERO
+═══════════════════════════════════════════════ */
+.hero{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;
+}
+.hero-left{}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(124,92,255,.12);
+  border:1px solid rgba(124,92,255,.25);
+  border-radius:99px;
+  padding:5px 13px;
+  font-size:11px;font-weight:700;
+  color:var(--accent2);
+  text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:12px;
+}
+.hero-title{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:clamp(1.8rem,3vw,2.6rem);
+  line-height:1.1;
+  letter-spacing:-.03em;
+  margin-bottom:10px;
+  background:linear-gradient(135deg,#fff 30%,#a78bfa 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:14px;color:var(--muted);
+  line-height:1.75;max-width:520px;
+}
+.hero-actions{
+  display:flex;gap:10px;flex-wrap:wrap;
+  padding-top:6px;
+  align-items:center;
+}
+
+/* ═══════════════════════════════════════════════
+   CHECK-IN BANNER
+═══════════════════════════════════════════════ */
+.checkin-banner{
+  display:flex;align-items:center;gap:16px;
+  padding:18px 22px;
+  border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(240,180,41,.12),rgba(240,180,41,.06));
+  border:1px solid rgba(240,180,41,.3);
+  cursor:pointer;
+  transition:.2s;
+}
+.checkin-banner:hover{background:linear-gradient(135deg,rgba(240,180,41,.2),rgba(240,180,41,.1));}
+.ci-icon{
+  width:48px;height:48px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  box-shadow:0 4px 16px rgba(245,158,11,.35);
+}
+.ci-text{flex:1;}
+.ci-title{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:3px;}
+.ci-desc{font-size:13px;color:var(--muted);line-height:1.5;}
+.ci-done{
+  font-size:13px;color:var(--green);
+  background:rgba(34,197,94,.1);
+  border:1px solid rgba(34,197,94,.25);
+  border-radius:99px;
+  padding:5px 12px;font-weight:600;
+  flex-shrink:0;
+}
+.ci-arrow{color:var(--gold);font-size:20px;flex-shrink:0;transition:.2s;}
+.checkin-banner:hover .ci-arrow{transform:translateX(4px);}
+
+/* ═══════════════════════════════════════════════
+   STATS GRID
+═══════════════════════════════════════════════ */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+.stat-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+  transition:.2s;
+  cursor:default;
+}
+.stat-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:var(--stat-color,var(--accent));
+  border-radius:var(--r) var(--r) 0 0;
+}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.35);border-color:var(--border2);}
+.stat-label{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:14px;
+}
+.stat-val{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:1.9rem;line-height:1;
+  color:var(--text);margin-bottom:8px;
+}
+.stat-note{font-size:12px;color:var(--muted);line-height:1.5;}
+.stat-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(34,197,94,.1);color:var(--green);
+  font-size:10px;font-weight:700;
+  padding:3px 9px;border-radius:99px;
+  margin-top:8px;
+}
+.stat-pill.orange{background:rgba(249,115,22,.1);color:var(--orange);}
+.stat-pill.blue{background:rgba(59,130,246,.1);color:var(--blue);}
+.stat-pill.gold{background:rgba(240,180,41,.1);color:var(--gold);}
+.progress-bar{
+  height:4px;background:rgba(255,255,255,.07);
+  border-radius:99px;overflow:hidden;margin-top:10px;
+}
+.progress-fill{
+  height:100%;border-radius:99px;
+  background:var(--stat-color,var(--accentg));
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+}
+
+/* ═══════════════════════════════════════════════
+   TWO-COLUMN GRID
+═══════════════════════════════════════════════ */
+.grid-2{display:grid;grid-template-columns:1.3fr 0.7fr;gap:20px;}
+.col-stack{display:grid;gap:20px;align-content:start;}
+
+/* ═══════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════ */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:24px;
+  position:relative;
+  overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;gap:14px;
+  margin-bottom:6px;flex-wrap:wrap;
+}
+.card-head-left{display:flex;flex-direction:column;gap:8px;}
+.card-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  border-radius:99px;
+  padding:4px 12px;
+  font-size:10px;font-weight:700;
+  color:var(--muted);
+  text-transform:uppercase;letter-spacing:.1em;
+}
+.card-title{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:1.2rem;
+  line-height:1.2;letter-spacing:-.02em;
+}
+.card-sub{font-size:13px;color:var(--muted);line-height:1.7;margin:10px 0 4px;}
+.card-badge{
+  padding:5px 12px;border-radius:99px;
+  font-size:11px;font-weight:700;
+  white-space:nowrap;
+}
+.badge-green{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green);}
+.badge-orange{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:var(--orange);}
+.badge-gold{background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.25);color:var(--gold);}
+.badge-blue{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:var(--blue);}
+.badge-red{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--red);}
+.badge-accent{background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.3);color:var(--accent2);}
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 22px;border-radius:99px;
+  font-size:14px;font-weight:700;
+  cursor:pointer;transition:.18s;
+  white-space:nowrap;border:none;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{
+  background:var(--accentg);color:#fff;
+  box-shadow:0 6px 22px rgba(124,92,255,.4);
+}
+.btn-primary:hover{filter:brightness(1.1);box-shadow:0 10px 30px rgba(124,92,255,.5);}
+.btn-secondary{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border2);
+  color:var(--soft);
+}
+.btn-secondary:hover{background:rgba(255,255,255,.1);}
+.btn-gold{
+  background:var(--goldg);color:#fff;
+  box-shadow:0 6px 22px rgba(240,180,41,.3);
+}
+.btn-gold:hover{filter:brightness(1.08);}
+.btn-danger{
+  background:rgba(239,68,68,.1);
+  border:1px solid rgba(239,68,68,.25);
+  color:var(--red);
+}
+.btn-danger:hover{background:rgba(239,68,68,.18);}
+.btn-sm{padding:9px 16px;font-size:13px;}
+.btn-full{width:100%;justify-content:center;}
+
+/* ═══════════════════════════════════════════════
+   ITEM ROWS
+═══════════════════════════════════════════════ */
+.item-list{display:grid;gap:10px;margin-top:16px;}
+.item-row{
+  display:flex;align-items:flex-start;gap:14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:14px 16px;
+  transition:.18s;
+}
+.item-row:hover{background:rgba(255,255,255,.06);border-color:var(--border2);}
+.item-ico{
+  width:36px;height:36px;border-radius:11px;
+  background:rgba(124,92,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;margin-top:1px;
+}
+.item-ico.gold{background:rgba(240,180,41,.12);}
+.item-ico.green{background:rgba(34,197,94,.1);}
+.item-ico.red{background:rgba(239,68,68,.1);}
+.item-ico.blue{background:rgba(59,130,246,.1);}
+.item-ico.orange{background:rgba(249,115,22,.1);}
+.item-body{flex:1;min-width:0;}
+.item-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.item-sub{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* ═══════════════════════════════════════════════
+   PIPELINE
+═══════════════════════════════════════════════ */
+.pipeline{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;}
+.pipe-col-head{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  padding:0 4px 8px;
+  margin-bottom:10px;
+  border-bottom:2px solid;
+}
+.head-blue{color:#6090d0;border-color:#4070b0;}
+.head-gold{color:var(--gold);border-color:rgba(240,180,41,.5);}
+.head-green{color:var(--green);border-color:rgba(34,197,94,.5);}
+.pipe-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:10px 12px;
+  margin-bottom:8px;
+  transition:.18s;
+}
+.pipe-card:hover{background:rgba(255,255,255,.07);}
+.pipe-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
+.pipe-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.dot-blue{background:#6090d0;}
+.dot-gold{background:var(--gold);}
+.dot-green{background:var(--green);}
+.pipe-meta{font-size:11px;color:var(--muted);}
+
+/* ═══════════════════════════════════════════════
+   AI CARD
+═══════════════════════════════════════════════ */
+.ai-card{
+  background:linear-gradient(145deg,#14112e,#1a163a);
+  border-color:rgba(124,92,255,.25);
+  position:relative;overflow:hidden;
+}
+.ai-card::after{
+  content:'';
+  position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(124,92,255,.25),transparent 70%);
+  pointer-events:none;
+}
+.ai-pulse{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--green);
+  display:inline-block;
+  margin-right:6px;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+
+/* ═══════════════════════════════════════════════
+   QUICK ACTIONS
+═══════════════════════════════════════════════ */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.quick-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:16px;cursor:pointer;
+  transition:.2s;color:var(--text);
+  display:flex;flex-direction:column;gap:6px;
+}
+.quick-card:hover{background:rgba(124,92,255,.1);border-color:rgba(124,92,255,.3);transform:translateY(-2px);}
+.quick-ico{font-size:20px;margin-bottom:2px;}
+.quick-title{font-size:13px;font-weight:700;}
+.quick-sub{font-size:11px;color:var(--muted);line-height:1.5;}
+
+/* ═══════════════════════════════════════════════
+   OFFERS BLOCK
+═══════════════════════════════════════════════ */
+.offer-grid{display:grid;gap:10px;margin-top:16px;}
+.offer-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:13px 16px;
+}
+.offer-row-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+.offer-row-value{font-size:14px;font-weight:600;color:var(--text);text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.offer-row-value.empty{color:var(--muted2);font-style:italic;font-weight:400;}
+
+/* ═══════════════════════════════════════════════
+   SETTINGS GRID
+═══════════════════════════════════════════════ */
+.settings-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:16px;
+}
+.setting-box{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:14px 16px;
+}
+.setting-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:7px;}
+.setting-value{font-size:14px;font-weight:600;color:var(--text);}
+.setting-value.empty{color:var(--muted2);font-style:italic;font-weight:400;}
+
+/* ═══════════════════════════════════════════════
+   PROFILE EDITOR
+═══════════════════════════════════════════════ */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+.profile-grid .field.full{grid-column:1/-1;}
+.field{display:grid;gap:7px;}
+.field label{font-size:12px;font-weight:600;color:var(--soft);}
+.field input,.field textarea,.field select{
+  width:100%;
+  background:rgba(255,255,255,.05);
+  border:1.5px solid var(--border2);
+  border-radius:var(--rs);
+  padding:12px 16px;
+  color:var(--text);
+  font-size:14px;
+  transition:.2s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+  border-color:rgba(124,92,255,.5);
+  box-shadow:0 0 0 3px rgba(124,92,255,.1);
+  background:rgba(255,255,255,.07);
+}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted2);}
+.field textarea{resize:vertical;min-height:90px;}
+.field select{appearance:none;cursor:pointer;}
+.field select option{background:var(--card2);}
+.profile-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);}
+
+/* status msg */
+.status-msg{display:none;margin-top:12px;padding:12px 16px;border-radius:var(--rs);font-size:13px;font-weight:600;}
+.status-msg.show{display:block;}
+.status-msg.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green);}
+.status-msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--red);}
+
+/* ═══════════════════════════════════════════════
+   SECTION DIVIDER
+═══════════════════════════════════════════════ */
+.section-divider{
+  display:flex;align-items:center;gap:14px;
+}
+.section-divider span{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted2);white-space:nowrap;
+}
+.section-divider::before,.section-divider::after{
+  content:'';flex:1;height:1px;
+  background:var(--border);
+}
+
+/* ═══════════════════════════════════════════════
+   MOBILE OVERLAY
+═══════════════════════════════════════════════ */
+.overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(4px);
+  z-index:25;
+}
+.overlay.show{display:block;}
+
+/* ═══════════════════════════════════════════════
+   CHECK-IN MODAL
+═══════════════════════════════════════════════ */
+.modal-wrap{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(8px);
+  z-index:100;
+  align-items:flex-end;
+  justify-content:center;
+}
+.modal-wrap.show{display:flex;}
+@media(min-width:640px){.modal-wrap{align-items:center;}}
+
+.modal{
+  background:var(--panel);
+  border:1px solid var(--border2);
+  border-radius:var(--rx) var(--rx) 0 0;
+  padding:28px 24px 40px;
+  width:100%;max-width:540px;
+  max-height:92vh;overflow-y:auto;
+  animation:slideUp .3s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+@media(min-width:640px){
+  .modal{border-radius:var(--rx);max-height:88vh;}
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.modal-handle{
+  width:40px;height:4px;
+  background:rgba(255,255,255,.15);
+  border-radius:99px;
+  margin:0 auto 22px;
+}
+@media(min-width:640px){.modal-handle{display:none;}}
+
+.modal-close{
+  position:absolute;top:20px;right:20px;
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--border);
+  color:var(--muted);font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:.18s;
+}
+.modal-close:hover{color:var(--text);background:rgba(255,255,255,.12);}
+
+.modal-icon{
+  width:54px;height:54px;border-radius:18px;
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:18px;
+  box-shadow:0 6px 24px rgba(245,158,11,.35);
+}
+.modal-eyebrow{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--accent2);margin-bottom:8px;
+}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;line-height:1.2;margin-bottom:8px;}
+.modal-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:22px;}
+
+/* chip groups inside modal */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+.chip{
+  padding:8px 15px;border-radius:99px;
+  background:rgba(255,255,255,.04);
+  border:1.5px solid var(--border);
+  color:var(--muted);font-size:13px;font-weight:500;
+  cursor:pointer;transition:.18s;user-select:none;
+}
+.chip:hover{border-color:rgba(124,92,255,.4);color:var(--text);}
+.chip.sel{
+  background:rgba(124,92,255,.15);
+  border-color:rgba(124,92,255,.5);
+  color:var(--accent2);font-weight:600;
+}
+
+.modal-actions{display:flex;gap:10px;margin-top:24px;}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--card2);border:1px solid var(--border2);
+  border-radius:99px;padding:10px 22px;
+  font-size:13px;font-weight:600;
+  opacity:0;transition:.3s;z-index:300;
+  white-space:nowrap;pointer-events:none;
+  box-shadow:var(--shadow-s);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media(max-width:1200px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .grid-2{grid-template-columns:1fr;}
+}
+@media(max-width:920px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{
+    position:fixed;top:0;left:0;height:100%;
+    transform:translateX(-100%);
+    width:280px;z-index:50;
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sb-close{display:flex;}
+  .menu-toggle{display:flex;}
+  .page{padding:20px 18px 40px;}
+  .topbar{padding:0 18px;}
+  .topbar-right .tb-btn.hide-m{display:none;}
+  .pipeline{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:640px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .quick-grid{grid-template-columns:1fr 1fr;}
+  .settings-grid{grid-template-columns:1fr 1fr;}
+  .profile-grid{grid-template-columns:1fr;}
+  .hero{flex-direction:column;}
+  .hero-actions{width:100%;}
+  .hero-actions .btn{flex:1;justify-content:center;}
+  .card{padding:18px;}
+  .pipeline{grid-template-columns:1fr;}
+  .topbar-right .tb-btn:not(.accent){display:none;}
+}
+@media(max-width:400px){
+  .stats-grid{grid-template-columns:1fr;}
+  .quick-grid{grid-template-columns:1fr;}
+  .settings-grid{grid-template-columns:1fr;}
+}
+
+/* Focus ring */
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+
+/* Animation on load */
+.fade-up{animation:fadeUp .4s ease both;}
+.fade-up:nth-child(1){animation-delay:.05s;}
+.fade-up:nth-child(2){animation-delay:.1s;}
+.fade-up:nth-child(3){animation-delay:.15s;}
+.fade-up:nth-child(4){animation-delay:.2s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+</style>
 </head>
 <body>
-  <div class="app">
 
-    <!-- ══════════════ SIDEBAR ══════════════ -->
-    <aside class="sidebar">
-      <div class="brand">Florencia <span>OS</span></div>
-      <p class="sidebar-tagline">Your AI business operating system. Stay structured, move forward.</p>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-      <nav class="nav">
-        <div class="nav-section">Workspace</div>
-        <a href="dashboard.html" class="nav-link active">
-          <span class="nav-icon-wrap">⌂</span>
-          <span>Dashboard</span>
-        </a>
-        <a href="chat.html" class="nav-link">
-          <span class="nav-icon-wrap">✦</span>
-          <span>AI Chat</span>
-        </a>
-        <a href="#daily-checkin" class="nav-link">
-          <span class="nav-icon-wrap">✓</span>
-          <span>Daily Check-in</span>
-        </a>
-        <a href="#projects" class="nav-link">
-          <span class="nav-icon-wrap">▣</span>
-          <span>Projects</span>
-        </a>
-        <a href="#clients" class="nav-link">
-          <span class="nav-icon-wrap">◉</span>
-          <span>Clients</span>
-        </a>
-        <a href="#offers" class="nav-link">
-          <span class="nav-icon-wrap">◈</span>
-          <span>Offers</span>
-        </a>
+<div class="app">
 
-        <div class="nav-section">Account</div>
-        <a href="#business-profile" class="nav-link">
-          <span class="nav-icon-wrap">✎</span>
-          <span>Business Profile</span>
-        </a>
-        <a href="#settings" class="nav-link">
-          <span class="nav-icon-wrap">⚙</span>
-          <span>Settings</span>
-        </a>
-      </nav>
+  <!-- ══════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <button class="sb-close" onclick="closeSidebar()">×</button>
 
-      <div class="sidebar-footer">
-        <div class="mini-profile">
-          <div class="mini-label">Logged in as</div>
-          <div class="mini-name" id="sidebarUserName">Loading…</div>
-          <div class="mini-email" id="sidebarUserEmail">Verifying session…</div>
+    <div class="brand">
+      <div class="brand-logo">F</div>
+      <div>
+        <div class="brand-name">Florencia OS</div>
+        <div class="brand-tag">Business AI Copilot</div>
+      </div>
+    </div>
+
+    <div class="nav-section-label">Espace de travail</div>
+
+    <a class="nav-item active" href="dashboard.html">
+      <span class="nav-icon">⌂</span>
+      Dashboard
+    </a>
+    <a class="nav-item" href="chat.html">
+      <span class="nav-icon">✦</span>
+      Florencia AI
+    </a>
+    <button class="nav-item" onclick="openCheckin()">
+      <span class="nav-icon">☀️</span>
+      Check-in du jour
+      <span class="nav-badge" id="navCheckinBadge" style="display:none;">!</span>
+    </button>
+    <a class="nav-item" href="#projects">
+      <span class="nav-icon">▣</span>
+      Projets
+    </a>
+    <a class="nav-item" href="#clients">
+      <span class="nav-icon">◉</span>
+      Clients
+    </a>
+    <a class="nav-item" href="#offers">
+      <span class="nav-icon">◈</span>
+      Offres
+    </a>
+
+    <div class="nav-section-label">Compte</div>
+
+    <a class="nav-item" href="#business-profile">
+      <span class="nav-icon">✎</span>
+      Profil business
+    </a>
+    <a class="nav-item" href="#settings">
+      <span class="nav-icon">⚙</span>
+      Paramètres
+    </a>
+
+    <div class="sb-footer">
+      <div class="user-card">
+        <div class="user-av" id="sbAvatar">?</div>
+        <div style="flex:1;min-width:0;">
+          <div class="user-name" id="sbName">Chargement…</div>
+          <div class="user-email" id="sbEmail">Vérification session…</div>
         </div>
-        <button class="logout-btn" id="logoutBtn">
-          <span>⎋</span> Log out
+      </div>
+      <button class="logout-btn" id="logoutBtn">⎋ &nbsp;Se déconnecter</button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════
+       MAIN
+  ══════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="openSidebar()">☰</button>
+        <div>
+          <div class="topbar-title">Dashboard</div>
+          <div class="topbar-sub" id="topbarDate">Chargement…</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="chat.html" class="tb-btn hide-m">
+          <span>✦</span> Ouvrir l'IA
+        </a>
+        <button class="tb-btn gold" onclick="openCheckin()">
+          ☀️ Check-in
+        </button>
+        <button class="tb-btn accent" onclick="scrollTo('#business-profile')">
+          ✎ Mon profil
         </button>
       </div>
-    </aside>
+    </header>
 
+    <!-- PAGE -->
+    <div class="page">
 
-    <!-- ══════════════ MAIN ══════════════ -->
-    <main class="main">
-
-      <!-- Mobile top bar -->
-      <div class="mobile-top">
-        <div>
-          <div class="mobile-brand">Florencia <span>OS</span></div>
-          <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">Dashboard</div>
+      <!-- ── 1. HERO ───────────────────────── -->
+      <div class="hero fade-up">
+        <div class="hero-left">
+          <div class="hero-eyebrow">
+            <span>⌘</span> Vue d'ensemble
+          </div>
+          <h1 class="hero-title">Bonjour, <span id="heroName">là</span> 👋</h1>
+          <p class="hero-sub">Bienvenue dans ton espace de pilotage Florencia OS. Suis ton focus, gère ton pipeline et accède à l'IA directement — tout au même endroit.</p>
         </div>
-        <button class="logout-btn btn-sm" id="logoutBtnMobile">Log out</button>
-      </div>
-
-
-      <!-- ── WELCOME ── -->
-      <div class="topbar">
-        <div class="welcome">
-          <div class="eyebrow">Workspace overview</div>
-          <h1>Welcome back, <em id="welcomeName">there</em>.</h1>
-          <p>
-            This is your Florencia OS command center. Track your focus, manage your pipeline,
-            and tap directly into AI guidance — all in one place.
-          </p>
-        </div>
-        <div class="top-actions">
+        <div class="hero-actions">
           <a href="chat.html" class="btn btn-primary">
-            <span>✦</span> Open Florencia AI
+            <span>✦</span> Ouvrir Florencia AI
           </a>
-          <a href="#daily-checkin" class="btn btn-secondary">Update today's focus</a>
+          <button class="btn btn-secondary" onclick="openCheckin()">
+            ☀️ Check-in du jour
+          </button>
         </div>
       </div>
 
+      <!-- ── 2. CHECK-IN BANNER ─────────────── -->
+      <div class="checkin-banner fade-up" id="checkinBanner" onclick="openCheckin()" style="display:none;">
+        <div class="ci-icon">☀️</div>
+        <div class="ci-text">
+          <div class="ci-title">Check-in du jour non effectué</div>
+          <div class="ci-desc">Donne à Florencia ton objectif et ton focus pour aujourd'hui. Ça prend 60 secondes.</div>
+        </div>
+        <div class="ci-arrow">›</div>
+      </div>
+      <div class="checkin-banner fade-up" id="checkinDoneBanner" style="display:none;cursor:default;" onclick="openCheckin()">
+        <div class="ci-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a);">✓</div>
+        <div class="ci-text">
+          <div class="ci-title" style="color:var(--green);">Check-in du jour complété</div>
+          <div class="ci-desc" id="checkinDoneDesc">Focus : — · Objectif : —</div>
+        </div>
+        <div class="ci-done">Modifier</div>
+      </div>
 
-      <!-- ── BUSINESS SNAPSHOT ── -->
-      <section class="card">
-        <div class="card-header">
-          <div class="card-header-left">
-            <div class="eyebrow">Business snapshot</div>
-            <h2>Your current overview</h2>
+      <!-- ── 3. STATS ───────────────────────── -->
+      <div class="stats-grid fade-up">
+        <div class="stat-card" style="--stat-color:var(--accent);">
+          <div class="stat-label">Focus du jour</div>
+          <div class="stat-val" id="statFocus" style="font-size:1.3rem;line-height:1.3;">—</div>
+          <div class="stat-note">Depuis ton dernier check-in</div>
+        </div>
+
+        <div class="stat-card" style="--stat-color:var(--gold);">
+          <div class="stat-label">Objectif revenu</div>
+          <div class="stat-val" id="statRevGoal" style="font-size:1.5rem;">Non défini</div>
+          <div class="stat-note" id="statRevNote">Définis-le dans le profil business</div>
+          <div class="progress-bar" id="revProgressBar" style="display:none;">
+            <div class="progress-fill" id="revProgressFill" style="width:0%;background:var(--goldg)"></div>
           </div>
         </div>
 
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-label">Today's focus</div>
-            <div class="stat-value" id="statFocus" style="font-size:1.4rem;line-height:1.2;">—</div>
-            <div class="stat-note">From your last check-in</div>
-          </div>
-
-          <div class="stat">
-            <div class="stat-label">Active projects</div>
-            <div class="stat-value">2</div>
-            <div class="stat-note">Currently in progress</div>
-            <div class="stat-pill">↑ In progress</div>
-          </div>
-
-          <div class="stat">
-            <div class="stat-label">Client pipeline</div>
-            <div class="stat-value">4</div>
-            <div class="stat-note">Prospects &amp; active leads</div>
-          </div>
-
-          <div class="stat">
-            <div class="stat-label">Revenue goal</div>
-            <div class="stat-value" id="statRevenueGoal" style="font-size:1.45rem;">Not set</div>
-            <div class="stat-note" id="statRevenueNote">Set it in Business Profile</div>
-            <div class="progress-track" id="goalProgressTrack" style="display:none;">
-              <div class="progress-fill" id="goalProgressFill" style="width:0%"></div>
-            </div>
-          </div>
+        <div class="stat-card" style="--stat-color:var(--blue);">
+          <div class="stat-label">Projets actifs</div>
+          <div class="stat-val">2</div>
+          <div class="stat-note">En cours d'exécution</div>
+          <div class="stat-pill blue">↑ En progression</div>
         </div>
-      </section>
 
+        <div class="stat-card" style="--stat-color:var(--green);">
+          <div class="stat-label">Pipeline clients</div>
+          <div class="stat-val">4</div>
+          <div class="stat-note">Prospects et leads actifs</div>
+          <div class="stat-pill">● Actif</div>
+        </div>
+      </div>
 
-      <!-- ── MAIN TWO-COLUMN GRID ── -->
-      <div class="grid-2col">
+      <!-- ── 4. GRID 2 COLONNES ─────────────── -->
+      <div class="grid-2 fade-up">
 
-        <!-- ── LEFT COLUMN ── -->
-        <div class="stack">
+        <!-- COLONNE GAUCHE -->
+        <div class="col-stack">
 
-          <!-- DAILY CHECK-IN -->
-          <section class="card" id="daily-checkin">
-            <div class="card-header">
-              <div class="card-header-left">
-                <div class="eyebrow">Daily check-in</div>
-                <h2>Train Florencia with your day</h2>
-              </div>
-            </div>
-            <p class="card-sub">
-              Give Florencia context about your current reality. This keeps your workspace focused
-              and ensures AI guidance is relevant to what actually matters today.
-            </p>
-
-            <form class="checkin-form" id="checkinForm">
-              <div class="field">
-                <label for="goalInput">What is your main goal today?</label>
-                <input id="goalInput" type="text" placeholder="e.g. Close one conversation, finish proposal draft…" />
-              </div>
-              <div class="field">
-                <label for="focusInput">What are you focusing on right now?</label>
-                <input id="focusInput" type="text" placeholder="e.g. Outreach, landing page, offer clarity…" />
-              </div>
-              <div class="field">
-                <label for="blockerInput">What is blocking you right now?</label>
-                <input id="blockerInput" type="text" placeholder="e.g. No structure, unclear message, low confidence…" />
-              </div>
-              <div class="field">
-                <label for="noteInput">Anything Florencia should keep in mind today?</label>
-                <textarea id="noteInput" placeholder="Any useful context about your energy, situation, or priorities today…"></textarea>
-              </div>
-
-              <div class="checkin-actions">
-                <button type="submit" class="btn btn-primary">Save check-in</button>
-                <button type="button" class="btn btn-secondary" id="clearCheckinBtn">Clear</button>
-              </div>
-
-              <div id="checkinStatus" class="status-msg"></div>
-            </form>
-          </section>
-
-
-          <!-- PROJECTS -->
+          <!-- PROJETS -->
           <section class="card" id="projects">
-            <div class="card-header">
-              <div class="card-header-left">
-                <div class="eyebrow">Projects</div>
-                <h2>Current work in progress</h2>
+            <div class="card-head">
+              <div class="card-head-left">
+                <div class="card-eyebrow">▣ Projets</div>
+                <div class="card-title">Travaux en cours</div>
               </div>
-              <div>
-                <span class="item-badge badge-gold">2 active</span>
-              </div>
+              <span class="card-badge badge-blue">2 actifs</span>
             </div>
-            <p class="card-sub">Your main ongoing projects and the clearest next step for each one.</p>
+            <p class="card-sub">Tes projets principaux et la prochaine action concrète pour chacun.</p>
 
             <div class="item-list">
               <div class="item-row">
-                <div class="item-icon green">🛠</div>
+                <div class="item-ico green">🛠</div>
                 <div class="item-body">
-                  <div class="item-title">Florencia OS — Platform build</div>
-                  <div class="item-sub">Next: stabilize auth flow, strengthen dashboard, then improve AI onboarding experience.</div>
+                  <div class="item-title">Florencia OS — Construction plateforme</div>
+                  <div class="item-sub">Prochaine étape : stabiliser l'auth, renforcer le dashboard, améliorer l'onboarding IA.</div>
                 </div>
-                <span class="item-badge badge-green">In progress</span>
+                <span class="card-badge badge-green">En cours</span>
               </div>
               <div class="item-row">
-                <div class="item-icon">📣</div>
+                <div class="item-ico orange">📣</div>
                 <div class="item-body">
-                  <div class="item-title">Audience acquisition system</div>
-                  <div class="item-sub">Next: align messaging between landing page, signup flow, and first-touch outreach.</div>
+                  <div class="item-title">Système d'acquisition audience</div>
+                  <div class="item-sub">Prochaine étape : aligner le messaging entre la landing page et les premiers contacts.</div>
                 </div>
-                <span class="item-badge badge-orange">Needs focus</span>
+                <span class="card-badge badge-orange">Focus requis</span>
               </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <a href="chat.html" class="btn btn-secondary btn-sm">
+                <span>✦</span> Demander à Florencia d'analyser mes projets
+              </a>
             </div>
           </section>
 
-
           <!-- CLIENTS / PIPELINE -->
           <section class="card" id="clients">
-            <div class="card-header">
-              <div class="card-header-left">
-                <div class="eyebrow">Client pipeline</div>
-                <h2>Prospects &amp; active leads</h2>
+            <div class="card-head">
+              <div class="card-head-left">
+                <div class="card-eyebrow">◉ Pipeline</div>
+                <div class="card-title">Prospects & leads actifs</div>
               </div>
+              <span class="card-badge badge-accent">4 contacts</span>
             </div>
-            <p class="card-sub">A live view of your current business conversations and follow-up actions.</p>
+            <p class="card-sub">Vue en direct de tes conversations business et actions de suivi.</p>
 
-            <div class="pipeline-cols">
-              <div class="pipeline-col">
-                <div class="pipeline-col-head stage-prospect">Prospects</div>
-                <div class="pipeline-card">
-                  <div class="pipeline-card-name"><span class="pipeline-dot dot-blue"></span>Jordan K.</div>
-                  <div class="pipeline-card-meta">Needs follow-up · No reply yet</div>
+            <div class="pipeline">
+              <div>
+                <div class="pipe-col-head head-blue">Prospects</div>
+                <div class="pipe-card">
+                  <div class="pipe-name"><span class="pipe-dot dot-blue"></span>Jordan K.</div>
+                  <div class="pipe-meta">Relance à faire · Pas de réponse</div>
                 </div>
-                <div class="pipeline-card">
-                  <div class="pipeline-card-name"><span class="pipeline-dot dot-blue"></span>Maya R.</div>
-                  <div class="pipeline-card-meta">First contact sent</div>
-                </div>
-              </div>
-              <div class="pipeline-col">
-                <div class="pipeline-col-head stage-active">In conversation</div>
-                <div class="pipeline-card">
-                  <div class="pipeline-card-name"><span class="pipeline-dot dot-gold"></span>Studio Co.</div>
-                  <div class="pipeline-card-meta">Promising · Needs offer clarity</div>
-                </div>
-                <div class="pipeline-card">
-                  <div class="pipeline-card-name"><span class="pipeline-dot dot-gold"></span>Alex T.</div>
-                  <div class="pipeline-card-meta">Proposal sent · Awaiting reply</div>
+                <div class="pipe-card">
+                  <div class="pipe-name"><span class="pipe-dot dot-blue"></span>Maya R.</div>
+                  <div class="pipe-meta">Premier contact envoyé</div>
                 </div>
               </div>
-              <div class="pipeline-col">
-                <div class="pipeline-col-head stage-done">Active / Closed</div>
-                <div class="pipeline-card">
-                  <div class="pipeline-card-name"><span class="pipeline-dot dot-green"></span>NovaBrand</div>
-                  <div class="pipeline-card-meta">Onboarding in progress</div>
+              <div>
+                <div class="pipe-col-head head-gold">En conversation</div>
+                <div class="pipe-card">
+                  <div class="pipe-name"><span class="pipe-dot dot-gold"></span>Studio Co.</div>
+                  <div class="pipe-meta">Prometteur · Offre à clarifier</div>
+                </div>
+                <div class="pipe-card">
+                  <div class="pipe-name"><span class="pipe-dot dot-gold"></span>Alex T.</div>
+                  <div class="pipe-meta">Proposition envoyée · Attente réponse</div>
+                </div>
+              </div>
+              <div>
+                <div class="pipe-col-head head-green">Actif / Signé</div>
+                <div class="pipe-card">
+                  <div class="pipe-name"><span class="pipe-dot dot-green"></span>NovaBrand</div>
+                  <div class="pipe-meta">Onboarding en cours</div>
                 </div>
               </div>
             </div>
 
             <div class="item-list" style="margin-top:16px;">
               <div class="item-row">
-                <div class="item-icon red">⚠</div>
+                <div class="item-ico red">⚡</div>
                 <div class="item-body">
-                  <div class="item-title">Missing structure</div>
-                  <div class="item-sub">No real client CRM yet. Use AI Chat to help you design a simple tracking system.</div>
+                  <div class="item-title">Pas encore de CRM structuré</div>
+                  <div class="item-sub">Utilise Florencia AI pour concevoir un système de suivi simple et efficace.</div>
                 </div>
+                <a href="chat.html" class="btn btn-secondary btn-sm">Demander</a>
               </div>
             </div>
           </section>
 
-        </div><!-- /left column -->
-
-
-        <!-- ── RIGHT COLUMN ── -->
-        <div class="stack">
-
-          <!-- FLORENCIA AI -->
-          <section class="card ai-card">
-            <div class="eyebrow eyebrow-white">AI workspace</div>
-            <h2 style="margin-top:10px;">Florencia AI<br>is ready</h2>
-            <p class="card-sub">
-              Your AI business advisor is live. Ask for strategy, content, offer structuring,
-              outreach scripts, or direct feedback on your decisions.
-            </p>
-
-            <div class="ai-points">
-              <div class="ai-point">
-                <span class="ai-point-dot"></span>
-                Get a business plan aligned with your exact level and market.
-              </div>
-              <div class="ai-point">
-                <span class="ai-point-dot"></span>
-                Turn today's check-in into a clear, prioritized action list.
-              </div>
-              <div class="ai-point">
-                <span class="ai-point-dot"></span>
-                Challenge your offer, sharpen your message, and close the gaps.
-              </div>
-            </div>
-
-            <a href="chat.html" class="ai-cta-btn">
-              <span>✦</span> Open Florencia AI
-            </a>
-          </section>
-
-
-          <!-- OFFERS / POSITIONING -->
+          <!-- OFFRES -->
           <section class="card" id="offers">
-            <div class="card-header">
-              <div class="card-header-left">
-                <div class="eyebrow">Positioning</div>
-                <h2>Your current offer</h2>
+            <div class="card-head">
+              <div class="card-head-left">
+                <div class="card-eyebrow">◈ Offres</div>
+                <div class="card-title">Ton positionnement actuel</div>
               </div>
-              <a href="#business-profile" class="btn btn-secondary btn-sm">Edit ↓</a>
             </div>
-            <p class="card-sub">Your core business context — update it in Business Profile below.</p>
+            <p class="card-sub">Un résumé de ton offre, ta niche et ton objectif business.</p>
 
-            <div class="offer-list">
+            <div class="offer-grid">
               <div class="offer-row">
-                <div>
-                  <div class="offer-row-label">Main niche</div>
-                  <div class="offer-row-value" id="nichePreview">Not set yet</div>
-                </div>
+                <div class="offer-row-label">Niche</div>
+                <div class="offer-row-value empty" id="nichePreview">Non renseignée</div>
               </div>
               <div class="offer-row">
-                <div>
-                  <div class="offer-row-label">Main offer</div>
-                  <div class="offer-row-value" id="offerPreview">Not set yet</div>
-                </div>
+                <div class="offer-row-label">Offre principale</div>
+                <div class="offer-row-value empty" id="offerPreview">Non renseignée</div>
               </div>
               <div class="offer-row">
-                <div>
-                  <div class="offer-row-label">Monthly revenue goal</div>
-                  <div class="offer-row-value" id="revenuePreview">Not set yet</div>
-                </div>
+                <div class="offer-row-label">Objectif revenu</div>
+                <div class="offer-row-value empty" id="revenuePreview">Non renseigné</div>
               </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <a href="#business-profile" class="btn btn-secondary btn-sm" onclick="scrollTo('#business-profile')">
+                ✎ Modifier le profil business
+              </a>
             </div>
           </section>
 
+        </div><!-- /col-gauche -->
 
-          <!-- QUICK ACTIONS -->
+        <!-- COLONNE DROITE -->
+        <div class="col-stack">
+
+          <!-- FLORENCIA AI CARD -->
+          <section class="card ai-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+              <span class="ai-pulse"></span>
+              <span class="card-eyebrow" style="background:rgba(124,92,255,.2);border-color:rgba(124,92,255,.35);color:var(--accent2);">IA workspace</span>
+            </div>
+            <div class="card-title" style="font-size:1.5rem;margin-bottom:8px;">Florencia AI<br>est prête</div>
+            <p class="card-sub">Ton conseiller business IA est en ligne. Pose une question sur ta stratégie, ton offre, tes clients ou ta prochaine action.</p>
+
+            <div style="margin-top:20px;display:grid;gap:10px;">
+              <a href="chat.html" class="btn btn-primary btn-full">
+                <span>✦</span> Ouvrir Florencia AI
+              </a>
+              <a href="chat.html?q=Quelles+sont+mes+priorités+aujourd'hui" class="btn btn-secondary btn-full btn-sm">
+                🎯 Mes priorités du jour
+              </a>
+              <a href="chat.html?q=Aide-moi+à+clarifier+mon+offre" class="btn btn-secondary btn-full btn-sm">
+                ◈ Clarifier mon offre
+              </a>
+              <a href="chat.html?q=Aide-moi+à+trouver+des+clients" class="btn btn-secondary btn-full btn-sm">
+                🚀 Trouver des clients
+              </a>
+            </div>
+          </section>
+
+          <!-- ACTIONS RAPIDES -->
           <section class="card">
-            <div class="card-header">
-              <div class="card-header-left">
-                <div class="eyebrow">Quick actions</div>
-                <h2>What next?</h2>
+            <div class="card-head">
+              <div class="card-head-left">
+                <div class="card-eyebrow">⚡ Actions rapides</div>
+                <div class="card-title">Par où commencer ?</div>
               </div>
             </div>
 
             <div class="quick-grid">
               <a class="quick-card" href="chat.html">
-                <div class="quick-card-icon">✦</div>
-                <div class="quick-card-title">Start AI chat</div>
-                <div class="quick-card-sub">Get direct help from Florencia right now.</div>
+                <div class="quick-ico">✦</div>
+                <div class="quick-title">Lancer l'IA</div>
+                <div class="quick-sub">Obtenir de l'aide directe de Florencia.</div>
               </a>
-              <a class="quick-card" href="#daily-checkin">
-                <div class="quick-card-icon">✓</div>
-                <div class="quick-card-title">Update daily focus</div>
-                <div class="quick-card-sub">Feed the AI what matters today.</div>
-              </a>
-              <a class="quick-card" href="#business-profile">
-                <div class="quick-card-icon">✎</div>
-                <div class="quick-card-title">Edit business profile</div>
-                <div class="quick-card-sub">Update niche, offer, and goal.</div>
+              <button class="quick-card" onclick="openCheckin()">
+                <div class="quick-ico">☀️</div>
+                <div class="quick-title">Check-in</div>
+                <div class="quick-sub">Définir mon focus du jour.</div>
+              </button>
+              <a class="quick-card" href="#business-profile" onclick="scrollTo('#business-profile')">
+                <div class="quick-ico">✎</div>
+                <div class="quick-title">Mon profil</div>
+                <div class="quick-sub">Mettre à jour ma niche et mon offre.</div>
               </a>
               <a class="quick-card" href="#projects">
-                <div class="quick-card-icon">▣</div>
-                <div class="quick-card-title">Review projects</div>
-                <div class="quick-card-sub">Check what needs to move forward.</div>
+                <div class="quick-ico">▣</div>
+                <div class="quick-title">Projets</div>
+                <div class="quick-sub">Voir ce qui doit avancer.</div>
               </a>
             </div>
           </section>
 
-
-          <!-- SETTINGS PREVIEW -->
+          <!-- PARAMÈTRES APERÇU -->
           <section class="card" id="settings">
-            <div class="card-header">
-              <div class="card-header-left">
-                <div class="eyebrow">Settings</div>
-                <h2>Your stored context</h2>
+            <div class="card-head">
+              <div class="card-head-left">
+                <div class="card-eyebrow">⚙ Paramètres</div>
+                <div class="card-title">Ton contexte</div>
               </div>
             </div>
-            <p class="card-sub">The context Florencia uses to personalize your workspace.</p>
+            <p class="card-sub">Le contexte que Florencia utilise pour personnaliser tes résultats.</p>
 
             <div class="settings-grid">
               <div class="setting-box">
-                <div class="setting-label">Full name</div>
-                <div class="setting-value" id="settingName">Loading…</div>
+                <div class="setting-label">Nom</div>
+                <div class="setting-value" id="settingName">—</div>
               </div>
               <div class="setting-box">
                 <div class="setting-label">Email</div>
-                <div class="setting-value" id="settingEmail" style="font-size:0.78rem;word-break:break-all;">Loading…</div>
+                <div class="setting-value" id="settingEmail" style="font-size:12px;word-break:break-all;">—</div>
               </div>
               <div class="setting-box">
-                <div class="setting-label">Country</div>
+                <div class="setting-label">Pays</div>
                 <div class="setting-value" id="settingCountry">—</div>
               </div>
               <div class="setting-box">
-                <div class="setting-label">City</div>
+                <div class="setting-label">Ville</div>
                 <div class="setting-value" id="settingCity">—</div>
               </div>
               <div class="setting-box">
-                <div class="setting-label">Language</div>
-                <div class="setting-value" id="settingLanguage">English</div>
+                <div class="setting-label">Langue</div>
+                <div class="setting-value" id="settingLanguage">Français</div>
               </div>
               <div class="setting-box">
-                <div class="setting-label">Today's goal</div>
+                <div class="setting-label">Objectif du jour</div>
                 <div class="setting-value" id="settingGoal">—</div>
               </div>
             </div>
           </section>
 
-        </div><!-- /right column -->
-      </div><!-- /grid-2col -->
+        </div><!-- /col-droite -->
+      </div><!-- /grid-2 -->
 
+      <!-- ── 5. PROFIL BUSINESS (pleine largeur) ── -->
+      <div class="section-divider fade-up">
+        <span>Profil Business</span>
+      </div>
 
-      <!-- ── BUSINESS PROFILE EDITOR (full width) ── -->
-      <section class="card" id="business-profile">
-        <div class="card-header">
-          <div class="card-header-left">
-            <div class="eyebrow eyebrow-forest">Business Profile</div>
-            <h2>Edit your business context</h2>
+      <section class="card fade-up" id="business-profile">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-eyebrow" style="background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2);color:var(--green);">✎ Profil Business</div>
+            <div class="card-title">Modifier ton contexte business</div>
           </div>
         </div>
         <p class="card-sub">
-          This context shapes how Florencia understands your work. Saved locally on this device.
-          It updates the Offers block and Settings Preview automatically when you save.
+          Ce contexte définit comment Florencia comprend ton activité et personnalise ses conseils.
+          Sauvegardé localement sur cet appareil.
         </p>
 
         <div class="profile-grid">
           <div class="field">
-            <label for="profileNiche">Your main niche</label>
-            <input id="profileNiche" type="text" placeholder="e.g. B2B SaaS copywriting, freelance brand strategy…" />
+            <label for="profileNiche">Ta niche principale</label>
+            <input id="profileNiche" type="text" placeholder="Ex : Copywriting B2B SaaS, coaching fitness femmes…"/>
           </div>
           <div class="field">
-            <label for="profileOffer">Your main offer</label>
-            <input id="profileOffer" type="text" placeholder="e.g. 3-month brand clarity package, monthly retainer…" />
+            <label for="profileOffer">Ton offre principale</label>
+            <input id="profileOffer" type="text" placeholder="Ex : Accompagnement 3 mois, formation en ligne…"/>
           </div>
           <div class="field">
-            <label for="profileRevenue">Monthly revenue goal</label>
-            <input id="profileRevenue" type="text" placeholder="e.g. $3,000 / month, €5,000 / month…" />
+            <label for="profileRevenue">Objectif revenu mensuel</label>
+            <input id="profileRevenue" type="text" placeholder="Ex : 3 000€ / mois, 500 000 FCFA / mois…"/>
           </div>
           <div class="field">
-            <label for="profileCountry">Country</label>
-            <input id="profileCountry" type="text" placeholder="e.g. France, United States, Canada…" />
+            <label for="profileCountry">Pays</label>
+            <input id="profileCountry" type="text" placeholder="Ex : France, Bénin, Sénégal, Canada…"/>
           </div>
           <div class="field">
-            <label for="profileCity">City</label>
-            <input id="profileCity" type="text" placeholder="e.g. Paris, New York, Montreal…" />
+            <label for="profileCity">Ville</label>
+            <input id="profileCity" type="text" placeholder="Ex : Paris, Cotonou, Dakar, Montréal…"/>
           </div>
           <div class="field">
-            <label for="profileLanguage">Primary language</label>
+            <label for="profileLanguage">Langue principale</label>
             <select id="profileLanguage">
-              <option value="English">English</option>
-              <option value="French">French</option>
-              <option value="Spanish">Spanish</option>
-              <option value="Portuguese">Portuguese</option>
-              <option value="German">German</option>
-              <option value="Italian">Italian</option>
-              <option value="Other">Other</option>
+              <option value="Français">Français</option>
+              <option value="Anglais">Anglais</option>
+              <option value="Espagnol">Espagnol</option>
+              <option value="Portugais">Portugais</option>
+              <option value="Arabe">Arabe</option>
+              <option value="Autre">Autre</option>
             </select>
           </div>
           <div class="field full">
-            <label for="profileBio">Short business description (optional)</label>
-            <textarea id="profileBio" placeholder="Briefly describe what you do, who you serve, and what makes your work distinctive. Florencia uses this to give better-aligned guidance."></textarea>
+            <label for="profileBio">Description courte de ton activité (optionnel)</label>
+            <textarea id="profileBio" placeholder="Décris brièvement ce que tu fais, qui tu aides et ce qui rend ton travail unique. Florencia utilise ça pour affiner ses conseils."></textarea>
           </div>
         </div>
 
         <div class="profile-actions">
-          <button class="btn btn-primary" id="saveProfileBtn">Save business profile</button>
-          <button class="btn btn-secondary" id="clearProfileBtn">Clear profile</button>
+          <button class="btn btn-primary" id="saveProfileBtn">
+            💾 Sauvegarder le profil
+          </button>
+          <button class="btn btn-secondary" id="clearProfileBtn">
+            Effacer
+          </button>
         </div>
 
-        <div id="profileStatus" class="status-msg profile-status"></div>
+        <div id="profileStatus" class="status-msg"></div>
 
-        <p class="helper-text" style="margin-top:16px;">
-          Data is saved locally on your device via localStorage. Cloud sync will be available in a future version.
-          To get the most from Florencia AI, paste this context at the start of your next chat session.
+        <p style="font-size:12px;color:var(--muted2);margin-top:16px;line-height:1.7;">
+          Les données sont sauvegardées localement via localStorage. La synchronisation cloud sera disponible dans une prochaine version.
         </p>
       </section>
 
-    </main><!-- /main -->
-  </div><!-- /app -->
+    </div><!-- /page -->
+  </main><!-- /main -->
+</div><!-- /app -->
 
 
-  <!-- ══════════════ SCRIPT ══════════════ -->
-  <script>
-    'use strict';
+<!-- ══════════════════════════════════════════
+     MODAL CHECK-IN QUOTIDIEN
+══════════════════════════════════════════ -->
+<div class="modal-wrap" id="checkinModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeCheckin()">×</button>
 
-    /* ── Supabase ── */
-    const SUPABASE_URL = 'https://cpytelisafcpervakpsc.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_29WZXXFNXeEIvBEm9wZmIA_qP0M-b3k';
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <div class="modal-icon">☀️</div>
+    <div class="modal-eyebrow">Check-in quotidien</div>
+    <div class="modal-title">Comment se passe ta journée ?</div>
+    <div class="modal-desc">Ces informations aident Florencia à t'accompagner avec plus de précision aujourd'hui. 60 secondes suffisent.</div>
 
-    /* ── DOM refs ── */
-    const $  = id => document.getElementById(id);
-    const welcomeName     = $('welcomeName');
-    const sidebarName     = $('sidebarUserName');
-    const sidebarEmail    = $('sidebarUserEmail');
-    const settingName     = $('settingName');
-    const settingEmail    = $('settingEmail');
-    const settingCountry  = $('settingCountry');
-    const settingCity     = $('settingCity');
-    const settingLanguage = $('settingLanguage');
-    const settingGoal     = $('settingGoal');
+    <div id="checkinForm">
 
-    const nichePreview    = $('nichePreview');
-    const offerPreview    = $('offerPreview');
-    const revenuePreview  = $('revenuePreview');
-    const statFocus       = $('statFocus');
-    const statRevGoal     = $('statRevenueGoal');
-    const statRevNote     = $('statRevenueNote');
+      <div class="field" style="margin-bottom:16px;">
+        <label class="field-label" style="font-size:12px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;">
+          Ton objectif principal du jour
+        </label>
+        <input type="text" id="ci_goal" placeholder="Ex : Contacter 3 prospects, finaliser mon offre…"/>
+      </div>
 
-    const checkinForm     = $('checkinForm');
-    const clearCheckinBtn = $('clearCheckinBtn');
-    const checkinStatus   = $('checkinStatus');
-    const goalInput       = $('goalInput');
-    const focusInput      = $('focusInput');
-    const blockerInput    = $('blockerInput');
-    const noteInput       = $('noteInput');
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">
+          Ton focus prioritaire
+        </div>
+        <div class="chip-group" id="focusChips">
+          <div class="chip" onclick="toggleChip(this)">Acquisition clients</div>
+          <div class="chip" onclick="toggleChip(this)">Création contenu</div>
+          <div class="chip" onclick="toggleChip(this)">Organisation</div>
+          <div class="chip" onclick="toggleChip(this)">Offre & Pricing</div>
+          <div class="chip" onclick="toggleChip(this)">Stratégie</div>
+          <div class="chip" onclick="toggleChip(this)">Production</div>
+          <div class="chip" onclick="toggleChip(this)">Finances</div>
+          <div class="chip" onclick="toggleChip(this)">Autre</div>
+        </div>
+      </div>
 
-    const profileNiche    = $('profileNiche');
-    const profileOffer    = $('profileOffer');
-    const profileRevenue  = $('profileRevenue');
-    const profileCountry  = $('profileCountry');
-    const profileCity     = $('profileCity');
-    const profileLanguage = $('profileLanguage');
-    const profileBio      = $('profileBio');
-    const saveProfileBtn  = $('saveProfileBtn');
-    const clearProfileBtn = $('clearProfileBtn');
-    const profileStatus   = $('profileStatus');
+      <div class="field" style="margin-bottom:16px;">
+        <label class="field-label" style="font-size:12px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;">
+          Blocage actuel (optionnel)
+        </label>
+        <input type="text" id="ci_blocker" placeholder="Ex : Pas de structure, message peu clair…"/>
+      </div>
 
-    const logoutBtn       = $('logoutBtn');
-    const logoutBtnMobile = $('logoutBtnMobile');
+      <div class="field" style="margin-bottom:6px;">
+        <label class="field-label" style="font-size:12px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;">
+          Note libre (optionnel)
+        </label>
+        <textarea id="ci_note" rows="3" placeholder="Quelque chose d'important à mentionner pour aujourd'hui…"></textarea>
+      </div>
 
-    /* ── Helpers ── */
-    function getFirstName(fullName, email) {
-      if (fullName && fullName.trim()) return fullName.trim().split(' ')[0];
-      if (email) return email.split('@')[0];
-      return 'there';
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeCheckin()">Passer</button>
+      <button class="btn btn-primary" onclick="saveCheckin()" style="flex:1;">
+        ✓ Enregistrer le check-in
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── SUPABASE ──────────────────────────────── */
+const SUPABASE_URL = 'https://cpytelisafcpervakpsc.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_29WZXXFNXeEIvBEm9wZmIA_qP0M-b3k';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ── HELPERS ───────────────────────────────── */
+const $ = id => document.getElementById(id);
+const today = () => new Date().toISOString().split('T')[0];
+
+function showToast(msg, type = 'success') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.borderColor = type === 'success' ? 'rgba(34,197,94,.3)' : 'rgba(239,68,68,.3)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function showStatus(elId, type, msg) {
+  const el = $(elId);
+  if(!el) return;
+  el.className = 'status-msg show ' + type;
+  el.textContent = msg;
+  setTimeout(() => { if(el) el.className = 'status-msg'; }, 4000);
+}
+
+function setVal(el, val, fallback = '—') {
+  if(!el) return;
+  const v = val && String(val).trim();
+  el.textContent = v || fallback;
+  el.className = v ? 'setting-value' : 'setting-value empty';
+}
+
+function setOfferVal(el, val) {
+  if(!el) return;
+  const v = val && String(val).trim();
+  el.textContent = v || 'Non renseigné';
+  el.className = v ? 'offer-row-value' : 'offer-row-value empty';
+}
+
+function getFirstName(fullName, email) {
+  if(fullName && fullName.trim()) return fullName.trim().split(' ')[0];
+  if(email) return email.split('@')[0];
+  return 'là';
+}
+
+/* ── DATE HEADER ───────────────────────────── */
+function renderDate() {
+  const now = new Date();
+  const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+  $('topbarDate').textContent = now.toLocaleDateString('fr-FR', opts);
+}
+
+/* ── SIDEBAR ───────────────────────────────── */
+function openSidebar() {
+  $('sidebar').classList.add('open');
+  $('overlay').classList.add('show');
+}
+function closeSidebar() {
+  $('sidebar').classList.remove('open');
+  $('overlay').classList.remove('show');
+}
+
+/* ── SCROLL HELPER ─────────────────────────── */
+function scrollTo(selector) {
+  const el = document.querySelector(selector);
+  if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ── CHECK-IN MODAL ────────────────────────── */
+function openCheckin() {
+  const d = loadCheckinData();
+  $('ci_goal').value = d.goal || '';
+  $('ci_blocker').value = d.blocker || '';
+  $('ci_note').value = d.note || '';
+  document.querySelectorAll('#focusChips .chip').forEach(c => {
+    c.classList.toggle('sel', c.textContent.trim() === d.focus);
+  });
+  $('checkinModal').classList.add('show');
+  closeSidebar();
+}
+
+function closeCheckin() {
+  $('checkinModal').classList.remove('show');
+}
+
+function toggleChip(el) {
+  const group = el.parentElement;
+  group.querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function saveCheckin() {
+  const focusEl = document.querySelector('#focusChips .chip.sel');
+  const data = {
+    date:    today(),
+    goal:    $('ci_goal').value.trim(),
+    focus:   focusEl ? focusEl.textContent.trim() : '',
+    blocker: $('ci_blocker').value.trim(),
+    note:    $('ci_note').value.trim(),
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem('florencia_daily_checkin', JSON.stringify(data));
+  closeCheckin();
+  applyCheckin(data);
+  showToast('✓ Check-in enregistré pour aujourd\'hui');
+  $('navCheckinBadge').style.display = 'none';
+}
+
+function loadCheckinData() {
+  try { return JSON.parse(localStorage.getItem('florencia_daily_checkin') || '{}'); }
+  catch { return {}; }
+}
+
+function applyCheckin(d) {
+  // stat card
+  const focus = $('statFocus');
+  if(focus) {
+    focus.textContent = d.focus || '—';
+    focus.style.fontSize = d.focus && d.focus.length > 15 ? '1.1rem' : '1.3rem';
+  }
+  // setting
+  setVal($('settingGoal'), d.goal, '—');
+
+  // banners
+  const banner = $('checkinBanner');
+  const doneBanner = $('checkinDoneBanner');
+  if(d.date === today() && (d.goal || d.focus)) {
+    banner.style.display = 'none';
+    doneBanner.style.display = 'flex';
+    const desc = [d.focus && `Focus : ${d.focus}`, d.goal && `Objectif : ${d.goal}`].filter(Boolean).join(' · ');
+    $('checkinDoneDesc').textContent = desc || '';
+    $('navCheckinBadge').style.display = 'none';
+  } else {
+    banner.style.display = 'flex';
+    doneBanner.style.display = 'none';
+    $('navCheckinBadge').style.display = '';
+  }
+}
+
+/* ── BUSINESS PROFILE ──────────────────────── */
+function loadProfile() {
+  try {
+    const p = JSON.parse(localStorage.getItem('florencia_business_profile') || '{}');
+    if($('profileNiche'))    $('profileNiche').value    = p.niche       || '';
+    if($('profileOffer'))    $('profileOffer').value    = p.offer       || '';
+    if($('profileRevenue'))  $('profileRevenue').value  = p.revenueGoal || '';
+    if($('profileCountry'))  $('profileCountry').value  = p.country     || '';
+    if($('profileCity'))     $('profileCity').value     = p.city        || '';
+    if($('profileLanguage') && p.language) $('profileLanguage').value = p.language;
+    if($('profileBio'))      $('profileBio').value      = p.bio         || '';
+    applyProfile(p);
+  } catch(e) {}
+}
+
+function applyProfile(p) {
+  setOfferVal($('nichePreview'),    p.niche);
+  setOfferVal($('offerPreview'),    p.offer);
+  setOfferVal($('revenuePreview'),  p.revenueGoal);
+
+  // stat card
+  const rv = $('statRevGoal');
+  const rn = $('statRevNote');
+  if(rv) rv.textContent = p.revenueGoal || 'Non défini';
+  if(rn) rn.textContent = p.revenueGoal ? 'Objectif mensuel' : 'Définis-le dans le profil';
+
+  // settings
+  setVal($('settingCountry'),  p.country,  '—');
+  setVal($('settingCity'),     p.city,     '—');
+  setVal($('settingLanguage'), p.language, 'Français');
+}
+
+$('saveProfileBtn') && $('saveProfileBtn').addEventListener('click', () => {
+  const p = {
+    niche:       $('profileNiche')    ? $('profileNiche').value.trim()    : '',
+    offer:       $('profileOffer')    ? $('profileOffer').value.trim()    : '',
+    revenueGoal: $('profileRevenue')  ? $('profileRevenue').value.trim()  : '',
+    country:     $('profileCountry')  ? $('profileCountry').value.trim()  : '',
+    city:        $('profileCity')     ? $('profileCity').value.trim()     : '',
+    language:    $('profileLanguage') ? $('profileLanguage').value        : 'Français',
+    bio:         $('profileBio')      ? $('profileBio').value.trim()      : '',
+    savedAt:     new Date().toISOString()
+  };
+  localStorage.setItem('florencia_business_profile', JSON.stringify(p));
+  applyProfile(p);
+  showStatus('profileStatus', 'success', '✓ Profil business sauvegardé sur cet appareil.');
+  showToast('✓ Profil business sauvegardé');
+});
+
+$('clearProfileBtn') && $('clearProfileBtn').addEventListener('click', () => {
+  localStorage.removeItem('florencia_business_profile');
+  ['profileNiche','profileOffer','profileRevenue','profileCountry','profileCity','profileBio']
+    .forEach(id => { const el = $(id); if(el) el.value = ''; });
+  if($('profileLanguage')) $('profileLanguage').value = 'Français';
+  applyProfile({});
+  showStatus('profileStatus', 'success', 'Profil business effacé.');
+});
+
+/* ── AUTH ──────────────────────────────────── */
+async function fillUserData() {
+  const { data, error } = await sb.auth.getUser();
+  if(error || !data?.user) {
+    window.location.href = 'login.html';
+    return;
+  }
+  const user = data.user;
+  const fullName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+  const email    = user.email || '';
+  const first    = getFirstName(fullName, email);
+  const display  = fullName || first;
+
+  $('heroName').textContent    = first;
+  $('sbName').textContent      = display;
+  $('sbEmail').textContent     = email;
+  $('sbAvatar').textContent    = display.charAt(0).toUpperCase();
+  setVal($('settingName'),  display, '—');
+  setVal($('settingEmail'), email,   '—');
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+$('logoutBtn') && $('logoutBtn').addEventListener('click', logout);
+
+/* ── NAV ACTIVE ON SCROLL ──────────────────── */
+document.querySelectorAll('.nav-item[href^="#"]').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if(target) {
+      target.scrollIntoView({ behavior:'smooth', block:'start' });
+      closeSidebar();
     }
+  });
+});
 
-    function showMsg(el, type, text) {
-      if (!el) return;
-      el.className = 'status-msg show ' + type;
-      el.textContent = text;
-      setTimeout(() => { if (el) el.className = 'status-msg'; }, 4000);
-    }
+/* ── INIT ──────────────────────────────────── */
+function init() {
+  renderDate();
+  loadProfile();
+  const ci = loadCheckinData();
+  applyCheckin(ci);
+  fillUserData().catch(() => {});
+}
 
-    function setVal(el, val, fallback) {
-      if (!el) return;
-      el.textContent = (val && val.trim()) ? val.trim() : fallback;
-      el.className = (val && val.trim()) ? 'setting-value' : 'setting-value empty';
-    }
-
-    /* ── Session guard ── */
-    async function requireSession() {
-      const { data, error } = await sb.auth.getUser();
-      if (error || !data?.user) {
-        window.location.href = 'login.html';
-        return null;
-      }
-      return data.user;
-    }
-
-    /* ── Fill user data from Supabase ── */
-    async function fillUserData() {
-      const user = await requireSession();
-      if (!user) return;
-
-      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || '';
-      const email    = user.email || '';
-      const first    = getFirstName(fullName, email);
-      const display  = fullName || first;
-
-      if (welcomeName)  welcomeName.textContent = first;
-      if (sidebarName)  sidebarName.textContent = display;
-      if (sidebarEmail) sidebarEmail.textContent = email;
-      if (settingName)  settingName.textContent = display;
-      if (settingEmail) settingEmail.textContent = email;
-    }
-
-    /* ── Daily check-in ── */
-    function loadCheckin() {
-      try {
-        const d = JSON.parse(localStorage.getItem('florencia_daily_checkin') || '{}');
-        if (goalInput)   goalInput.value   = d.goal    || '';
-        if (focusInput)  focusInput.value  = d.focus   || '';
-        if (blockerInput)blockerInput.value = d.blocker || '';
-        if (noteInput)   noteInput.value   = d.note    || '';
-        if (statFocus) {
-          statFocus.textContent = d.focus
-            ? (d.focus.length > 24 ? d.focus.slice(0, 24) + '…' : d.focus)
-            : '—';
-        }
-        if (settingGoal) settingGoal.textContent = d.goal || '—';
-      } catch (e) { /* ignore parse errors */ }
-    }
-
-    function saveCheckin(data) {
-      localStorage.setItem('florencia_daily_checkin', JSON.stringify(data));
-      if (statFocus) {
-        statFocus.textContent = data.focus
-          ? (data.focus.length > 24 ? data.focus.slice(0, 24) + '…' : data.focus)
-          : '—';
-      }
-      if (settingGoal) settingGoal.textContent = data.goal || '—';
-    }
-
-    if (checkinForm) {
-      checkinForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const data = {
-          goal:    goalInput    ? goalInput.value.trim()    : '',
-          focus:   focusInput   ? focusInput.value.trim()   : '',
-          blocker: blockerInput ? blockerInput.value.trim() : '',
-          note:    noteInput    ? noteInput.value.trim()    : '',
-          savedAt: new Date().toISOString()
-        };
-        saveCheckin(data);
-        showMsg(checkinStatus, 'success', '✓ Today\'s check-in has been saved on this device.');
-      });
-    }
-
-    if (clearCheckinBtn) {
-      clearCheckinBtn.addEventListener('click', function () {
-        if (goalInput)    goalInput.value    = '';
-        if (focusInput)   focusInput.value   = '';
-        if (blockerInput) blockerInput.value  = '';
-        if (noteInput)    noteInput.value     = '';
-        localStorage.removeItem('florencia_daily_checkin');
-        if (statFocus)    statFocus.textContent    = '—';
-        if (settingGoal)  settingGoal.textContent  = '—';
-        showMsg(checkinStatus, 'success', 'Check-in cleared.');
-      });
-    }
-
-    /* ── Business profile ── */
-    function applyProfile(p) {
-      if (!p) return;
-
-      // Offers block
-      if (nichePreview)   setOfferVal(nichePreview,   p.niche);
-      if (offerPreview)   setOfferVal(offerPreview,   p.offer);
-      if (revenuePreview) setOfferVal(revenuePreview, p.revenueGoal);
-
-      // Stats snapshot
-      if (statRevGoal) {
-        statRevGoal.textContent = p.revenueGoal || 'Not set';
-        statRevGoal.style.fontSize = p.revenueGoal ? '1.45rem' : '1.45rem';
-      }
-      if (statRevNote) {
-        statRevNote.textContent = p.revenueGoal ? 'Monthly target' : 'Set it in Business Profile';
-      }
-
-      // Settings preview
-      setVal(settingCountry,  p.country,  '—');
-      setVal(settingCity,     p.city,     '—');
-      setVal(settingLanguage, p.language, 'English');
-    }
-
-    function setOfferVal(el, val) {
-      if (!el) return;
-      if (val && val.trim()) {
-        el.textContent = val.trim();
-        el.className = 'offer-row-value';
-      } else {
-        el.textContent = 'Not set yet';
-        el.className = 'offer-row-value empty';
-      }
-    }
-
-    function loadProfile() {
-      try {
-        const p = JSON.parse(localStorage.getItem('florencia_business_profile') || '{}');
-        if (profileNiche)    profileNiche.value    = p.niche        || '';
-        if (profileOffer)    profileOffer.value    = p.offer        || '';
-        if (profileRevenue)  profileRevenue.value  = p.revenueGoal  || '';
-        if (profileCountry)  profileCountry.value  = p.country      || '';
-        if (profileCity)     profileCity.value     = p.city         || '';
-        if (profileLanguage && p.language) profileLanguage.value = p.language;
-        if (profileBio)      profileBio.value      = p.bio          || '';
-        applyProfile(p);
-      } catch (e) { /* ignore */ }
-    }
-
-    if (saveProfileBtn) {
-      saveProfileBtn.addEventListener('click', function () {
-        const p = {
-          niche:       profileNiche    ? profileNiche.value.trim()    : '',
-          offer:       profileOffer    ? profileOffer.value.trim()    : '',
-          revenueGoal: profileRevenue  ? profileRevenue.value.trim()  : '',
-          country:     profileCountry  ? profileCountry.value.trim()  : '',
-          city:        profileCity     ? profileCity.value.trim()     : '',
-          language:    profileLanguage ? profileLanguage.value        : 'English',
-          bio:         profileBio      ? profileBio.value.trim()      : '',
-          savedAt:     new Date().toISOString()
-        };
-        localStorage.setItem('florencia_business_profile', JSON.stringify(p));
-        applyProfile(p);
-        showMsg(profileStatus, 'success', '✓ Business profile saved on this device.');
-      });
-    }
-
-    if (clearProfileBtn) {
-      clearProfileBtn.addEventListener('click', function () {
-        localStorage.removeItem('florencia_business_profile');
-        if (profileNiche)    profileNiche.value    = '';
-        if (profileOffer)    profileOffer.value    = '';
-        if (profileRevenue)  profileRevenue.value  = '';
-        if (profileCountry)  profileCountry.value  = '';
-        if (profileCity)     profileCity.value     = '';
-        if (profileLanguage) profileLanguage.value = 'English';
-        if (profileBio)      profileBio.value      = '';
-        applyProfile({});
-        showMsg(profileStatus, 'success', 'Business profile cleared.');
-      });
-    }
-
-    /* ── Logout ── */
-    async function logout() {
-      await sb.auth.signOut();
-      window.location.href = 'login.html';
-    }
-    if (logoutBtn)       logoutBtn.addEventListener('click', logout);
-    if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', logout);
-
-    /* ── Sidebar active link scroll ── */
-    document.querySelectorAll('.nav-link[href^="#"]').forEach(link => {
-      link.addEventListener('click', function () {
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        // Don't mark anchor links as active permanently — only dashboard.html gets that
-      });
-    });
-
-    /* ── Init ── */
-    loadCheckin();
-    loadProfile();
-    fillUserData();
-  </script>
+init();
+</script>
 </body>
 </html>
