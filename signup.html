@@ -3,617 +3,653 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Florencia OS | Create your account</title>
+  <title>Florencia OS — Create your account</title>
+  <meta name="description" content="Join Florencia OS and start building a clearer, more structured business today." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --cream: #f7f3ed;
-      --cream-2: #efe7db;
-      --ink: #1f1d19;
-      --muted: #7a746d;
-      --forest: #2f5a4c;
-      --forest-2: #3b6d5c;
-      --gold: #c89a3d;
-      --line: #ddd3c6;
-      --white: #ffffff;
-      --danger-bg: #fff1f1;
-      --danger-text: #9f3f3f;
-      --success-bg: #edf8f1;
-      --success-text: #2f6a47;
-      --shadow: 0 20px 60px rgba(30, 24, 17, 0.10);
-      --radius: 24px;
-      --radius-sm: 14px;
+      --cream:        #FAF7F2;
+      --cream-mid:    #F2EDE5;
+      --cream-deep:   #E8E0D4;
+      --ink:          #1C1A17;
+      --ink-soft:     #4A4540;
+      --ink-muted:    #8A837A;
+      --forest:       #2C4A3E;
+      --forest-lt:    #3D6456;
+      --forest-pale:  #EBF2EE;
+      --gold:         #C49A3C;
+      --gold-pale:    #F5E9C8;
+      --white:        #FFFFFF;
+      --line:         #DDD3C6;
+      --danger-bg:    #FFF1F1;
+      --danger-text:  #9F3F3F;
+      --danger-line:  #F0CACA;
+      --success-bg:   #EDF8F1;
+      --success-text: #2F6A47;
+      --success-line: #CFE9D9;
+      --shadow:       0 24px 64px rgba(28,26,22,0.10);
+      --shadow-sm:    0 2px 12px rgba(28,26,22,0.07);
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: "DM Sans", sans-serif;
-      background: linear-gradient(180deg, #f8f5ef 0%, #f1ebe2 100%);
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(160deg, #FAF7F2 0%, #F0E8DD 100%);
       color: var(--ink);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    a { color: inherit; text-decoration: none; }
 
-    .page {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    /* ══ PAGE SHELL ══ */
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
 
+    /* ══ TOPBAR ══ */
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 24px;
-      max-width: 1180px;
-      width: 100%;
-      margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 32px;
+      max-width: 1200px; width: 100%; margin: 0 auto;
     }
-
     .logo {
-      font-family: "Cormorant Garamond", serif;
-      font-size: 2rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem; font-weight: 600; letter-spacing: -0.02em;
     }
-
-    .logo span {
-      color: var(--forest);
+    .logo span { color: var(--forest); }
+    .toplinks { display: flex; align-items: center; gap: 20px; }
+    .toplinks a { color: var(--ink-muted); font-size: 0.88rem; transition: color 0.2s; }
+    .toplinks a:hover { color: var(--forest); }
+    .btn-login {
+      padding: 9px 20px; border-radius: 50px;
+      border: 1.5px solid var(--line);
+      background: rgba(255,255,255,0.70);
+      color: var(--ink); font-size: 0.88rem; font-weight: 500;
+      transition: border-color 0.2s, background 0.2s;
     }
+    .btn-login:hover { border-color: var(--forest); background: var(--forest-pale); color: var(--forest); }
 
-    .toplinks {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .toplinks a {
-      color: var(--muted);
-      font-size: 0.95rem;
-      transition: color 0.2s ease;
-    }
-
-    .toplinks a:hover {
-      color: var(--forest);
-    }
-
-    .login-link {
-      padding: 10px 18px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255,255,255,0.65);
-      color: var(--ink);
-    }
-
+    /* ══ MAIN GRID ══ */
     .main {
       flex: 1;
       display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 36px;
-      align-items: stretch;
-      max-width: 1180px;
-      width: 100%;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      max-width: 1200px; width: 100%;
       margin: 0 auto;
-      padding: 12px 24px 40px;
+      padding: 20px 32px 48px;
     }
 
+    /* ══ LEFT PANEL ══ */
     .panel-left {
-      padding: 48px 12px 24px 4px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      padding: 24px 20px 24px 4px;
+      display: flex; flex-direction: column;
     }
-
     .eyebrow {
-      display: inline-block;
-      margin-bottom: 16px;
-      padding: 7px 14px;
-      border-radius: 999px;
-      background: rgba(200, 154, 61, 0.14);
-      color: #8f6924;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      display: inline-block; margin-bottom: 20px;
+      padding: 6px 14px; border-radius: 50px;
+      background: rgba(196,154,60,0.13);
+      border: 1px solid rgba(196,154,60,0.25);
+      color: #8A6A20; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.10em; text-transform: uppercase;
     }
-
     .title {
-      font-family: "Cormorant Garamond", serif;
-      font-size: clamp(2.9rem, 5vw, 4.8rem);
-      line-height: 0.98;
-      margin-bottom: 20px;
-      letter-spacing: -0.03em;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 4.5vw, 4.4rem);
+      line-height: 1.00; letter-spacing: -0.03em;
+      color: var(--ink); margin-bottom: 20px;
     }
-
-    .title em {
-      font-style: italic;
-      color: var(--forest);
-    }
-
+    .title em { font-style: italic; color: var(--forest); }
     .subtitle {
-      max-width: 540px;
-      font-size: 1.08rem;
-      line-height: 1.8;
-      color: #5f5951;
-      margin-bottom: 30px;
+      font-size: 1.05rem; line-height: 1.80; color: var(--ink-soft);
+      font-weight: 300; max-width: 480px; margin-bottom: 36px;
     }
 
-    .benefits {
-      display: grid;
-      gap: 16px;
-      max-width: 560px;
-    }
-
+    /* Benefits */
+    .benefits { display: grid; gap: 14px; max-width: 520px; }
     .benefit {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.65);
-      border: 1px solid rgba(47, 90, 76, 0.08);
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 16px 18px; border-radius: 16px;
+      background: rgba(255,255,255,0.68);
+      border: 1px solid rgba(44,74,62,0.07);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.22s, transform 0.22s;
     }
-
+    .benefit:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(28,26,22,0.09); }
     .benefit-icon {
-      width: 34px;
-      height: 34px;
-      flex-shrink: 0;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--forest);
-      color: white;
-      font-size: 0.95rem;
-      font-weight: 700;
+      width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--forest); flex-shrink: 0;
+    }
+    .benefit-icon svg {
+      width: 16px; height: 16px; stroke: white; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .benefit-body strong {
+      display: block; font-size: 0.93rem; font-weight: 600;
+      color: var(--ink); margin-bottom: 3px;
+    }
+    .benefit-body span {
+      font-size: 0.85rem; color: var(--ink-muted); line-height: 1.6; font-weight: 300;
     }
 
-    .benefit strong {
-      display: block;
-      margin-bottom: 3px;
-      font-size: 0.98rem;
+    /* Included note */
+    .included-note {
+      margin-top: 28px; display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 12px;
+      background: rgba(196,154,60,0.08);
+      border: 1px solid rgba(196,154,60,0.20);
+      max-width: 520px;
     }
+    .included-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold); flex-shrink: 0;
+    }
+    .included-note span { font-size: 0.82rem; color: #8A6A20; font-weight: 500; line-height: 1.5; }
 
-    .benefit span {
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.6;
-    }
-
-    .panel-right {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    /* ══ RIGHT PANEL — CARD ══ */
+    .panel-right { display: flex; align-items: center; justify-content: center; }
 
     .card {
-      width: 100%;
-      max-width: 560px;
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.6);
-      border-radius: 30px;
+      width: 100%; max-width: 540px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.65);
+      border-radius: 28px;
       box-shadow: var(--shadow);
-      padding: 34px 30px 28px;
+      padding: 40px 36px 34px;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--forest), var(--gold));
+      border-radius: 28px 28px 0 0;
     }
 
-    .card-brand {
-      font-family: "Cormorant Garamond", serif;
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 18px;
+    .card-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 600; color: var(--ink);
+      margin-bottom: 20px; display: block;
     }
-
-    .card-brand span {
-      color: var(--forest);
-    }
+    .card-logo span { color: var(--forest); }
 
     .card-title {
-      font-family: "Cormorant Garamond", serif;
-      font-size: 3rem;
-      line-height: 1;
-      letter-spacing: -0.03em;
-      margin-bottom: 14px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem; line-height: 1;
+      letter-spacing: -0.03em; color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .card-sub {
+      font-size: 0.9rem; color: var(--ink-muted); font-weight: 300;
+      line-height: 1.7; margin-bottom: 30px;
     }
 
-    .card-subtitle {
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.8;
-      margin-bottom: 28px;
-      max-width: 460px;
+    /* ══ FORM ══ */
+    .form-group { margin-bottom: 20px; }
+
+    .field-label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: var(--ink-soft); margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.06em;
     }
 
-    .form-group {
-      margin-bottom: 22px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: #2a2722;
+    .input-wrap { position: relative; }
+    .input-wrap svg.input-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; stroke: var(--ink-muted); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+      pointer-events: none; transition: stroke 0.2s;
     }
 
     input[type="text"],
     input[type="email"],
     input[type="password"] {
       width: 100%;
-      height: 62px;
-      border: 2px solid var(--line);
-      border-radius: 18px;
-      background: #fbf8f3;
-      padding: 0 18px;
-      font-size: 1rem;
+      height: 54px;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      background: rgba(251,248,243,0.80);
+      padding: 0 44px 0 42px;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
       color: var(--ink);
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     }
-
+    input::placeholder { color: var(--ink-muted); }
     input:focus {
       border-color: var(--forest);
-      box-shadow: 0 0 0 4px rgba(47, 90, 76, 0.10);
+      box-shadow: 0 0 0 3px rgba(44,74,62,0.10);
       background: var(--white);
     }
+    input:focus ~ svg.input-icon,
+    .input-wrap:focus-within svg.input-icon { stroke: var(--forest); }
 
-    .hint {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 0.88rem;
+    /* Password toggle */
+    .btn-toggle-pw {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--ink-muted); transition: color 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-toggle-pw:hover { color: var(--forest); }
+    .btn-toggle-pw svg {
+      width: 16px; height: 16px; stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
     }
 
+    /* Password strength */
+    .pw-strength { margin-top: 8px; }
+    .pw-bars { display: flex; gap: 4px; margin-bottom: 5px; }
+    .pw-bar {
+      flex: 1; height: 3px; border-radius: 99px;
+      background: var(--cream-deep); transition: background 0.3s;
+    }
+    .pw-bar.weak   { background: #E07070; }
+    .pw-bar.fair   { background: var(--gold); }
+    .pw-bar.strong { background: var(--forest); }
+    .pw-label { font-size: 0.75rem; color: var(--ink-muted); }
+    .pw-label.weak   { color: #A05050; }
+    .pw-label.fair   { color: #8A6A20; }
+    .pw-label.strong { color: var(--forest); }
+
+    /* Hint */
+    .hint { margin-top: 6px; font-size: 0.78rem; color: var(--ink-muted); }
+
+    /* Terms checkbox */
     .checkbox-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin: 4px 0 24px;
+      display: flex; align-items: flex-start;
+      gap: 12px; margin: 8px 0 24px;
     }
-
     .checkbox-row input[type="checkbox"] {
-      width: 22px;
-      height: 22px;
-      margin-top: 2px;
-      accent-color: var(--forest);
-      flex-shrink: 0;
-    }
-
-    .checkbox-row label {
-      margin: 0;
-      font-weight: 400;
-      line-height: 1.7;
-      color: #4a4540;
-    }
-
-    .checkbox-row a {
-      color: var(--forest);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-
-    .submit-btn {
-      width: 100%;
-      height: 62px;
-      border: none;
-      border-radius: 999px;
-      background: var(--forest);
-      color: white;
-      font-size: 1rem;
-      font-weight: 600;
+      width: 20px; height: 20px; margin-top: 2px;
+      accent-color: var(--forest); flex-shrink: 0;
       cursor: pointer;
-      transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     }
-
-    .submit-btn:hover {
-      background: var(--forest-2);
-      transform: translateY(-1px);
+    .checkbox-row label {
+      margin: 0; font-weight: 400; font-size: 0.875rem;
+      line-height: 1.7; color: var(--ink-soft); cursor: pointer;
     }
+    .checkbox-row a { color: var(--forest); font-weight: 600; }
+    .checkbox-row a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
-    .submit-btn:disabled {
-      opacity: 0.75;
-      cursor: not-allowed;
-      transform: none;
+    /* Submit button */
+    .submit-btn {
+      width: 100%; height: 54px;
+      border: none; border-radius: 50px;
+      background: var(--forest); color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; letter-spacing: 0.01em;
+      transition: background 0.22s, transform 0.18s, box-shadow 0.22s, opacity 0.2s;
+      box-shadow: 0 4px 18px rgba(44,74,62,0.26);
     }
+    .submit-btn:hover:not(:disabled) {
+      background: var(--forest-lt); transform: translateY(-1px);
+      box-shadow: 0 8px 26px rgba(44,74,62,0.32);
+    }
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.70; cursor: not-allowed; transform: none; }
 
+    /* Messages */
     .message-box {
-      display: none;
-      margin-top: 18px;
-      padding: 16px 18px;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      line-height: 1.6;
+      display: none; margin-top: 18px;
+      padding: 14px 18px; border-radius: 12px;
+      font-size: 0.88rem; line-height: 1.6;
     }
-
     .message-box.error {
       display: block;
-      background: var(--danger-bg);
-      color: var(--danger-text);
-      border: 1px solid #f0caca;
+      background: var(--danger-bg); color: var(--danger-text);
+      border: 1px solid var(--danger-line);
     }
-
     .message-box.success {
       display: block;
-      background: var(--success-bg);
-      color: var(--success-text);
-      border: 1px solid #cfe9d9;
+      background: var(--success-bg); color: var(--success-text);
+      border: 1px solid var(--success-line);
     }
 
+    /* Bottom link */
     .bottom-link {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 0.95rem;
-      color: var(--muted);
+      text-align: center; margin-top: 22px;
+      font-size: 0.875rem; color: var(--ink-muted);
     }
+    .bottom-link a { color: var(--forest); font-weight: 600; }
+    .bottom-link a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
-    .bottom-link a {
-      color: var(--forest);
-      font-weight: 600;
+    /* Divider */
+    .form-divider {
+      display: flex; align-items: center; gap: 14px; margin: 22px 0;
     }
+    .form-divider::before,
+    .form-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--line);
+    }
+    .form-divider span { font-size: 0.75rem; color: var(--ink-muted); white-space: nowrap; }
 
+    /* ══ RESPONSIVE ══ */
     @media (max-width: 980px) {
-      .main {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-
-      .panel-left {
-        padding: 16px 0 0;
-      }
-
-      .title {
-        font-size: 3rem;
-      }
+      .main { grid-template-columns: 1fr; gap: 24px; padding: 16px 24px 40px; }
+      .panel-left { padding: 8px 0 0; }
+      .title { font-size: 3rem; }
+      .benefits { display: none; }
+      .included-note { display: none; }
     }
-
     @media (max-width: 640px) {
-      .topbar {
-        padding: 18px 16px;
-      }
-
-      .toplinks {
-        gap: 12px;
-      }
-
-      .toplinks a:not(.login-link) {
-        display: none;
-      }
-
-      .main {
-        padding: 8px 16px 28px;
-      }
-
-      .card {
-        padding: 26px 18px 22px;
-        border-radius: 24px;
-      }
-
-      .card-title {
-        font-size: 2.4rem;
-      }
-
-      .subtitle,
-      .card-subtitle {
-        font-size: 0.96rem;
-      }
-
-      input[type="text"],
-      input[type="email"],
-      input[type="password"] {
-        height: 58px;
-      }
-
-      .submit-btn {
-        height: 58px;
-      }
+      .topbar { padding: 18px 20px; }
+      .toplinks a:not(.btn-login) { display: none; }
+      .main { padding: 10px 18px 32px; }
+      .card { padding: 32px 22px 28px; border-radius: 22px; }
+      .card-title { font-size: 2.2rem; }
+      .title { font-size: 2.6rem; }
     }
+
+    :focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-radius: 4px; }
   </style>
 </head>
 <body>
-  <div class="page">
-    <header class="topbar">
-      <a href="index.html" class="logo">Florencia <span>OS</span></a>
+<div class="page">
 
-      <nav class="toplinks">
-        <a href="about.html">About</a>
-        <a href="help.html">Help</a>
-        <a href="login.html" class="login-link">Log in</a>
-      </nav>
-    </header>
+  <!-- ══ TOPBAR ══ -->
+  <header class="topbar">
+    <a href="index.html" class="logo">Florencia <span>OS</span></a>
+    <nav class="toplinks">
+      <a href="about.html">About</a>
+      <a href="help.html">Help</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="login.html" class="btn-login">Log in</a>
+    </nav>
+  </header>
 
-    <main class="main">
-      <section class="panel-left">
-        <div class="eyebrow">Early access</div>
-        <h1 class="title">Build a business <em>that feels clear again.</em></h1>
-        <p class="subtitle">
-          Join the first wave of freelancers and solo entrepreneurs using Florencia OS
-          to organize their work, structure their offers, and build more consistent income.
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+
+    <!-- LEFT -->
+    <section class="panel-left">
+      <div class="eyebrow">Early access</div>
+      <h1 class="title">Build a business<br><em>that feels clear<br>again.</em></h1>
+      <p class="subtitle">
+        Join the first wave of freelancers and solo entrepreneurs using Florencia OS
+        to organize their work, structure their offers, and build more consistent income.
+      </p>
+
+      <div class="benefits">
+        <div class="benefit">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="benefit-body">
+            <strong>Set up your account in minutes</strong>
+            <span>Start with a clean foundation instead of another messy pile of tools.</span>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="benefit-body">
+            <strong>Prepare your business for better decisions</strong>
+            <span>Florencia is built to help you think clearly, move faster, and stay organized.</span>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="benefit-body">
+            <strong>Grow with a smarter operating system</strong>
+            <span>From planning to AI support, everything becomes more useful over time.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="included-note">
+        <div class="included-dot"></div>
+        <span>14-day Elite trial included with every new account &mdash; no credit card required.</span>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="panel-right">
+      <div class="card">
+        <span class="card-logo">Florencia <span>OS</span></span>
+        <h2 class="card-title">Create your account</h2>
+        <p class="card-sub">
+          Join freelancers building a clearer, more structured business with Florencia OS.
         </p>
 
-        <div class="benefits">
-          <div class="benefit">
-            <div class="benefit-icon">1</div>
-            <div>
-              <strong>Set up your account in minutes</strong>
-              <span>Start with a clean foundation instead of another messy pile of tools.</span>
+        <form id="signupForm" novalidate>
+
+          <!-- Full name -->
+          <div class="form-group">
+            <label class="field-label" for="fullName">Full name</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="fullName" name="fullName"
+                     placeholder="Marie Dupont"
+                     autocomplete="name" />
             </div>
           </div>
 
-          <div class="benefit">
-            <div class="benefit-icon">2</div>
-            <div>
-              <strong>Prepare your business for better decisions</strong>
-              <span>Florencia is built to help you think clearly, move faster, and stay organized.</span>
+          <!-- Email -->
+          <div class="form-group">
+            <label class="field-label" for="email">Email address</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input type="email" id="email" name="email"
+                     placeholder="marie@example.com"
+                     autocomplete="email" />
             </div>
           </div>
 
-          <div class="benefit">
-            <div class="benefit-icon">3</div>
-            <div>
-              <strong>Grow with a smarter operating system</strong>
-              <span>From planning to AI support, everything is designed to become more useful over time.</span>
+          <!-- Password -->
+          <div class="form-group">
+            <label class="field-label" for="password">Password</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="password" name="password"
+                     placeholder="Minimum 8 characters"
+                     autocomplete="new-password" />
+              <button type="button" class="btn-toggle-pw" id="togglePw" aria-label="Show password" onclick="togglePw('password','togglePw')">
+                <svg id="eyePw" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="pw-strength" id="pwStrength" style="display:none;">
+              <div class="pw-bars">
+                <div class="pw-bar" id="bar1"></div>
+                <div class="pw-bar" id="bar2"></div>
+                <div class="pw-bar" id="bar3"></div>
+                <div class="pw-bar" id="bar4"></div>
+              </div>
+              <span class="pw-label" id="pwLabel"></span>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section class="panel-right">
-        <div class="card">
-          <div class="card-brand">Florencia <span>OS</span></div>
-          <h2 class="card-title">Create your account</h2>
-          <p class="card-subtitle">
-            Join freelancers building a clearer, more structured way to run their business with Florencia OS.
-          </p>
-
-          <form id="signupForm">
-            <div class="form-group">
-              <label for="fullName">Full name</label>
-              <input type="text" id="fullName" name="fullName" placeholder="Marie Dupont" autocomplete="name" />
+          <!-- Confirm password -->
+          <div class="form-group">
+            <label class="field-label" for="confirmPassword">Confirm password</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="confirmPassword" name="confirmPassword"
+                     placeholder="Repeat your password"
+                     autocomplete="new-password" />
+              <button type="button" class="btn-toggle-pw" aria-label="Show confirm password" onclick="togglePw('confirmPassword',this)">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="email">Email address</label>
-              <input type="email" id="email" name="email" placeholder="marie@example.com" autocomplete="email" />
-            </div>
+          <!-- Terms -->
+          <div class="checkbox-row">
+            <input type="checkbox" id="terms" name="terms" />
+            <label for="terms">
+              I agree to the <a href="terms-of-service.html" target="_blank">Terms of Service</a>
+              and <a href="privacy-policy.html" target="_blank">Privacy Policy</a> of Florencia OS.
+            </label>
+          </div>
 
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" id="password" name="password" placeholder="Minimum 8 characters" autocomplete="new-password" />
-              <div class="hint">Use at least 8 characters.</div>
-            </div>
+          <!-- Submit -->
+          <button type="submit" class="submit-btn" id="submitBtn">Create my account</button>
 
-            <div class="form-group">
-              <label for="confirmPassword">Confirm password</label>
-              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" />
-            </div>
+          <!-- Message -->
+          <div id="messageBox" class="message-box"></div>
 
-            <div class="checkbox-row">
-              <input type="checkbox" id="terms" name="terms" />
-              <label for="terms">
-                I agree to the <a href="terms-of-service.html">Terms of Service</a>
-                and <a href="privacy-policy.html">Privacy Policy</a> of Florencia OS.
-              </label>
-            </div>
+          <!-- Bottom link -->
+          <div class="bottom-link">
+            Already have an account? <a href="login.html">Log in</a>
+          </div>
 
-            <button type="submit" class="submit-btn" id="submitBtn">Create my account</button>
+        </form>
+      </div>
+    </section>
 
-            <div id="messageBox" class="message-box"></div>
+  </main>
+</div>
 
-            <div class="bottom-link">
-              Already have an account? <a href="login.html">Log in</a>
-            </div>
-          </form>
-        </div>
-      </section>
-    </main>
-  </div>
+<script>
+  'use strict';
 
-  <script>
-    const SUPABASE_URL = "https://cpytelisafcpervakpsc.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_29WZXXFNXeEIvBEm9wZmIA_qP0M-b3k";
+  /* ── Supabase ── */
+  var SUPABASE_URL      = 'https://cpytelisafcpervakpsc.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_29WZXXFNXeEIvBEm9wZmIA_qP0M-b3k';
+  var supabaseClient    = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  /* ── DOM refs ── */
+  var signupForm = document.getElementById('signupForm');
+  var submitBtn  = document.getElementById('submitBtn');
+  var messageBox = document.getElementById('messageBox');
+  var pwInput    = document.getElementById('password');
+  var pwStrength = document.getElementById('pwStrength');
 
-    const signupForm = document.getElementById("signupForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const messageBox = document.getElementById("messageBox");
+  /* ── Message helpers ── */
+  function showMessage(type, text) {
+    messageBox.className   = 'message-box ' + type;
+    messageBox.textContent = text;
+  }
+  function clearMessage() {
+    messageBox.className   = 'message-box';
+    messageBox.textContent = '';
+  }
 
-    function showMessage(type, text) {
-      messageBox.className = "message-box " + type;
-      messageBox.textContent = text;
+  /* ── Password visibility toggle ── */
+  function togglePw(inputId, btn) {
+    var inp = document.getElementById(inputId);
+    var isHidden = inp.type === 'password';
+    inp.type = isHidden ? 'text' : 'password';
+
+    var svgEl = (typeof btn === 'string')
+      ? document.getElementById('eyePw')
+      : (btn.querySelector ? btn.querySelector('svg') : btn);
+
+    if (svgEl) {
+      svgEl.innerHTML = isHidden
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
     }
+  }
 
-    function clearMessage() {
-      messageBox.className = "message-box";
-      messageBox.textContent = "";
-    }
+  /* ── Password strength ── */
+  function checkStrength(pw) {
+    var score = 0;
+    if (pw.length >= 8)  score++;
+    if (pw.length >= 12) score++;
+    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score++;
+    return score;
+  }
 
-    signupForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      clearMessage();
+  pwInput.addEventListener('input', function () {
+    var val = this.value;
+    if (!val) { pwStrength.style.display = 'none'; return; }
+    pwStrength.style.display = 'block';
 
-      const fullName = document.getElementById("fullName").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const termsAccepted = document.getElementById("terms").checked;
+    var score = checkStrength(val);
+    var bars  = [document.getElementById('bar1'), document.getElementById('bar2'),
+                 document.getElementById('bar3'), document.getElementById('bar4')];
+    var label = document.getElementById('pwLabel');
+    var cls   = score <= 1 ? 'weak' : score <= 2 ? 'fair' : 'strong';
+    var text  = score <= 1 ? 'Weak' : score <= 2 ? 'Fair' : score === 3 ? 'Good' : 'Strong';
 
-      if (!fullName) {
-        showMessage("error", "Please enter your full name.");
-        return;
-      }
-
-      if (!email || !email.includes("@")) {
-        showMessage("error", "Please enter a valid email address.");
-        return;
-      }
-
-      if (password.length < 8) {
-        showMessage("error", "Password must be at least 8 characters long.");
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        showMessage("error", "Passwords do not match.");
-        return;
-      }
-
-      if (!termsAccepted) {
-        showMessage("error", "You must accept the Terms of Service and Privacy Policy to continue.");
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Creating account...";
-
-      try {
-        const { error } = await supabaseClient.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName
-            }
-          }
-        });
-
-        if (error) {
-          if (error.message.toLowerCase().includes("user already registered")) {
-            showMessage("error", "This email address is already in use. Try logging in instead.");
-          } else {
-            showMessage("error", error.message);
-          }
-
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Create my account";
-          return;
-        }
-
-        showMessage(
-          "success",
-          "Your account has been created. Check your inbox to confirm your email, then log in."
-        );
-
-        submitBtn.textContent = "Account created ✓";
-
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 2200);
-      } catch (err) {
-        showMessage("error", "Network error. Please check your connection and try again.");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Create my account";
-      }
+    bars.forEach(function (b, i) {
+      b.className = 'pw-bar' + (i < score ? ' ' + cls : '');
     });
-  </script>
+    label.className   = 'pw-label ' + cls;
+    label.textContent = text;
+  });
+
+  /* ── Form submit ── (logic unchanged from original) ── */
+  signupForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearMessage();
+
+    var fullName        = document.getElementById('fullName').value.trim();
+    var email           = document.getElementById('email').value.trim();
+    var password        = document.getElementById('password').value;
+    var confirmPassword = document.getElementById('confirmPassword').value;
+    var termsAccepted   = document.getElementById('terms').checked;
+
+    if (!fullName) {
+      showMessage('error', 'Please enter your full name.');
+      return;
+    }
+    if (!email || !email.includes('@')) {
+      showMessage('error', 'Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 8) {
+      showMessage('error', 'Password must be at least 8 characters long.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      showMessage('error', 'Passwords do not match.');
+      return;
+    }
+    if (!termsAccepted) {
+      showMessage('error', 'You must accept the Terms of Service and Privacy Policy to continue.');
+      return;
+    }
+
+    submitBtn.disabled    = true;
+    submitBtn.textContent = 'Creating account...';
+
+    try {
+      var result = await supabaseClient.auth.signUp({
+        email:    email,
+        password: password,
+        options:  { data: { full_name: fullName } }
+      });
+
+      if (result.error) {
+        if (result.error.message.toLowerCase().includes('user already registered')) {
+          showMessage('error', 'This email address is already in use. Try logging in instead.');
+        } else {
+          showMessage('error', result.error.message);
+        }
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Create my account';
+        return;
+      }
+
+      showMessage('success', 'Your account has been created. Check your inbox to confirm your email, then log in.');
+      submitBtn.textContent = 'Account created';
+
+      setTimeout(function () {
+        window.location.href = 'login.html';
+      }, 2200);
+
+    } catch (err) {
+      showMessage('error', 'Network error. Please check your connection and try again.');
+      submitBtn.disabled    = false;
+      submitBtn.textContent = 'Create my account';
+    }
+  });
+</script>
 </body>
 </html>
