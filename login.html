@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Log in | Florencia OS</title>
+  <title>Florencia OS — Log in</title>
+  <meta name="description" content="Log in to your Florencia OS workspace." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -13,28 +14,30 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --cream:     #FAF7F2;
-      --cream-mid: #F2EDE5;
-      --cream-deep:#E8E0D4;
-      --ink:       #1C1A17;
-      --ink-soft:  #4A4540;
-      --ink-muted: #8A837A;
-      --forest:    #2C4A3E;
-      --forest-lt: #3D6456;
-      --gold:      #C49A3C;
-      --gold-lt:   #E8C270;
-      --gold-pale: #F5E9C8;
-      --white:     #FFFFFF;
-      --shadow-sm: 0 2px 12px rgba(28,26,23,0.07);
-      --shadow-md: 0 8px 32px rgba(28,26,23,0.10);
-      --shadow-lg: 0 20px 60px rgba(28,26,23,0.13);
+      --cream:        #FAF7F2;
+      --cream-mid:    #F2EDE5;
+      --cream-deep:   #E8E0D4;
+      --ink:          #1C1A17;
+      --ink-soft:     #4A4540;
+      --ink-muted:    #8A837A;
+      --forest:       #2C4A3E;
+      --forest-lt:    #3D6456;
+      --forest-pale:  #EBF2EE;
+      --gold:         #C49A3C;
+      --gold-lt:      #E8C270;
+      --gold-pale:    #F5E9C8;
+      --white:        #FFFFFF;
+      --line:         #DDD3C6;
+      --shadow-sm:    0 2px 12px rgba(28,26,23,0.07);
+      --shadow-md:    0 8px 32px rgba(28,26,23,0.10);
+      --shadow-lg:    0 24px 64px rgba(28,26,23,0.13);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
+      background: linear-gradient(160deg, #FAF7F2 0%, #F0E8DD 100%);
       color: var(--ink);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
@@ -45,351 +48,403 @@
 
     a { text-decoration: none; color: inherit; }
 
+    /* ══ NAV ══ */
     nav {
       background: rgba(250,247,242,0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       border-bottom: 1px solid rgba(28,26,23,0.07);
+      flex-shrink: 0;
     }
-
-    .container {
-      width: 100%;
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px; }
     .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       height: 64px;
     }
-
     .logo {
       font-family: 'Cormorant Garamond', serif;
-      font-weight: 600;
-      font-size: 1.45rem;
-      color: var(--ink);
-      letter-spacing: -0.01em;
+      font-weight: 600; font-size: 1.45rem;
+      color: var(--ink); letter-spacing: -0.01em;
     }
-
     .logo span { color: var(--forest); }
-
-    .nav-links-simple {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-      list-style: none;
+    .nav-right { display: flex; align-items: center; gap: 22px; }
+    .nav-link { font-size: 0.875rem; color: var(--ink-soft); transition: color 0.2s; }
+    .nav-link:hover { color: var(--forest); }
+    .btn-signup {
+      padding: 9px 20px; border-radius: 50px;
+      background: var(--forest); color: white;
+      font-size: 0.875rem; font-weight: 500;
+      transition: background 0.22s, transform 0.18s;
+      box-shadow: 0 3px 14px rgba(44,74,62,0.22);
     }
+    .btn-signup:hover { background: var(--forest-lt); transform: translateY(-1px); }
 
-    .nav-links-simple a {
-      font-size: 0.875rem;
-      color: var(--ink-soft);
-      transition: color 0.2s;
-    }
-
-    .nav-links-simple a:hover { color: var(--forest); }
-
-    .auth-wrapper {
+    /* ══ PAGE BODY ══ */
+    .page-body {
       flex: 1;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 32px 48px;
+      gap: 48px;
       align-items: center;
-      justify-content: center;
-      padding: 48px 24px;
     }
+
+    /* ══ LEFT PANEL ══ */
+    .panel-left {
+      display: flex; flex-direction: column;
+      padding: 20px 12px 20px 4px;
+    }
+    .eyebrow {
+      display: inline-block; margin-bottom: 20px;
+      padding: 6px 14px; border-radius: 50px;
+      background: rgba(44,74,62,0.09);
+      border: 1px solid rgba(44,74,62,0.15);
+      color: var(--forest); font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.10em; text-transform: uppercase;
+    }
+    .panel-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.6rem, 4vw, 4rem);
+      line-height: 1.02; letter-spacing: -0.03em;
+      color: var(--ink); margin-bottom: 18px;
+    }
+    .panel-title em { font-style: italic; color: var(--forest); }
+    .panel-sub {
+      font-size: 1.02rem; line-height: 1.80; color: var(--ink-soft);
+      font-weight: 300; max-width: 440px; margin-bottom: 36px;
+    }
+
+    /* Feature list */
+    .features { display: grid; gap: 12px; max-width: 460px; }
+    .feat {
+      display: flex; gap: 12px; align-items: center;
+      padding: 13px 16px; border-radius: 14px;
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(44,74,62,0.07);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feat:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,26,22,0.09); }
+    .feat-icon {
+      width: 32px; height: 32px; flex-shrink: 0; border-radius: 9px;
+      background: var(--forest-pale);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .feat-icon svg {
+      width: 15px; height: 15px; stroke: var(--forest); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .feat span { font-size: 0.875rem; color: var(--ink-soft); font-weight: 400; line-height: 1.5; }
+    .feat strong { color: var(--ink); font-weight: 600; }
+
+    /* ══ RIGHT PANEL — AUTH CARD ══ */
+    .panel-right { display: flex; align-items: center; justify-content: center; }
 
     .auth-card {
-      background: var(--white);
-      border-radius: 20px;
-      padding: 48px 44px;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 26px;
+      padding: 44px 40px 38px;
       box-shadow: var(--shadow-lg);
-      border: 1px solid rgba(28,26,23,0.06);
-      width: 100%;
-      max-width: 420px;
-      position: relative;
-      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.65);
+      width: 100%; max-width: 440px;
+      position: relative; overflow: hidden;
     }
-
     .auth-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--forest), var(--gold));
+      border-radius: 26px 26px 0 0;
     }
 
     .auth-logo {
       font-family: 'Cormorant Garamond', serif;
-      font-weight: 600;
-      font-size: 1.3rem;
-      color: var(--ink);
-      letter-spacing: -0.01em;
-      margin-bottom: 8px;
+      font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em;
+      color: var(--ink); margin-bottom: 20px; display: block;
     }
-
     .auth-logo span { color: var(--forest); }
 
     .auth-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 6px;
-      line-height: 1.2;
+      font-size: 2.4rem; font-weight: 600;
+      color: var(--ink); line-height: 1.1;
+      letter-spacing: -0.02em; margin-bottom: 6px;
     }
-
     .auth-sub {
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-      margin-bottom: 32px;
-      font-weight: 300;
+      font-size: 0.875rem; color: var(--ink-muted);
+      font-weight: 300; line-height: 1.7; margin-bottom: 30px;
     }
 
+    /* ══ FORM FIELDS ══ */
     .field { margin-bottom: 18px; }
-
-    .field label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--ink-soft);
-      margin-bottom: 6px;
+    .field-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 7px;
     }
-
-    .field input {
-      width: 100%;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      color: var(--ink);
-      background: var(--cream);
-      border: 1.5px solid var(--cream-deep);
-      border-radius: 10px;
-      padding: 12px 16px;
-      outline: none;
-      transition: border-color 0.22s, box-shadow 0.22s;
-      -webkit-appearance: none;
+    .field-label {
+      font-size: 0.78rem; font-weight: 600; color: var(--ink-soft);
+      text-transform: uppercase; letter-spacing: 0.06em;
     }
-
-    .field input:focus {
-      border-color: var(--forest);
-      box-shadow: 0 0 0 3px rgba(44,74,62,0.08);
-    }
-
-    .field input.input-error {
-      border-color: #C0756A;
-    }
-
-    .field-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      gap: 12px;
-    }
-
-    .field-row label {
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--ink-soft);
-    }
-
-    .field-row a {
-      font-size: 0.78rem;
-      color: var(--forest);
-    }
-
-    .field-row a:hover { color: var(--forest-lt); }
-
-    .btn-submit {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      background: var(--forest);
-      color: var(--white);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 1rem;
-      padding: 14px 24px;
-      border-radius: 50px;
-      border: none;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: background 0.22s, transform 0.18s, box-shadow 0.22s;
-      box-shadow: 0 4px 18px rgba(44,74,62,0.22);
-    }
-
-    .btn-submit:hover:not(:disabled) {
-      background: var(--forest-lt);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(44,74,62,0.28);
-    }
-
-    .btn-submit:disabled {
-      opacity: 0.6;
-      cursor: wait;
-      transform: none;
-    }
-
-    .auth-msg {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      margin-top: 16px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      border-radius: 10px;
-      padding: 12px 16px;
-    }
-
-    .auth-msg.visible { display: flex; }
-
-    .auth-msg.msg-success {
-      background: #EBF5EF;
-      color: #2C7A4E;
-      border: 1px solid #C5E3CF;
-    }
-
-    .auth-msg.msg-error {
-      background: #FBF0EE;
-      color: #8C3A30;
-      border: 1px solid #ECC5BF;
-    }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 0.85rem;
-      color: var(--ink-muted);
-    }
-
-    .auth-footer a {
-      color: var(--forest);
-      font-weight: 500;
-    }
-
-    .auth-footer a:hover { color: var(--forest-lt); }
-
-    .divider {
-      height: 1px;
-      background: var(--cream-deep);
-      margin: 24px 0;
-    }
-
-    footer {
-      background: var(--ink);
-      padding: 36px 0;
-      margin-top: auto;
-    }
-
-    .footer-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .footer-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.7);
-    }
-
-    .footer-logo span { color: var(--gold-lt); }
-
-    .footer-copy {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.28);
-      margin-top: 4px;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 22px;
-      list-style: none;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.4);
+    .forgot-link {
+      font-size: 0.75rem; color: var(--forest); font-weight: 500;
       transition: color 0.2s;
     }
+    .forgot-link:hover { color: var(--forest-lt); text-decoration: underline; text-underline-offset: 2px; }
 
-    .footer-links a:hover { color: rgba(255,255,255,0.8); }
-
-    @media (max-width: 520px) {
-      .auth-card { padding: 36px 24px; }
-      .auth-title { font-size: 1.55rem; }
-      .nav-links-simple { display: none; }
+    .input-wrap { position: relative; }
+    .input-wrap svg.field-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 15px; height: 15px; stroke: var(--ink-muted); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+      pointer-events: none; transition: stroke 0.2s;
     }
+    .input-wrap:focus-within svg.field-icon { stroke: var(--forest); }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      height: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.925rem;
+      color: var(--ink);
+      background: var(--cream);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 0 40px 0 38px;
+      outline: none;
+      -webkit-appearance: none;
+      transition: border-color 0.22s, box-shadow 0.22s, background 0.22s;
+    }
+    input::placeholder { color: var(--ink-muted); }
+    input:focus {
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(44,74,62,0.09);
+      background: var(--white);
+    }
+    input.input-error { border-color: #C0756A !important; box-shadow: 0 0 0 3px rgba(192,117,106,0.10) !important; }
+
+    /* Toggle password */
+    .btn-eye {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--ink-muted); transition: color 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-eye:hover { color: var(--forest); }
+    .btn-eye svg {
+      width: 15px; height: 15px; stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ══ SUBMIT ══ */
+    .btn-submit {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; height: 50px;
+      background: var(--forest); color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-weight: 600;
+      font-size: 0.95rem; letter-spacing: 0.01em;
+      border-radius: 50px; border: none; cursor: pointer;
+      transition: background 0.22s, transform 0.18s, box-shadow 0.22s;
+      box-shadow: 0 4px 18px rgba(44,74,62,0.25);
+      margin-top: 6px;
+    }
+    .btn-submit:hover:not(:disabled) {
+      background: var(--forest-lt); transform: translateY(-1px);
+      box-shadow: 0 8px 26px rgba(44,74,62,0.32);
+    }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.62; cursor: wait; transform: none; }
+
+    /* ══ MESSAGES ══ */
+    .auth-msg {
+      display: none; align-items: flex-start; gap: 8px;
+      margin-top: 16px; font-size: 0.85rem; font-weight: 500;
+      border-radius: 10px; padding: 12px 14px; line-height: 1.55;
+    }
+    .auth-msg.visible { display: flex; }
+    .auth-msg svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .msg-success { background: #EBF5EF; color: #2C7A4E; border: 1px solid #C5E3CF; }
+    .msg-success svg { stroke: #2C7A4E; }
+    .msg-error   { background: #FBF0EE; color: #8C3A30; border: 1px solid #ECC5BF; }
+    .msg-error svg { stroke: #8C3A30; }
+
+    /* ══ DIVIDER ══ */
+    .divider {
+      height: 1px; background: var(--cream-deep); margin: 24px 0;
+    }
+
+    /* Footer link */
+    .auth-footer {
+      text-align: center; font-size: 0.85rem; color: var(--ink-muted);
+    }
+    .auth-footer a { color: var(--forest); font-weight: 600; }
+    .auth-footer a:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ══ FOOTER ══ */
+    footer { background: var(--ink); padding: 36px 0; flex-shrink: 0; }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 600; color: rgba(255,255,255,0.70);
+    }
+    .footer-logo span { color: var(--gold-lt); }
+    .footer-copy { font-size: 0.74rem; color: rgba(255,255,255,0.28); margin-top: 4px; }
+    .footer-links { display: flex; gap: 22px; list-style: none; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.80rem; color: rgba(255,255,255,0.40); transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.80); }
+
+    /* ══ RESPONSIVE ══ */
+    @media (max-width: 960px) {
+      .page-body { grid-template-columns: 1fr; gap: 20px; padding: 20px 24px 40px; }
+      .panel-left { padding: 8px 0 0; }
+      .panel-title { font-size: 2.8rem; }
+      .features { display: none; }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 0 20px; }
+      .page-body { padding: 14px 20px 32px; }
+      .auth-card { padding: 34px 24px 28px; border-radius: 20px; }
+      .auth-title { font-size: 2rem; }
+      .nav-right .nav-link { display: none; }
+      .panel-title { font-size: 2.4rem; }
+      .panel-sub { font-size: 0.96rem; }
+    }
+
+    :focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-radius: 4px; }
+    .btn-submit:focus-visible { border-radius: 50px; }
   </style>
 </head>
 <body>
 
+<!-- ══ NAV ══ -->
 <nav>
   <div class="container">
     <div class="nav-inner">
       <a href="index.html" class="logo">Florencia <span>OS</span></a>
-      <ul class="nav-links-simple">
-        <li><a href="about.html">About</a></li>
-        <li><a href="help.html">Help</a></li>
-        <li><a href="signup.html">Create an account</a></li>
-      </ul>
+      <div class="nav-right">
+        <a href="about.html"  class="nav-link">About</a>
+        <a href="help.html"   class="nav-link">Help</a>
+        <a href="pricing.html" class="nav-link">Pricing</a>
+        <a href="signup.html" class="btn-signup">Create an account</a>
+      </div>
     </div>
   </div>
 </nav>
 
-<div class="auth-wrapper">
-  <div class="auth-card">
-    <p class="auth-logo">Florencia <span>OS</span></p>
-    <h1 class="auth-title">Log in</h1>
-    <p class="auth-sub">Welcome back. Log in to access your Florencia OS workspace.</p>
+<!-- ══ PAGE BODY ══ -->
+<div class="page-body">
 
-    <div class="field">
-      <label for="login-email">Email address</label>
-      <input id="login-email" type="email" inputmode="email" autocomplete="email" placeholder="marie@example.com" />
-    </div>
+  <!-- LEFT -->
+  <div class="panel-left">
+    <div class="eyebrow">Welcome back</div>
+    <h1 class="panel-title">Your business<br>is waiting<br><em>for you.</em></h1>
+    <p class="panel-sub">
+      Log back in to access your AI copilot, your pipeline, your projects
+      and everything Florencia OS has been tracking for you.
+    </p>
 
-    <div class="field">
-      <div class="field-row">
-        <label for="login-password">Password</label>
-        <a href="#" id="forgot-link">Forgot password?</a>
+    <div class="features">
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <span><strong>AI that remembers you</strong> — your context, goals and projects are still there.</span>
       </div>
-      <input id="login-password" type="password" autocomplete="current-password" placeholder="Your password" />
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <span><strong>Your pipeline, live</strong> — every lead and follow-up exactly where you left them.</span>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <span><strong>Daily action system</strong> — your priorities are ready as soon as you log in.</span>
+      </div>
     </div>
-
-    <button id="login-btn" class="btn-submit" type="button">
-      Log in
-    </button>
-
-    <div id="login-success" class="auth-msg msg-success">
-      ✓ Login successful. Redirecting...
-    </div>
-
-    <div id="login-error" class="auth-msg msg-error">
-      Incorrect email or password.
-    </div>
-
-    <div class="divider"></div>
-
-    <p class="auth-footer">Don’t have an account yet? <a href="signup.html">Create one</a></p>
   </div>
+
+  <!-- RIGHT -->
+  <div class="panel-right">
+    <div class="auth-card">
+      <span class="auth-logo">Florencia <span>OS</span></span>
+      <h1 class="auth-title">Log in</h1>
+      <p class="auth-sub">Welcome back. Log in to access your Florencia OS workspace.</p>
+
+      <!-- Email -->
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label" for="login-email">Email address</label>
+        </div>
+        <div class="input-wrap">
+          <svg class="field-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input id="login-email" type="email" inputmode="email"
+                 autocomplete="email" placeholder="marie@example.com" />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label" for="login-password">Password</label>
+          <a href="#" id="forgot-link" class="forgot-link">Forgot password?</a>
+        </div>
+        <div class="input-wrap">
+          <svg class="field-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input id="login-password" type="password"
+                 autocomplete="current-password" placeholder="Your password" />
+          <button type="button" class="btn-eye" id="btn-eye" aria-label="Show password" onclick="toggleEye()">
+            <svg id="eye-icon" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button id="login-btn" class="btn-submit" type="button">
+        Log in
+        <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <!-- Messages -->
+      <div id="login-success" class="auth-msg msg-success">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Login successful. Redirecting to your workspace&#8230;</span>
+      </div>
+      <div id="login-error" class="auth-msg msg-error">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="error-text">Incorrect email or password.</span>
+      </div>
+
+      <div class="divider"></div>
+      <p class="auth-footer">Don&#8217;t have an account? <a href="signup.html">Create one free</a></p>
+    </div>
+  </div>
+
 </div>
 
+<!-- ══ FOOTER ══ -->
 <footer>
   <div class="container">
     <div class="footer-inner">
       <div>
         <p class="footer-logo">Florencia <span>OS</span></p>
-        <p class="footer-copy">&#169; 2025 Florencia OS. All rights reserved.</p>
+        <p class="footer-copy">&#169; 2026 Florencia OS. All rights reserved.</p>
       </div>
       <ul class="footer-links">
         <li><a href="about.html">About</a></li>
         <li><a href="help.html">Help</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
         <li><a href="privacy-policy.html">Privacy Policy</a></li>
         <li><a href="terms-of-service.html">Terms of Service</a></li>
       </ul>
@@ -401,20 +456,23 @@
   (function () {
     'use strict';
 
-    const SUPABASE_URL = 'https://cpytelisafcpervakpsc.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_29WZXXFNXeEIvBEm9wZmIA_qP0M-b3k';
+    /* ── Supabase — identique à l'original ── */
+    var SUPABASE_URL = 'https://cpytelisafcpervakpsc.supabase.co';
+    var SUPABASE_KEY = 'sb_publishable_29WZXXFNXeEIvBEm9wZmIA_qP0M-b3k';
 
-    const db = (typeof supabase !== 'undefined')
+    var db = (typeof supabase !== 'undefined')
       ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
       : null;
 
-    const emailInput = document.getElementById('login-email');
-    const passInput  = document.getElementById('login-password');
-    const submitBtn  = document.getElementById('login-btn');
-    const successMsg = document.getElementById('login-success');
-    const errorMsg   = document.getElementById('login-error');
-    const forgotLink = document.getElementById('forgot-link');
+    var emailInput  = document.getElementById('login-email');
+    var passInput   = document.getElementById('login-password');
+    var submitBtn   = document.getElementById('login-btn');
+    var successMsg  = document.getElementById('login-success');
+    var errorMsg    = document.getElementById('login-error');
+    var errorText   = document.getElementById('error-text');
+    var forgotLink  = document.getElementById('forgot-link');
 
+    /* ── Helpers ── */
     function isValidEmail(v) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
     }
@@ -427,38 +485,48 @@
     }
 
     function showError(msg) {
-      errorMsg.textContent = msg;
+      errorText.textContent = msg;
       errorMsg.classList.add('visible');
     }
 
     function showSuccess(msg) {
-      successMsg.textContent = msg;
+      successMsg.querySelector('span').textContent = msg;
       successMsg.classList.add('visible');
     }
 
     function setLoading(on) {
       submitBtn.disabled = on;
-      submitBtn.textContent = on ? 'Logging in...' : 'Log in';
+      submitBtn.innerHTML = on
+        ? 'Logging in&#8230;'
+        : 'Log in <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
     }
 
+    /* ── Password visibility toggle ── */
+    window.toggleEye = function () {
+      var hidden = passInput.type === 'password';
+      passInput.type = hidden ? 'text' : 'password';
+      document.getElementById('eye-icon').innerHTML = hidden
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    };
+
+    /* ── Login — logique identique à l'original ── */
     submitBtn.addEventListener('click', async function () {
       clearMessages();
 
-      const email = emailInput.value.trim();
-      const pass  = passInput.value;
+      var email = emailInput.value.trim();
+      var pass  = passInput.value;
 
       if (!email || !isValidEmail(email)) {
         emailInput.classList.add('input-error');
         showError('Please enter a valid email address.');
         return;
       }
-
       if (!pass) {
         passInput.classList.add('input-error');
         showError('Please enter your password.');
         return;
       }
-
       if (!db) {
         showError('Authentication service is currently unavailable. Please try again later.');
         return;
@@ -467,22 +535,19 @@
       setLoading(true);
 
       try {
-        const { data, error } = await db.auth.signInWithPassword({
-          email: email,
-          password: pass
-        });
+        var result = await db.auth.signInWithPassword({ email: email, password: pass });
 
-        if (error) {
+        if (result.error) {
           showError('Incorrect email or password. Please try again.');
-          console.error('[Florencia OS] Login error:', error);
+          console.error('[Florencia OS] Login error:', result.error);
           setLoading(false);
           return;
         }
 
-        console.log('[Florencia OS] Login success:', data.user?.email || email);
-        showSuccess('Login successful. Redirecting...');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Connected ✓';
+        console.log('[Florencia OS] Login success:', result.data.user?.email || email);
+        showSuccess('Login successful. Redirecting to your workspace\u2026');
+        submitBtn.disabled    = true;
+        submitBtn.textContent = 'Connected';
 
         setTimeout(function () {
           window.location.href = 'dashboard.html';
@@ -495,21 +560,22 @@
       }
     });
 
+    /* ── Enter key ── */
     [emailInput, passInput].forEach(function (input) {
       input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') submitBtn.click();
       });
-
       input.addEventListener('input', function () {
         input.classList.remove('input-error');
         errorMsg.classList.remove('visible');
       });
     });
 
+    /* ── Forgot password — logique identique, URL dynamique ── */
     forgotLink.addEventListener('click', async function (e) {
       e.preventDefault();
 
-      const email = emailInput.value.trim();
+      var email = emailInput.value.trim();
 
       if (!email || !isValidEmail(email)) {
         emailInput.classList.add('input-error');
@@ -517,23 +583,22 @@
         showError('Enter your email address above to reset your password.');
         return;
       }
-
       if (!db) {
         showError('Authentication service is currently unavailable. Please try again later.');
         return;
       }
 
-      forgotLink.textContent = 'Sending...';
+      forgotLink.textContent       = 'Sending\u2026';
       forgotLink.style.pointerEvents = 'none';
 
       try {
-        const { error } = await db.auth.resetPasswordForEmail(email, {
-          redirectTo: 'https://clinquant-melba-d690f4.netlify.app/login.html'
+        var resetResult = await db.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/login.html'
         });
 
-        if (error) {
+        if (resetResult.error) {
           showError('Unable to send the reset email. Please try again.');
-          forgotLink.textContent = 'Forgot password?';
+          forgotLink.textContent       = 'Forgot password?';
           forgotLink.style.pointerEvents = '';
         } else {
           clearMessages();
@@ -542,10 +607,11 @@
         }
       } catch (err) {
         showError('Network error. Please try again.');
-        forgotLink.textContent = 'Forgot password?';
+        forgotLink.textContent       = 'Forgot password?';
         forgotLink.style.pointerEvents = '';
       }
     });
+
   }());
 </script>
 
