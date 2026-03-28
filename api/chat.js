@@ -1,13 +1,7 @@
 // ============================================================
-// FLORENCIA OS — api/chat.js — Version Supabase + Plans
-// Free / Pro / Elite · Mémoire longue · PDF · Rapport Elite
+// FLORENCIA OS — api/chat.js — Vercel Node.js Compatible
+// Supabase via REST API (pas de SDK) · Free / Pro / Elite
 // ============================================================
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// ── Variables d'environnement ─────────────────────────────
-const SUPABASE_URL     = process.env.SUPABASE_URL             || "";
-const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 // ── Limites par plan ──────────────────────────────────────
 const PLAN_LIMITS = {
@@ -30,78 +24,127 @@ export async function POST(request) {
     }
 
     // ── Clés API ──────────────────────────────────────────
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-    const GROQ_API_KEY   = process.env.GROQ_API_KEY   || "";
-    const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
-    const IPINFO_API_KEY = process.env.IPINFO_API_KEY || "";
+    const GEMINI_API_KEY   = process.env.GEMINI_API_KEY           || "";
+    const GROQ_API_KEY     = process.env.GROQ_API_KEY             || "";
+    const TAVILY_API_KEY   = process.env.TAVILY_API_KEY           || "";
+    const IPINFO_API_KEY   = process.env.IPINFO_API_KEY           || "";
+    const SUPABASE_URL     = process.env.SUPABASE_URL             || "";
+    const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
-    // ── Authentification Supabase ─────────────────────────
+    // ── Auth Supabase via REST ────────────────────────────
     const authHeader = request.headers.get("Authorization") || "";
     const userToken  = authHeader.replace("Bearer ", "").trim();
 
     let userId   = null;
     let userPlan = "free";
-    let sbClient = null;
 
     if (SUPABASE_URL && SUPABASE_SERVICE && userToken) {
-      sbClient = createClient(SUPABASE_URL, SUPABASE_SERVICE);
+      try {
+        // Récupérer l'utilisateur depuis le JWT
+        const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+          headers: {
+            "Authorization": `Bearer ${userToken}`,
+            "apikey":        SUPABASE_SERVICE
+          }
+        });
 
-      const { data: authData } = await sbClient.auth.getUser(userToken);
-      if (authData?.user) {
-        userId = authData.user.id;
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          userId = userData?.id || null;
 
-        const { data: profile } = await sbClient
-          .from("profiles")
-          .select("plan, trial_ends_at")
-          .eq("id", userId)
-          .single();
+          if (userId) {
+            // Récupérer le plan depuis la table profiles
+            const profileRes = await fetch(
+              `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=plan,trial_ends_at`,
+              {
+                headers: {
+                  "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+                  "apikey":        SUPABASE_SERVICE,
+                  "Content-Type":  "application/json"
+                }
+              }
+            );
 
-        if (profile) {
-          // Trial Elite actif ?
-          const trialActive = profile.trial_ends_at
-            ? new Date(profile.trial_ends_at) > new Date()
-            : false;
+            if (profileRes.ok) {
+              const profiles = await profileRes.json();
+              const profile  = profiles?.[0];
 
-          userPlan = trialActive ? "elite" : (profile.plan || "free");
+              if (profile) {
+                const trialActive = profile.trial_ends_at
+                  ? new Date(profile.trial_ends_at) > new Date()
+                  : false;
+                userPlan = trialActive ? "elite" : (profile.plan || "free");
+              }
+            }
+          }
         }
+      } catch (e) {
+        // Supabase indisponible → on continue en mode free
+        console.warn("[Florencia OS] Supabase auth error:", e.message);
       }
     }
 
     const planLimits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free;
 
-    // ── Limite quotidienne (Free uniquement) ──────────────
-    if (planLimits.messagesPerDay > 0 && userId && sbClient) {
-      const todayDate = today();
+    // ── Limite quotidienne (Free) ─────────────────────────
+    if (planLimits.messagesPerDay > 0 && userId && SUPABASE_URL && SUPABASE_SERVICE) {
+      try {
+        const todayDate = today();
 
-      const { data: usage } = await sbClient
-        .from("usage")
-        .select("messages_today, last_reset_date")
-        .eq("user_id", userId)
-        .single();
+        const usageRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}&select=messages_today,last_reset_date`,
+          {
+            headers: {
+              "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+              "apikey":        SUPABASE_SERVICE
+            }
+          }
+        );
 
-      if (usage) {
-        // Reset si nouveau jour
-        if (usage.last_reset_date !== todayDate) {
-          await sbClient
-            .from("usage")
-            .update({ messages_today: 0, last_reset_date: todayDate })
-            .eq("user_id", userId);
-          usage.messages_today = 0;
+        if (usageRes.ok) {
+          const usageArr = await usageRes.json();
+          const usage    = usageArr?.[0];
+
+          if (usage) {
+            let msgToday = usage.messages_today || 0;
+
+            // Reset si nouveau jour
+            if (usage.last_reset_date !== todayDate) {
+              msgToday = 0;
+              await fetch(`${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}`, {
+                method:  "PATCH",
+                headers: {
+                  "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+                  "apikey":        SUPABASE_SERVICE,
+                  "Content-Type":  "application/json"
+                },
+                body: JSON.stringify({ messages_today: 0, last_reset_date: todayDate })
+              });
+            }
+
+            if (msgToday >= planLimits.messagesPerDay) {
+              return jsonResponse(429, {
+                error:      "daily_limit_reached",
+                message:    `Tu as atteint ta limite de ${planLimits.messagesPerDay} messages aujourd'hui. Passe au plan Pro pour des messages illimités.`,
+                plan:       userPlan,
+                upgradeUrl: "/pricing.html"
+              });
+            }
+
+            // Incrémenter
+            await fetch(`${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}`, {
+              method:  "PATCH",
+              headers: {
+                "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+                "apikey":        SUPABASE_SERVICE,
+                "Content-Type":  "application/json"
+              },
+              body: JSON.stringify({ messages_today: msgToday + 1 })
+            });
+          }
         }
-
-        if (usage.messages_today >= planLimits.messagesPerDay) {
-          return jsonResponse(429, {
-            error:      "daily_limit_reached",
-            message:    `Tu as atteint ta limite de ${planLimits.messagesPerDay} messages aujourd'hui. Passe au plan Pro pour des messages illimités.`,
-            plan:       userPlan,
-            upgradeUrl: "/pricing.html"
-          });
-        }
-
-        await sbClient
-          .from("usage")
-          .update({ messages_today: (usage.messages_today || 0) + 1 })
-          .eq("user_id", userId);
+      } catch (e) {
+        console.warn("[Florencia OS] Usage limit check error:", e.message);
       }
     }
 
@@ -123,16 +166,28 @@ export async function POST(request) {
     // ── Mémoire longue depuis Supabase (Pro+) ────────────
     let memory = body.memory || {};
 
-    if (userId && sbClient && planLimits.memory === "long") {
-      const { data: memRows } = await sbClient
-        .from("memory")
-        .select("key, value")
-        .eq("user_id", userId);
+    if (userId && planLimits.memory === "long" && SUPABASE_URL && SUPABASE_SERVICE) {
+      try {
+        const memRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/memory?user_id=eq.${userId}&select=key,value`,
+          {
+            headers: {
+              "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+              "apikey":        SUPABASE_SERVICE
+            }
+          }
+        );
 
-      if (memRows?.length > 0) {
-        const dbMemory = {};
-        memRows.forEach(row => { dbMemory[row.key] = row.value; });
-        memory = { ...dbMemory, ...memory }; // DB prime sur local
+        if (memRes.ok) {
+          const memRows = await memRes.json();
+          if (memRows?.length > 0) {
+            const dbMemory = {};
+            memRows.forEach(row => { dbMemory[row.key] = row.value; });
+            memory = { ...dbMemory, ...memory };
+          }
+        }
+      } catch (e) {
+        console.warn("[Florencia OS] Memory fetch error:", e.message);
       }
     }
 
@@ -142,18 +197,14 @@ export async function POST(request) {
       pdfContext = await analyzePDF(pdfBase64, GEMINI_API_KEY);
     }
 
-    // ── Détection d'intention ─────────────────────────────
-    const intent = detectIntent(message, pdfContext);
-
-    // ── Web & Local ───────────────────────────────────────
+    // ── Intent & contexte ─────────────────────────────────
+    const intent   = detectIntent(message, pdfContext);
     const useWeb   = planLimits.webSearch && shouldUseWeb(message, intent);
     const useLocal = shouldUseLocal(message, intent, userProfile);
 
     let localContext = null;
     if (useLocal) {
-      localContext = await getLocalContext({
-        ip: userIp, token: IPINFO_API_KEY, userProfile
-      });
+      localContext = await getLocalContext({ ip: userIp, token: IPINFO_API_KEY, userProfile });
     }
 
     let webContext = null;
@@ -164,7 +215,7 @@ export async function POST(request) {
       });
     }
 
-    // ── Rapport hebdomadaire (Elite) ──────────────────────
+    // ── Rapport hebdo (Elite) ─────────────────────────────
     const isWeeklyReport = planLimits.report && containsOne(message.toLowerCase(), [
       "rapport", "rapport hebdo", "bilan semaine",
       "weekly report", "résumé semaine", "bilan de la semaine"
@@ -173,7 +224,7 @@ export async function POST(request) {
     // ── Extraction mémoire ────────────────────────────────
     const extractedMemory = extractMemoryFromMessage(message, intent);
 
-    // ── Construction du prompt ────────────────────────────
+    // ── Prompt ────────────────────────────────────────────
     const florenciaPrompt = buildFlorenciaPrompt({
       message, intent, userProfile, dailyCheckin,
       localContext, webContext, conversation,
@@ -190,28 +241,51 @@ export async function POST(request) {
       isLong
     });
 
-    // ── Sauvegarde mémoire longue Supabase (Pro+) ─────────
-    if (userId && sbClient && extractedMemory && planLimits.memory === "long") {
-      const upserts = Object.entries(extractedMemory).map(([key, value]) => ({
-        user_id:    userId,
-        key,
-        value:      String(value),
-        updated_at: new Date().toISOString()
-      }));
+    // ── Sauvegarde mémoire (Pro+) ─────────────────────────
+    if (userId && extractedMemory && planLimits.memory === "long" && SUPABASE_URL && SUPABASE_SERVICE) {
+      try {
+        const upserts = Object.entries(extractedMemory).map(([key, value]) => ({
+          user_id:    userId,
+          key,
+          value:      String(value),
+          updated_at: new Date().toISOString()
+        }));
 
-      if (upserts.length > 0) {
-        await sbClient
-          .from("memory")
-          .upsert(upserts, { onConflict: "user_id,key" });
+        if (upserts.length > 0) {
+          await fetch(`${SUPABASE_URL}/rest/v1/memory`, {
+            method:  "POST",
+            headers: {
+              "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+              "apikey":        SUPABASE_SERVICE,
+              "Content-Type":  "application/json",
+              "Prefer":        "resolution=merge-duplicates"
+            },
+            body: JSON.stringify(upserts)
+          });
+        }
+      } catch (e) {
+        console.warn("[Florencia OS] Memory save error:", e.message);
       }
     }
 
-    // ── Sauvegarde conversation Supabase ──────────────────
-    if (userId && sbClient && conversationId) {
-      await sbClient.from("messages").insert([
-        { conversation_id: conversationId, user_id: userId, role: "user",      content: message },
-        { conversation_id: conversationId, user_id: userId, role: "assistant", content: result.reply }
-      ]);
+    // ── Sauvegarde conversation ───────────────────────────
+    if (userId && conversationId && SUPABASE_URL && SUPABASE_SERVICE) {
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+          method:  "POST",
+          headers: {
+            "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+            "apikey":        SUPABASE_SERVICE,
+            "Content-Type":  "application/json"
+          },
+          body: JSON.stringify([
+            { conversation_id: conversationId, user_id: userId, role: "user",      content: message },
+            { conversation_id: conversationId, user_id: userId, role: "assistant", content: result.reply }
+          ])
+        });
+      } catch (e) {
+        console.warn("[Florencia OS] Message save error:", e.message);
+      }
     }
 
     return jsonResponse(200, {
@@ -294,7 +368,7 @@ async function analyzePDF(pdfBase64, apiKey) {
           contents: [{
             parts: [
               { inline_data: { mime_type: "application/pdf", data: pdfBase64 } },
-              { text: "Analyse ce document de façon exhaustive. Extrais : les points clés, les chiffres importants, les décisions mentionnées, les actions requises et le contexte business global. Réponds en français, de façon structurée et actionnable." }
+              { text: "Analyse ce document de façon exhaustive. Extrais les points clés, les chiffres importants, les décisions mentionnées, les actions requises et le contexte business global. Réponds en français, de façon structurée et actionnable." }
             ]
           }],
           generationConfig: { temperature: 0.3, maxOutputTokens: 2500 }
@@ -304,18 +378,15 @@ async function analyzePDF(pdfBase64, apiKey) {
     if (!res.ok) return null;
     const data = await res.json();
     return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 // ═══════════════════════════════════════════════════════════
-// DÉTECTION D'INTENTION (12 catégories)
+// DÉTECTION D'INTENTION
 // ═══════════════════════════════════════════════════════════
 
 function detectIntent(message, pdfContext) {
   if (pdfContext) return "analyse_document";
-
   const t = message.toLowerCase();
 
   if (containsOne(t, ["client", "prospect", "prospection", "acquisition", "lead", "cold email", "trouver des clients", "outreach"])) return "acquisition_clients";
@@ -339,21 +410,13 @@ function detectIntent(message, pdfContext) {
 
 function shouldUseWeb(message, intent) {
   const t = message.toLowerCase();
-  if (containsOne(t, [
-    "aujourd'hui", "actuel", "maintenant", "tendance", "prix", "concurrence",
-    "concurrent", "marché", "niche", "plateforme", "trouve-moi", "cherche",
-    "recherche", "opportunité", "récent", "nouveautés", "2025", "2026"
-  ])) return true;
+  if (containsOne(t, ["aujourd'hui", "actuel", "maintenant", "tendance", "prix", "concurrence", "concurrent", "marché", "niche", "plateforme", "cherche", "recherche", "opportunité", "récent", "nouveautés", "2025", "2026"])) return true;
   return ["acquisition_clients", "analyse_business", "generation_offre"].includes(intent);
 }
 
 function shouldUseLocal(message, intent, userProfile) {
   const t = message.toLowerCase();
-  if (containsOne(t, [
-    "dans mon pays", "dans ma ville", "local", "bénin", "france", "sénégal",
-    "cotonou", "côte d'ivoire", "cameroun", "canada", "ville", "devise",
-    "marché local", "réalité locale", "fcfa"
-  ])) return true;
+  if (containsOne(t, ["dans mon pays", "dans ma ville", "local", "bénin", "france", "sénégal", "cotonou", "côte d'ivoire", "cameroun", "canada", "ville", "devise", "marché local", "fcfa"])) return true;
   if (userProfile.country || userProfile.city || userProfile.currency) return true;
   return ["acquisition_clients", "generation_offre", "analyse_business"].includes(intent);
 }
@@ -407,7 +470,7 @@ async function searchWeb({ query, apiKey }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// EXTRACTION MÉMOIRE AUTOMATIQUE
+// EXTRACTION MÉMOIRE
 // ═══════════════════════════════════════════════════════════
 
 function extractMemoryFromMessage(message, intent) {
@@ -415,10 +478,7 @@ function extractMemoryFromMessage(message, intent) {
   const updates = {};
 
   const revenueMatch = message.match(/(\d[\d\s]*)(€|euros?|fcfa|dollars?|k€|k\s*€|\$)/i);
-  if (revenueMatch) {
-    updates.lastMentionedRevenue = revenueMatch[0];
-    updates.lastRevenueDate      = today();
-  }
+  if (revenueMatch) { updates.lastMentionedRevenue = revenueMatch[0]; updates.lastRevenueDate = today(); }
 
   const projectMatch = message.match(/(?:projet|app|application|service|produit|plateforme|startup)\s+["«]?([^"»\n,.]{3,50})["»]?/i);
   if (projectMatch) updates.lastProjectMentioned = projectMatch[1].trim();
@@ -427,24 +487,18 @@ function extractMemoryFromMessage(message, intent) {
   if (nicheMatch) updates.lastNicheMentioned = nicheMatch[1].trim();
 
   if (containsOne(t, ["bloqué", "je n'arrive pas", "problème", "difficulté", "galère", "j'ai du mal", "coincé"])) {
-    updates.lastBlocker     = message.slice(0, 150);
-    updates.lastBlockerDate = today();
+    updates.lastBlocker = message.slice(0, 150); updates.lastBlockerDate = today();
   }
 
   if (containsOne(t, ["j'ai décidé", "j'ai choisi", "je vais", "je pars sur", "j'opte pour", "on va faire"])) {
-    updates.lastDecision     = message.slice(0, 150);
-    updates.lastDecisionDate = today();
+    updates.lastDecision = message.slice(0, 150); updates.lastDecisionDate = today();
   }
 
   if (containsOne(t, ["j'ai un client", "nouveau client", "prospect intéressé", "j'ai signé", "nouveau contrat"])) {
-    updates.lastClientMention = message.slice(0, 150);
-    updates.lastClientDate    = today();
+    updates.lastClientMention = message.slice(0, 150); updates.lastClientDate = today();
   }
 
-  if (intent !== "general") {
-    updates.lastIntent     = intent;
-    updates.lastIntentDate = today();
-  }
+  if (intent !== "general") { updates.lastIntent = intent; updates.lastIntentDate = today(); }
 
   return Object.keys(updates).length > 0 ? updates : null;
 }
@@ -464,15 +518,12 @@ function buildFlorenciaPrompt({
     : "Aucun historique récent.";
 
   const webBlock = webContext
-    ? `CONTEXTE WEB TEMPS RÉEL\nSynthèse: ${webContext.answer || "Non disponible."}\n\nSources:\n${
-        webContext.results.map((r, i) => `${i + 1}. ${r.title}\n${r.content}\n${r.url}`).join("\n\n")
-      }`
+    ? `CONTEXTE WEB TEMPS RÉEL\nSynthèse: ${webContext.answer || "Non disponible."}\n\nSources:\n${webContext.results.map((r, i) => `${i + 1}. ${r.title}\n${r.content}\n${r.url}`).join("\n\n")}`
     : "";
 
-  const memKeys = Object.keys(memory);
-  const memoryBlock = memKeys.length > 0
-    ? `MÉMOIRE LONG TERME — CE QUE TU SAIS DÉJÀ
-- Revenu mentionné   : ${memory.lastMentionedRevenue || "—"} (${memory.lastRevenueDate || ""})
+  const memoryBlock = Object.keys(memory).length > 0
+    ? `MÉMOIRE LONG TERME
+- Revenu mentionné   : ${memory.lastMentionedRevenue || "—"} (${memory.lastRevenueDate  || ""})
 - Projet mentionné   : ${memory.lastProjectMentioned || "—"}
 - Niche / marché     : ${memory.lastNicheMentioned   || "—"}
 - Dernier blocage    : ${memory.lastBlocker          || "—"} (${memory.lastBlockerDate  || ""})
@@ -481,51 +532,28 @@ function buildFlorenciaPrompt({
 - Dernière intention : ${memory.lastIntent           || "—"} (${memory.lastIntentDate   || ""})`
     : "MÉMOIRE : Première session — aucune donnée encore mémorisée.";
 
-  const pdfBlock = pdfContext
-    ? `\nDOCUMENT ANALYSÉ (PDF)\n${pdfContext}`
-    : "";
-
-  const intentGuide = getIntentGuide(intent, userPlan);
+  const pdfBlock = pdfContext ? `\nDOCUMENT ANALYSÉ (PDF)\n${pdfContext}` : "";
+  const intentGuide = getIntentGuide(intent);
 
   const structureBlock = isWeeklyReport
     ? `════════════════════════════════════════
 STRUCTURE DU RAPPORT HEBDOMADAIRE (ELITE)
-════════════════════════════════════════
 Génère un rapport business complet :
 
-**BILAN DE LA SEMAINE**
-Avancées notables, décisions prises, projets avancés.
-
-**POINTS POSITIFS**
-Ce qui fonctionne et doit être amplifié.
-
-**POINTS D'ATTENTION**
-Ce qui a bloqué ou ralenti — sans complaisance.
-
-**MÉTRIQUES CLÉS**
-Objectifs vs réalisé. Prospects contactés. Tâches terminées.
-
-**PRIORITÉS SEMAINE PROCHAINE**
-Les 3 actions les plus importantes à venir.
-
-**CONSEIL STRATÉGIQUE**
-Un insight business précis sur la situation actuelle.`
+**BILAN DE LA SEMAINE** — Avancées notables, décisions prises, projets avancés.
+**POINTS POSITIFS** — Ce qui fonctionne et doit être amplifié.
+**POINTS D'ATTENTION** — Ce qui a bloqué ou ralenti — sans complaisance.
+**MÉTRIQUES CLÉS** — Objectifs vs réalisé.
+**PRIORITÉS SEMAINE PROCHAINE** — Les 3 actions les plus importantes.
+**CONSEIL STRATÉGIQUE** — Un insight business précis sur la situation actuelle.`
     : `════════════════════════════════════════
 STRUCTURE DE RÉPONSE
-════════════════════════════════════════
 Réponds dans cet ordre exact :
 
-**DIAGNOSTIC**
-Nomme le vrai enjeu. Ne reformule pas. Chirurgical.
-
-**RÉPONSE**
-Direct, utile, adapté au profil. Va droit au but.
-
-**PLAN D'ACTION**
-3 à 5 étapes numérotées. Chaque étape = verbe d'action fort.
-
-**PROCHAINE ÉTAPE**
-Une seule chose. La plus importante. Dans les prochaines heures.`;
+**DIAGNOSTIC** — Nomme le vrai enjeu. Ne reformule pas. Chirurgical.
+**RÉPONSE** — Direct, utile, adapté au profil. Va droit au but.
+**PLAN D'ACTION** — 3 à 5 étapes numérotées. Chaque étape = verbe d'action fort.
+**PROCHAINE ÉTAPE** — Une seule chose. La plus importante. Dans les prochaines heures.`;
 
   return `Tu es Florencia OS.
 
@@ -533,13 +561,7 @@ Une seule chose. La plus importante. Dans les prochaines heures.`;
 IDENTITÉ
 ════════════════════════════════════════
 Florencia OS est un Business Operating System pour freelances, indépendants, créateurs, consultants et solo-entrepreneurs.
-
 Tu n'es pas un chatbot. Tu es un copilote business de haut niveau.
-Tu combines quatre rôles :
-- Stratège business : tu vois clair là où l'utilisateur est dans le flou
-- Système d'aide à la décision : tu priorises ce qui compte vraiment
-- Assistant de structuration : tu transformes les idées floues en plans concrets
-- Moteur d'action : tu pousses vers l'avancement réel, pas le confort intellectuel
 
 ════════════════════════════════════════
 RÈGLES — NON NÉGOCIABLES
@@ -548,22 +570,13 @@ RÈGLES — NON NÉGOCIABLES
 - Français naturel, moderne, fluide. Comme un associé brillant qui parle cash.
 - Direct, net, précis. Zéro blabla. Zéro remplissage.
 - Pas de "Bien sûr !", "Absolument !", "Excellente question !", "Je comprends ta situation".
-- Tu ne sonnes jamais comme une IA qui récite un manuel.
+- Tu ne sonnes jamais comme une IA générique.
 - Tu ne répètes pas le contexte que l'utilisateur vient de donner.
 - Ton calme, lucide, stratégique, humain et premium.
 - Tu ne mentionnes jamais les fournisseurs IA, modèles ou limites techniques.
 - Si une info manque : une phrase, puis action.
 - Tu utilises la mémoire — jamais des questions déjà répondues.
-
-════════════════════════════════════════
-RAISONNEMENT
-════════════════════════════════════════
-1. Comprendre l'objectif réel — le vrai besoin derrière les mots
-2. Identifier le blocage sous-jacent
-3. Analyser vite et avec précision
-4. Répondre clairement et utilement
-5. Transformer en plan concret numéroté
-6. Donner la prochaine étape prioritaire
+- Si l'utilisateur écrit en anglais, réponds en anglais. Si en français, réponds en français.
 
 ${intentGuide}
 
@@ -574,13 +587,13 @@ CONTEXTE OPÉRATIONNEL
 PLAN : ${userPlan.toUpperCase()}${userPlan === "elite" ? " (trial actif — accès complet)" : ""}
 
 PROFIL
-- Métier           : ${userProfile.job          || "non renseigné"}
-- Niche            : ${userProfile.niche         || memory.lastNicheMentioned   || "non renseignée"}
-- Offre principale : ${userProfile.offer         || "non renseignée"}
-- Objectif revenu  : ${userProfile.revenueGoal   || memory.lastMentionedRevenue || "non renseigné"}
-- Pays             : ${userProfile.country       || localContext?.country || "non renseigné"}
-- Ville            : ${userProfile.city          || localContext?.city    || "non renseignée"}
-- Devise           : ${userProfile.currency      || "non renseignée"}
+- Métier           : ${userProfile.job         || "non renseigné"}
+- Niche            : ${userProfile.niche        || memory.lastNicheMentioned   || "non renseignée"}
+- Offre principale : ${userProfile.offer        || "non renseignée"}
+- Objectif revenu  : ${userProfile.revenueGoal  || memory.lastMentionedRevenue || "non renseigné"}
+- Pays             : ${userProfile.country      || localContext?.country || "non renseigné"}
+- Ville            : ${userProfile.city         || localContext?.city    || "non renseignée"}
+- Devise           : ${userProfile.currency     || "non renseignée"}
 
 CHECK-IN DU JOUR
 - Objectif : ${dailyCheckin.goal    || "non renseigné"}
@@ -616,127 +629,31 @@ ${structureBlock}`;
 
 function getIntentGuide(intent) {
   const guides = {
-    acquisition_clients: `
-GUIDE — ACQUISITION CLIENTS
-Aide l'utilisateur à trouver et convaincre des clients réels.
-- Scripts de prospection adaptés à son marché et sa cible
-- Canaux pertinents selon le contexte local
-- Templates directement utilisables
-- Objectifs chiffrés (ex: 10 prospects/semaine)
-- Relances si besoin`,
-
-    generation_offre: `
-GUIDE — GÉNÉRATION D'OFFRE
-Structure une offre claire, désirable et vendable.
-- Nom, contenu, prix
-- Promesse de transformation concrète
-- Format adapté au marché local et à la devise
-- Objections probables + réponses
-- Structure de présentation clé en main`,
-
-    creation_contenu: `
-GUIDE — CRÉATION DE CONTENU
-Contenu qui attire et convertit, pas juste des vues.
-- Sujets adaptés à la niche et l'audience
-- Scripts, hooks, titres, structures de posts
-- Ton adapté à la plateforme (LinkedIn, TikTok, Instagram...)
-- Calendrier éditorial si demandé`,
-
-    gestion_projets: `
-GUIDE — GESTION DE PROJETS
-Organiser, prioriser, avancer.
-- Décomposer en tâches actionnables
-- Identifier les blocages et les lever
-- Planning réaliste avec deadlines
-- Urgent vs important vs délégable`,
-
-    analyse_business: `
-GUIDE — ANALYSE BUSINESS
-Voir clair et décider mieux.
-- Leviers de croissance les plus rapides
-- Comparaison d'options avec critères chiffrés
-- Métriques simples à suivre
-- Avis tranché quand une décision s'impose
-- Données web pour contextualiser`,
-
-    analyse_document: `
-GUIDE — ANALYSE DE DOCUMENT
-Extraire l'essentiel, pas tout reformuler.
-- Points clés et chiffres importants
-- Décisions et actions requises
-- Risques ou opportunités cachés
-- Répondre à la question en s'appuyant sur le document
-- Plan d'action si pertinent`,
-
-    priorites_jour: `
-GUIDE — PRIORITÉS DU JOUR
-Les bonnes actions, dans le bon ordre.
-- Check-in + mémoire pour prioriser intelligemment
-- Max 3 actions prioritaires
-- Urgent vs important
-- Tâches en retard ou suivis en attente
-- Ordre d'exécution logique`,
-
-    memoire: `
-GUIDE — MÉMOIRE
-Retenir et exploiter.
-- Confirmer ce qui est retenu
-- Intégrer dans le contexte des prochains échanges
-- Proposer comment exploiter cette info concrètement`,
-
-    recap: `
-GUIDE — RÉCAPITULATIF
-Bilan clair, cap net.
-- Synthèse via profil + mémoire
-- Points forts, points faibles, priorités
-- Vision claire de où il en est et où aller
-- 3 actions prioritaires basées sur l'état actuel`,
-
-    decision: `
-GUIDE — DÉCISION
-Un avis tranché, pas du "ça dépend".
-- Questions si info manquante
-- Comparaison avec critères concrets
-- Recommandation claire et assumée
-- Pourquoi cette option
-- Risques de chaque choix`,
-
-    redaction: `
-GUIDE — RÉDACTION
-Texte prêt à copier-coller.
-- Rédiger directement, sans introduction
-- Ton adapté au contexte
-- Objet si email, hook si post
-- Variante si pertinent
-- Concis et impactant`,
-
-    automatisation: `
-GUIDE — AUTOMATISATION (Elite)
-Workflow concret, pas théorique.
-- Étapes claires du workflow
-- Outils à connecter (Make, Zapier, Notion...)
-- Logique si/alors précise
-- Temps gagné estimé
-- Automatisations prioritaires : fort impact, faible complexité`,
+    acquisition_clients: `GUIDE — ACQUISITION CLIENTS\n- Scripts de prospection adaptés au marché et à la cible\n- Canaux pertinents selon le contexte local\n- Templates directement utilisables\n- Objectifs chiffrés (ex: 10 prospects/semaine)`,
+    generation_offre:    `GUIDE — GÉNÉRATION D'OFFRE\n- Nom, contenu, prix\n- Promesse de transformation concrète\n- Format adapté au marché local et à la devise\n- Objections probables + réponses`,
+    creation_contenu:    `GUIDE — CRÉATION DE CONTENU\n- Sujets adaptés à la niche et l'audience\n- Scripts, hooks, titres, structures de posts\n- Ton adapté à la plateforme (LinkedIn, TikTok, Instagram...)\n- Calendrier éditorial si demandé`,
+    gestion_projets:     `GUIDE — GESTION DE PROJETS\n- Décomposer en tâches actionnables\n- Identifier les blocages et les lever\n- Planning réaliste avec deadlines\n- Urgent vs important vs délégable`,
+    analyse_business:    `GUIDE — ANALYSE BUSINESS\n- Leviers de croissance les plus rapides\n- Comparaison d'options avec critères chiffrés\n- Métriques simples à suivre\n- Avis tranché quand une décision s'impose`,
+    analyse_document:    `GUIDE — ANALYSE DE DOCUMENT\n- Points clés et chiffres importants\n- Décisions et actions requises\n- Risques ou opportunités cachés\n- Plan d'action si pertinent`,
+    priorites_jour:      `GUIDE — PRIORITÉS DU JOUR\n- Max 3 actions prioritaires\n- Urgent vs important\n- Tâches en retard ou suivis en attente\n- Ordre d'exécution logique`,
+    memoire:             `GUIDE — MÉMOIRE\n- Confirmer ce qui est retenu\n- Intégrer dans le contexte des prochains échanges\n- Proposer comment exploiter cette info concrètement`,
+    recap:               `GUIDE — RÉCAPITULATIF\n- Synthèse via profil + mémoire\n- Points forts, points faibles, priorités\n- 3 actions prioritaires basées sur l'état actuel`,
+    decision:            `GUIDE — DÉCISION\n- Comparaison avec critères concrets\n- Recommandation claire et assumée\n- Pourquoi cette option · Risques de chaque choix`,
+    redaction:           `GUIDE — RÉDACTION\n- Texte prêt à copier-coller\n- Ton adapté au contexte\n- Objet si email, hook si post · Concis et impactant`,
+    automatisation:      `GUIDE — AUTOMATISATION\n- Étapes claires du workflow\n- Outils à connecter (Make, Zapier, Notion...)\n- Logique si/alors précise · Temps gagné estimé`,
   };
-
   return guides[intent] ? `\n${guides[intent]}\n` : "";
 }
 
 // ═══════════════════════════════════════════════════════════
-// ROUTER IA — Gemini + Groq avec fallback
+// ROUTER IA
 // ═══════════════════════════════════════════════════════════
 
 async function runRouter({ intent, prompt, geminiKey, groqKey, isLong }) {
-  const complexIntents = [
-    "acquisition_clients", "generation_offre", "analyse_business",
-    "decision", "recap", "analyse_document", "automatisation"
-  ];
-
-  const geminiFirst = complexIntents.includes(intent) || isLong;
-  const providers   = geminiFirst ? ["gemini", "groq"] : ["groq", "gemini"];
-
-  let lastError = null;
+  const complexIntents = ["acquisition_clients", "generation_offre", "analyse_business", "decision", "recap", "analyse_document", "automatisation"];
+  const geminiFirst    = complexIntents.includes(intent) || isLong;
+  const providers      = geminiFirst ? ["gemini", "groq"] : ["groq", "gemini"];
+  let lastError        = null;
 
   for (const p of providers) {
     try {
@@ -748,9 +665,7 @@ async function runRouter({ intent, prompt, geminiKey, groqKey, isLong }) {
         const reply = await callGroq(prompt, groqKey);
         if (reply) return { reply, provider: "groq" };
       }
-    } catch (err) {
-      lastError = err;
-    }
+    } catch (err) { lastError = err; }
   }
 
   throw new Error(lastError?.message || "Aucun fournisseur IA disponible.");
@@ -768,17 +683,12 @@ async function callGemini(prompt, apiKey, isLong = false) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature:     0.72,
-          maxOutputTokens: isLong ? 3000 : 1800
-        }
+        generationConfig: { temperature: 0.72, maxOutputTokens: isLong ? 3000 : 1800 }
       })
     }
   );
-
   if (res.status === 429) throw new Error("Gemini quota atteint.");
   if (!res.ok)           throw new Error(`Gemini error ${res.status}`);
-
   const data = await res.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
@@ -790,10 +700,7 @@ async function callGemini(prompt, apiKey, isLong = false) {
 async function callGroq(prompt, apiKey) {
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method:  "POST",
-    headers: {
-      "Content-Type":  "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
     body: JSON.stringify({
       model:       "llama-3.3-70b-versatile",
       temperature: 0.72,
@@ -801,10 +708,8 @@ async function callGroq(prompt, apiKey) {
       messages:    [{ role: "user", content: prompt }]
     })
   });
-
   if (res.status === 429) throw new Error("Groq quota atteint.");
   if (!res.ok)           throw new Error(`Groq error ${res.status}`);
-
   const data = await res.json();
   return data?.choices?.[0]?.message?.content || "";
 }
