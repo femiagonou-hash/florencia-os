@@ -135,6 +135,36 @@ a{color:inherit;text-decoration:none;}
 .msg.user{background:var(--accentg);color:#fff;border-radius:18px 18px 4px 18px;box-shadow:0 4px 20px rgba(124,92,255,.3);}
 .msg.ai{background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;}
 
+/* styles pour le raisonnement repliable */
+.reasoning-toggle {
+  margin-top: 10px;
+  background: rgba(124,92,255,.08);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-left: 3px solid var(--accent);
+}
+.reasoning-toggle summary {
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--accent2);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.reasoning-toggle summary:hover {
+  color: var(--text);
+}
+.reasoning-content {
+  margin-top: 8px;
+  padding: 8px 0 4px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  border-top: 1px solid var(--border);
+}
+
 /* typing dots */
 .typing-dots{display:inline-flex;align-items:center;gap:4px;padding:13px 17px;background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;}
 .typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;animation:bounce .9s infinite;}
@@ -618,7 +648,53 @@ function appendMsg(type,text){
   row.appendChild(b);
   messagesEl.appendChild(row);
   scrollBottom();
-  return b;
+  return row;
+}
+
+/**
+ * Ajoute un message IA avec son raisonnement affiché dans un <details>.
+ * @param {string} reply - La réponse finale
+ * @param {string|null} reasoning - Le texte du raisonnement (peut être null)
+ */
+function appendAiMessageWithReasoning(reply, reasoning) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ai';
+
+  // Avatar
+  const av = document.createElement('div');
+  av.className = 'ai-av';
+  av.textContent = 'F';
+  row.appendChild(av);
+
+  // Conteneur principal
+  const container = document.createElement('div');
+  container.style.flex = '1';
+  container.style.maxWidth = '74%';
+
+  // Bulle de réponse
+  const bubble = document.createElement('div');
+  bubble.className = 'msg ai';
+  bubble.textContent = reply;
+  container.appendChild(bubble);
+
+  // Ajouter le raisonnement s'il existe
+  if (reasoning && reasoning.trim()) {
+    const details = document.createElement('details');
+    details.className = 'reasoning-toggle';
+    const summary = document.createElement('summary');
+    summary.textContent = '🔍 Raisonnement';
+    details.appendChild(summary);
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'reasoning-content';
+    contentDiv.textContent = reasoning;
+    details.appendChild(contentDiv);
+    container.appendChild(details);
+  }
+
+  row.appendChild(container);
+  messagesEl.appendChild(row);
+  scrollBottom();
+  return row;
 }
 
 function appendTyping(){
@@ -676,26 +752,38 @@ async function sendMessage(){
     const data=await callAPI(text);
     removeTyping();
     let reply=data.reply||'Aucune réponse reçue.';
+    const reasoning=data.reasoning || null;
 
     // ── Auto-continuation si réponse coupée ──────────────
     if(isTruncated(reply)){
-      const bubble=appendMsg('ai',reply);
+      // On affiche d'abord la réponse tronquée avec son raisonnement
+      appendAiMessageWithReasoning(reply, reasoning);
       conversation.push({role:'assistant',content:reply});
 
       appendTyping();
       try{
-        // On demande la suite en passant la conversation enrichie
         const cont=await callAPI('Continue exactement là où tu t\'es arrêté, sans répéter ce qui a déjà été dit.');
         removeTyping();
         if(cont.reply){
           const fullReply=reply+'\n'+cont.reply;
-          bubble.textContent=fullReply;
-          conversation[conversation.length-1].content=fullReply;
+          // On remplace le dernier message IA par la version complète
+          const lastAiMsg = messagesEl.querySelector('.msg-row.ai:last-child');
+          if(lastAiMsg) {
+            // Retrouver la bulle de réponse
+            const bubble = lastAiMsg.querySelector('.msg.ai');
+            if(bubble) bubble.textContent = fullReply;
+            // Mettre à jour la conversation
+            conversation[conversation.length-1].content = fullReply;
+          } else {
+            // Fallback
+            appendAiMessageWithReasoning(fullReply, reasoning);
+            conversation.push({role:'assistant',content:fullReply});
+          }
           if(data.memoryUpdate){memory={...memory,...data.memoryUpdate};save('memory',memory);}
         }
       }catch(_){removeTyping();}
     } else {
-      appendMsg('ai',reply);
+      appendAiMessageWithReasoning(reply, reasoning);
       conversation.push({role:'assistant',content:reply});
       if(data.memoryUpdate){memory={...memory,...data.memoryUpdate};save('memory',memory);}
     }
