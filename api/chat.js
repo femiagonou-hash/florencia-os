@@ -1,6 +1,6 @@
 // ============================================================
 // FLORENCIA OS — api/chat.js — Vercel Node.js Compatible
-// Supabase via REST API (pas de SDK) · Free / Pro / Elite
+// Version avec mémoire conversationnelle, raisonnement, anti-répétition
 // ============================================================
 
 // ── Limites par plan ──────────────────────────────────────
@@ -40,7 +40,6 @@ export async function POST(request) {
 
     if (SUPABASE_URL && SUPABASE_SERVICE && userToken) {
       try {
-        // Récupérer l'utilisateur depuis le JWT
         const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
           headers: {
             "Authorization": `Bearer ${userToken}`,
@@ -53,7 +52,6 @@ export async function POST(request) {
           userId = userData?.id || null;
 
           if (userId) {
-            // Récupérer le plan depuis la table profiles
             const profileRes = await fetch(
               `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=plan,trial_ends_at`,
               {
@@ -79,7 +77,6 @@ export async function POST(request) {
           }
         }
       } catch (e) {
-        // Supabase indisponible → on continue en mode free
         console.warn("[Florencia OS] Supabase auth error:", e.message);
       }
     }
@@ -108,7 +105,6 @@ export async function POST(request) {
           if (usage) {
             let msgToday = usage.messages_today || 0;
 
-            // Reset si nouveau jour
             if (usage.last_reset_date !== todayDate) {
               msgToday = 0;
               await fetch(`${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}`, {
@@ -131,7 +127,6 @@ export async function POST(request) {
               });
             }
 
-            // Incrémenter
             await fetch(`${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}`, {
               method:  "PATCH",
               headers: {
@@ -224,22 +219,44 @@ export async function POST(request) {
     // ── Extraction mémoire ────────────────────────────────
     const extractedMemory = extractMemoryFromMessage(message, intent);
 
-    // ── Prompt ────────────────────────────────────────────
-    const florenciaPrompt = buildFlorenciaPrompt({
+    // ═══════════════════════════════════════════════════════
+    // ⭐ CONSTRUCTION DES MESSAGES (HISTORIQUE + CONTEXTE) ⭐
+    // ═══════════════════════════════════════════════════════
+    const messages = buildMessages({
       message, intent, userProfile, dailyCheckin,
       localContext, webContext, conversation,
       memory, extractedMemory, userPlan,
       pdfContext, isWeeklyReport
     });
 
-    // ── Appel IA ──────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // APPEL À L'IA
+    // ═══════════════════════════════════════════════════════
     const isLong = isWeeklyReport || !!pdfContext;
     const result = await runRouter({
-      intent, prompt: florenciaPrompt,
+      intent,
+      messages,   // ← on passe les messages structurés
       geminiKey: GEMINI_API_KEY,
       groqKey:   GROQ_API_KEY,
       isLong
     });
+
+    // ═══════════════════════════════════════════════════════
+    // ⭐ EXTRACTION DU RAISONNEMENT ET DE LA RÉPONSE FINALE ⭐
+    // ═══════════════════════════════════════════════════════
+    let replyText = result.reply;
+    let reasoning = null;
+
+    try {
+      // Nettoyer la réponse (parfois entourée de ```json ... ```)
+      const cleaned = replyText.replace(/```json\s*|\s*```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      reasoning = parsed.reasoning || null;
+      replyText = parsed.answer || replyText;
+    } catch (e) {
+      // Si le parsing échoue, on garde la réponse brute
+      console.warn("[Florencia OS] Impossible de parser le JSON, utilisation brute");
+    }
 
     // ── Sauvegarde mémoire (Pro+) ─────────────────────────
     if (userId && extractedMemory && planLimits.memory === "long" && SUPABASE_URL && SUPABASE_SERVICE) {
@@ -280,7 +297,7 @@ export async function POST(request) {
           },
           body: JSON.stringify([
             { conversation_id: conversationId, user_id: userId, role: "user",      content: message },
-            { conversation_id: conversationId, user_id: userId, role: "assistant", content: result.reply }
+            { conversation_id: conversationId, user_id: userId, role: "assistant", content: replyText }
           ])
         });
       } catch (e) {
@@ -288,8 +305,10 @@ export async function POST(request) {
       }
     }
 
+    // ⭐ RÉPONSE AVEC RAISONNEMENT
     return jsonResponse(200, {
-      reply:        result.reply,
+      reply:        replyText,
+      reasoning:    reasoning,    // ← pour l'onglet repliable
       provider:     result.provider,
       intent,
       plan:         userPlan,
@@ -382,7 +401,7 @@ async function analyzePDF(pdfBase64, apiKey) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// DÉTECTION D'INTENTION
+// DÉTECTION D'INTENTION (inchangée)
 // ═══════════════════════════════════════════════════════════
 
 function detectIntent(message, pdfContext) {
@@ -405,7 +424,7 @@ function detectIntent(message, pdfContext) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// WEB & LOCAL
+// WEB & LOCAL (inchangés)
 // ═══════════════════════════════════════════════════════════
 
 function shouldUseWeb(message, intent) {
@@ -470,7 +489,7 @@ async function searchWeb({ query, apiKey }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// EXTRACTION MÉMOIRE
+// EXTRACTION MÉMOIRE (inchangée)
 // ═══════════════════════════════════════════════════════════
 
 function extractMemoryFromMessage(message, intent) {
@@ -504,127 +523,99 @@ function extractMemoryFromMessage(message, intent) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PROMPT BUILDER
+// ⭐ NOUVEAU : CONSTRUCTION DES MESSAGES POUR L'IA ⭐
 // ═══════════════════════════════════════════════════════════
 
-function buildFlorenciaPrompt({
+function buildMessages({
   message, intent, userProfile, dailyCheckin,
   localContext, webContext, conversation,
   memory, extractedMemory, userPlan,
   pdfContext, isWeeklyReport
 }) {
-  const recentConversation = conversation.length
-    ? conversation.map(m => `${m.role === "user" ? "Utilisateur" : "Florencia"}: ${m.content}`).join("\n")
-    : "Aucun historique récent.";
+  // 1. Prompt système principal
+  const systemPrompt = buildSystemPrompt(intent, userPlan, isWeeklyReport);
 
-  const webBlock = webContext
-    ? `CONTEXTE WEB TEMPS RÉEL\nSynthèse: ${webContext.answer || "Non disponible."}\n\nSources:\n${webContext.results.map((r, i) => `${i + 1}. ${r.title}\n${r.content}\n${r.url}`).join("\n\n")}`
-    : "";
+  // 2. Contexte additionnel (profil, mémoire, web, etc.)
+  const contextBlocks = buildContextBlocks({
+    userProfile, dailyCheckin, localContext, webContext,
+    memory, extractedMemory, pdfContext, intent
+  });
 
-  const memoryBlock = Object.keys(memory).length > 0
-    ? `MÉMOIRE LONG TERME
-- Revenu mentionné   : ${memory.lastMentionedRevenue || "—"} (${memory.lastRevenueDate  || ""})
-- Projet mentionné   : ${memory.lastProjectMentioned || "—"}
-- Niche / marché     : ${memory.lastNicheMentioned   || "—"}
-- Dernier blocage    : ${memory.lastBlocker          || "—"} (${memory.lastBlockerDate  || ""})
-- Dernière décision  : ${memory.lastDecision         || "—"} (${memory.lastDecisionDate || ""})
-- Dernier client     : ${memory.lastClientMention    || "—"} (${memory.lastClientDate   || ""})
-- Dernière intention : ${memory.lastIntent           || "—"} (${memory.lastIntentDate   || ""})`
-    : "MÉMOIRE : Première session — aucune donnée encore mémorisée.";
+  // 3. Historique récent (les derniers messages)
+  const historyMessages = conversation.map(msg => ({
+    role: msg.role === "user" ? "user" : "assistant",
+    content: msg.content
+  }));
 
-  const pdfBlock = pdfContext ? `\nDOCUMENT ANALYSÉ (PDF)\n${pdfContext}` : "";
-  const intentGuide = getIntentGuide(intent);
+  // 4. Message utilisateur actuel
+  const userMessage = message;
 
-  const structureBlock = isWeeklyReport
-    ? `════════════════════════════════════════
-STRUCTURE DU RAPPORT HEBDOMADAIRE (ELITE)
-Génère un rapport business complet :
+  // Assemblage final
+  const messages = [
+    { role: "system", content: systemPrompt }
+  ];
 
-**BILAN DE LA SEMAINE** — Avancées notables, décisions prises, projets avancés.
-**POINTS POSITIFS** — Ce qui fonctionne et doit être amplifié.
-**POINTS D'ATTENTION** — Ce qui a bloqué ou ralenti — sans complaisance.
-**MÉTRIQUES CLÉS** — Objectifs vs réalisé.
-**PRIORITÉS SEMAINE PROCHAINE** — Les 3 actions les plus importantes.
-**CONSEIL STRATÉGIQUE** — Un insight business précis sur la situation actuelle.`
-    : `════════════════════════════════════════
-STRUCTURE DE RÉPONSE
-Réponds dans cet ordre exact :
+  if (contextBlocks) {
+    messages.push({ role: "system", content: contextBlocks });
+  }
 
-**DIAGNOSTIC** — Nomme le vrai enjeu. Ne reformule pas. Chirurgical.
-**RÉPONSE** — Direct, utile, adapté au profil. Va droit au but.
-**PLAN D'ACTION** — 3 à 5 étapes numérotées. Chaque étape = verbe d'action fort.
-**PROCHAINE ÉTAPE** — Une seule chose. La plus importante. Dans les prochaines heures.`;
+  messages.push(...historyMessages);
+  messages.push({ role: "user", content: userMessage });
 
-  return `Tu es Florencia OS.
+  return messages;
+}
 
-════════════════════════════════════════
-IDENTITÉ
-════════════════════════════════════════
-Florencia OS est un Business Operating System pour freelances, indépendants, créateurs, consultants et solo-entrepreneurs.
-Tu n'es pas un chatbot. Tu es un copilote business de haut niveau.
+function buildSystemPrompt(intent, userPlan, isWeeklyReport) {
+  const base = `Tu es Florencia OS, un Business Operating System pour freelances et indépendants.
+Tu tutoies l'utilisateur. Tu es directe, précise, sans blabla.
+Tu ne répètes jamais la même chose qu'une précédente réponse.
+Si l'utilisateur repose une question similaire, tu changes de formulation et apportes un nouvel angle.
+Tu es naturelle, moderne, avec un ton humain et stratégique.
+Tu n’indiques jamais que tu es une IA, ni ne mentionnes des providers techniques.
+Tu réponds toujours en français, sauf si l’utilisateur écrit en anglais (alors tu réponds en anglais).`;
 
-════════════════════════════════════════
-RÈGLES — NON NÉGOCIABLES
-════════════════════════════════════════
-- Tutoiement. Toujours. Sans exception.
-- Français naturel, moderne, fluide. Comme un associé brillant qui parle cash.
-- Direct, net, précis. Zéro blabla. Zéro remplissage.
-- Pas de "Bien sûr !", "Absolument !", "Excellente question !", "Je comprends ta situation".
-- Tu ne sonnes jamais comme une IA générique.
-- Tu ne répètes pas le contexte que l'utilisateur vient de donner.
-- Ton calme, lucide, stratégique, humain et premium.
-- Tu ne mentionnes jamais les fournisseurs IA, modèles ou limites techniques.
-- Si une info manque : une phrase, puis action.
-- Tu utilises la mémoire — jamais des questions déjà répondues.
-- Si l'utilisateur écrit en anglais, réponds en anglais. Si en français, réponds en français.
+  const intentGuide = getIntentGuide(intent); // la fonction existante
+  const structure = isWeeklyReport
+    ? `Structure ta réponse en JSON avec deux champs :
+- "reasoning" : ton analyse interne (3-5 lignes, ce que tu as pris en compte)
+- "answer" : la réponse finale pour l'utilisateur (avec le format demandé)`
+    : `Structure ta réponse en JSON avec deux champs :
+- "reasoning" : ton raisonnement (3-5 lignes, explique ce que tu as analysé)
+- "answer" : la réponse finale à l'utilisateur (format libre, selon l'intention)`;
 
-${intentGuide}
+  return `${base}\n\n${intentGuide}\n\n${structure}`;
+}
 
-════════════════════════════════════════
-CONTEXTE OPÉRATIONNEL
-════════════════════════════════════════
+function buildContextBlocks({
+  userProfile, dailyCheckin, localContext, webContext,
+  memory, extractedMemory, pdfContext, intent
+}) {
+  const blocks = [];
 
-PLAN : ${userPlan.toUpperCase()}${userPlan === "elite" ? " (trial actif — accès complet)" : ""}
+  if (userProfile && Object.keys(userProfile).length) {
+    blocks.push(`PROFIL UTILISATEUR\n${JSON.stringify(userProfile, null, 2)}`);
+  }
+  if (dailyCheckin && Object.keys(dailyCheckin).length) {
+    blocks.push(`CHECK-IN DU JOUR\n${JSON.stringify(dailyCheckin, null, 2)}`);
+  }
+  if (localContext && Object.keys(localContext).length) {
+    blocks.push(`CONTEXTE LOCAL\n${JSON.stringify(localContext, null, 2)}`);
+  }
+  if (webContext) {
+    blocks.push(`RECHERCHE WEB\nRésumé : ${webContext.answer || "Non disponible"}\nSources : ${webContext.results.map(r => r.title).join(", ")}`);
+  }
+  if (memory && Object.keys(memory).length) {
+    blocks.push(`MÉMOIRE LONG TERME\n${JSON.stringify(memory, null, 2)}`);
+  }
+  if (pdfContext) {
+    blocks.push(`ANALYSE PDF\n${pdfContext}`);
+  }
 
-PROFIL
-- Métier           : ${userProfile.job         || "non renseigné"}
-- Niche            : ${userProfile.niche        || memory.lastNicheMentioned   || "non renseignée"}
-- Offre principale : ${userProfile.offer        || "non renseignée"}
-- Objectif revenu  : ${userProfile.revenueGoal  || memory.lastMentionedRevenue || "non renseigné"}
-- Pays             : ${userProfile.country      || localContext?.country || "non renseigné"}
-- Ville            : ${userProfile.city         || localContext?.city    || "non renseignée"}
-- Devise           : ${userProfile.currency     || "non renseignée"}
-
-CHECK-IN DU JOUR
-- Objectif : ${dailyCheckin.goal    || "non renseigné"}
-- Focus    : ${dailyCheckin.focus   || "non renseigné"}
-- Blocage  : ${dailyCheckin.blocker || "aucun"}
-- Note     : ${dailyCheckin.note    || "—"}
-
-LOCALISATION
-- Pays   : ${localContext?.country  || userProfile.country  || "non renseigné"}
-- Ville  : ${localContext?.city     || userProfile.city     || "non renseignée"}
-- Fuseau : ${localContext?.timezone || "non renseigné"}
-
-${memoryBlock}
-${webBlock ? "\n" + webBlock : ""}
-${pdfBlock}
-
-HISTORIQUE RÉCENT
-${recentConversation}
-
-INTENTION : ${intent}
-
-════════════════════════════════════════
-MESSAGE
-════════════════════════════════════════
-${message}
-
-${structureBlock}`;
+  return blocks.length ? blocks.join("\n\n") : null;
 }
 
 // ═══════════════════════════════════════════════════════════
-// GUIDES PAR INTENTION
+// GUIDES PAR INTENTION (inchangés)
 // ═══════════════════════════════════════════════════════════
 
 function getIntentGuide(intent) {
@@ -646,10 +637,10 @@ function getIntentGuide(intent) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// ROUTER IA
+// ⭐ ROUTER IA MODIFIÉ POUR UTILISER LES MESSAGES ⭐
 // ═══════════════════════════════════════════════════════════
 
-async function runRouter({ intent, prompt, geminiKey, groqKey, isLong }) {
+async function runRouter({ intent, messages, geminiKey, groqKey, isLong }) {
   const complexIntents = ["acquisition_clients", "generation_offre", "analyse_business", "decision", "recap", "analyse_document", "automatisation"];
   const geminiFirst    = complexIntents.includes(intent) || isLong;
   const providers      = geminiFirst ? ["gemini", "groq"] : ["groq", "gemini"];
@@ -658,11 +649,11 @@ async function runRouter({ intent, prompt, geminiKey, groqKey, isLong }) {
   for (const p of providers) {
     try {
       if (p === "gemini" && geminiKey) {
-        const reply = await callGemini(prompt, geminiKey, isLong);
+        const reply = await callGemini(messages, geminiKey, isLong);
         if (reply) return { reply, provider: "gemini" };
       }
       if (p === "groq" && groqKey) {
-        const reply = await callGroq(prompt, groqKey);
+        const reply = await callGroq(messages, groqKey);
         if (reply) return { reply, provider: "groq" };
       }
     } catch (err) { lastError = err; }
@@ -672,44 +663,57 @@ async function runRouter({ intent, prompt, geminiKey, groqKey, isLong }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// GEMINI
+// ⭐ APPEL GEMINI AVEC MESSAGES ⭐
 // ═══════════════════════════════════════════════════════════
 
-async function callGemini(prompt, apiKey, isLong = false) {
+async function callGemini(messages, apiKey, isLong = false) {
+  // Gemini attend un tableau "contents" avec role user/model
+  const contents = messages.map(msg => ({
+    role: msg.role === "user" ? "user" : "model",
+    parts: [{ text: msg.content }]
+  }));
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
     {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.72, maxOutputTokens: isLong ? 3000 : 1800 }
+        contents,
+        generationConfig: {
+          temperature: 0.85,
+          maxOutputTokens: isLong ? 3000 : 1800
+        }
       })
     }
   );
+
   if (res.status === 429) throw new Error("Gemini quota atteint.");
-  if (!res.ok)           throw new Error(`Gemini error ${res.status}`);
+  if (!res.ok) throw new Error(`Gemini error ${res.status}`);
+
   const data = await res.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
 // ═══════════════════════════════════════════════════════════
-// GROQ
+// ⭐ APPEL GROQ AVEC MESSAGES ⭐
 // ═══════════════════════════════════════════════════════════
 
-async function callGroq(prompt, apiKey) {
+async function callGroq(messages, apiKey) {
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method:  "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model:       "llama-3.3-70b-versatile",
-      temperature: 0.72,
-      max_tokens:  2000,
-      messages:    [{ role: "user", content: prompt }]
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.85,
+      max_tokens: 2000,
+      messages: messages
     })
   });
+
   if (res.status === 429) throw new Error("Groq quota atteint.");
-  if (!res.ok)           throw new Error(`Groq error ${res.status}`);
+  if (!res.ok) throw new Error(`Groq error ${res.status}`);
+
   const data = await res.json();
   return data?.choices?.[0]?.message?.content || "";
 }
