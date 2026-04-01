@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Florencia OS — Pricing</title>
-  <meta name="description" content="Simple, honest pricing for Florencia OS. Start free, upgrade when ready." />
+  <title>Florencia — Tarifs</title>
+  <meta name="description" content="Tarifs simples et honnêtes pour Florencia. Commencez gratuitement, passez au Pro quand vous êtes prêt." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -30,7 +30,6 @@
       --shadow-md:  0 8px 32px rgba(28,26,23,0.10);
       --shadow-lg:  0 20px 60px rgba(28,26,23,0.14);
       --radius:     16px;
-      --radius-sm:  10px;
     }
 
     html { scroll-behavior: smooth; }
@@ -55,7 +54,7 @@
 
     .container {
       width: 100%;
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 0 24px;
     }
@@ -79,9 +78,7 @@
     }
     .logo span { color: var(--forest); }
     .nav-right { display: flex; align-items: center; gap: 20px; }
-    .nav-link {
-      font-size: 0.875rem; color: var(--ink-soft); transition: color 0.2s;
-    }
+    .nav-link { font-size: 0.875rem; color: var(--ink-soft); transition: color 0.2s; }
     .nav-link:hover { color: var(--forest); }
     .btn-nav {
       display: inline-flex; align-items: center; gap: 7px;
@@ -120,41 +117,17 @@
     .hero-title em { color: var(--forest); font-style: italic; }
     .hero-sub {
       font-size: 1.05rem; color: var(--ink-soft); line-height: 1.75;
-      font-weight: 300; max-width: 480px; margin: 0 auto 32px;
+      font-weight: 300; max-width: 480px; margin: 0 auto;
     }
 
-    /* Billing toggle */
-    .billing-toggle {
-      display: inline-flex; align-items: center;
-      background: rgba(28,26,23,0.06); border-radius: 50px; padding: 4px;
-      border: 1px solid rgba(28,26,23,0.08);
-    }
-    .toggle-btn {
-      padding: 9px 22px; border-radius: 50px;
-      font-size: 0.875rem; font-weight: 500; cursor: pointer;
-      transition: background 0.22s, color 0.22s, box-shadow 0.22s;
-      border: none; background: transparent; color: var(--ink-muted);
-      font-family: 'DM Sans', sans-serif;
-    }
-    .toggle-btn.active {
-      background: var(--white); color: var(--ink); font-weight: 600;
-      box-shadow: var(--shadow-sm);
-    }
-    .save-badge {
-      display: inline-block; margin-left: 6px;
-      background: var(--gold-pale); color: #8A6A20;
-      font-size: 0.68rem; font-weight: 700;
-      padding: 2px 8px; border-radius: 50px;
-    }
-
-    /* ══ PRICING GRID ══ */
+    /* ══ PRICING GRID — 2 colonnes ══ */
     .pricing-section { padding: 0 0 80px; }
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
       align-items: start;
-      margin-top: 48px;
+      margin-top: 56px;
     }
 
     .plan {
@@ -205,13 +178,8 @@
       font-size: 3.6rem; font-weight: 600; line-height: 1; color: var(--ink);
     }
     .plan.featured .plan-amount { color: rgba(255,255,255,0.97); }
-    .plan-period { font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 6px; }
+    .plan-period { font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 24px; }
     .plan.featured .plan-period { color: rgba(255,255,255,0.45); }
-    .plan-annual-note {
-      font-size: 0.75rem; font-weight: 500; color: var(--forest);
-      min-height: 18px; margin-bottom: 24px; display: block;
-    }
-    .plan.featured .plan-annual-note { color: var(--gold-lt); }
 
     .plan-divider { height: 1px; background: var(--cream-deep); margin-bottom: 24px; }
     .plan.featured .plan-divider { background: rgba(255,255,255,0.15); }
@@ -223,7 +191,6 @@
     }
     .plan.featured .pf { color: rgba(255,255,255,0.70); }
     .pf.locked { color: var(--ink-muted); opacity: 0.5; }
-    .plan.featured .pf.locked { color: rgba(255,255,255,0.25); }
 
     .pf-icon {
       width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;
@@ -245,7 +212,7 @@
       background: var(--ink-muted); border-radius: 99px;
     }
 
-    /* ══ BUTTONS ══ */
+    /* ══ BOUTONS ══ */
     .btn-plan-free {
       display: block; text-align: center; width: 100%;
       padding: 14px; border-radius: 50px;
@@ -253,30 +220,20 @@
       cursor: pointer; border: 1.5px solid rgba(28,26,23,0.14);
       color: var(--ink-soft); background: transparent;
       transition: border-color 0.22s, color 0.22s, background 0.22s;
+      text-decoration: none;
     }
     .btn-plan-free:hover { border-color: var(--forest); color: var(--forest); background: var(--forest-pale); }
 
-    .btn-plan-pro {
-      display: block; text-align: center; width: 100%;
-      padding: 15px; border-radius: 50px;
-      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
-      cursor: pointer; border: none;
-      background: var(--white); color: var(--forest);
-      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-      transition: background 0.22s, transform 0.18s, box-shadow 0.22s;
+    /* Chariow widget wrapper — s'adapte au style Pro */
+    .chariow-wrapper {
+      width: 100%;
+      margin-bottom: 10px;
     }
-    .btn-plan-pro:hover { background: var(--gold-pale); transform: translateY(-2px); box-shadow: 0 8px 26px rgba(0,0,0,0.15); }
 
-    .btn-plan-elite {
-      display: block; text-align: center; width: 100%;
-      padding: 14px; border-radius: 50px;
-      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500;
-      cursor: pointer;
-      border: 1.5px solid rgba(196,154,60,0.35);
-      color: var(--gold); background: var(--gold-pale);
-      transition: border-color 0.22s, background 0.22s, transform 0.18s;
+    /* On force le widget Chariow à prendre toute la largeur */
+    #chariow-widget-pro {
+      width: 100% !important;
     }
-    .btn-plan-elite:hover { border-color: var(--gold); background: #EFE0A8; transform: translateY(-2px); }
 
     .plan-note {
       text-align: center; font-size: 0.72rem;
@@ -284,7 +241,7 @@
     }
     .plan.featured .plan-note { color: rgba(255,255,255,0.35); }
 
-    /* Payment badges */
+    /* Badges de paiement */
     .payment-row {
       display: flex; align-items: center; justify-content: center;
       gap: 10px; flex-wrap: wrap; margin-top: 36px;
@@ -338,82 +295,9 @@
     .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.4); transition: color 0.2s; }
     .footer-links a:hover { color: rgba(255,255,255,0.75); }
 
-    /* ══ MODAL ══ */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(28,26,23,0.55); backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      align-items: center; justify-content: center; padding: 20px;
-    }
-    .modal-overlay.show { display: flex; }
-
-    .modal-box {
-      background: var(--white); border-radius: 24px;
-      padding: 40px 36px; width: 100%; max-width: 460px;
-      box-shadow: 0 32px 80px rgba(28,26,23,0.20);
-      animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
-      position: relative; max-height: 90vh; overflow-y: auto;
-    }
-    @keyframes modalIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0)    scale(1); }
-    }
-
-    .modal-close-btn {
-      position: absolute; top: 16px; right: 16px;
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--cream-mid); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--ink-muted); font-size: 18px; line-height: 1;
-      transition: background 0.18s; font-family: inherit;
-    }
-    .modal-close-btn:hover { background: var(--cream-deep); color: var(--ink); }
-
-    .modal-badge {
-      display: inline-block; font-size: 0.68rem; font-weight: 700;
-      letter-spacing: 0.09em; text-transform: uppercase;
-      padding: 4px 12px; border-radius: 50px; margin-bottom: 16px;
-    }
-    .modal-badge.pro   { background: var(--forest-pale); color: var(--forest); }
-    .modal-badge.elite { background: var(--gold-pale);   color: #8A6A20; }
-
-    .modal-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.9rem; font-weight: 600; color: var(--ink);
-      margin-bottom: 8px; letter-spacing: -0.01em;
-    }
-    .modal-sub {
-      font-size: 0.875rem; color: var(--ink-soft); font-weight: 300;
-      line-height: 1.65; margin-bottom: 28px;
-    }
-
-    .modal-amount-box {
-      background: var(--cream); border-radius: var(--radius-sm);
-      padding: 16px 20px; margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      border: 1px solid var(--cream-deep);
-    }
-    .modal-amount-label { font-size: 0.8rem; color: var(--ink-muted); font-weight: 500; }
-    .modal-amount-value {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2rem; font-weight: 600; color: var(--ink);
-    }
-
-    .modal-kkiapay { margin-bottom: 16px; min-height: 52px; }
-
-    .modal-security {
-      display: flex; align-items: center; justify-content: center;
-      gap: 6px; font-size: 0.72rem; color: var(--ink-muted);
-    }
-    .modal-security svg {
-      width: 12px; height: 12px; stroke: var(--ink-muted); fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-
     /* ══ TOAST ══ */
     .toast {
-      position: fixed; bottom: 28px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(10px);
       background: var(--forest); color: white;
       border-radius: 50px; padding: 12px 26px;
       font-size: 0.875rem; font-weight: 500;
@@ -422,11 +306,10 @@
       box-shadow: 0 8px 24px rgba(44,74,62,0.30);
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .toast.success { background: var(--forest); }
-    .toast.error   { background: #C0392B; }
+    .toast.error { background: #C0392B; }
 
     /* ══ RESPONSIVE ══ */
-    @media (max-width: 920px) {
+    @media (max-width: 760px) {
       .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
       .plan.featured { transform: none; }
       .plan.featured:hover { transform: translateY(-4px); }
@@ -435,7 +318,6 @@
     @media (max-width: 640px) {
       .hero { padding: 52px 0 36px; }
       .nav-right .nav-link { display: none; }
-      .modal-box { padding: 32px 20px; }
     }
     :focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-radius: 4px; }
   </style>
@@ -451,10 +333,10 @@
     <div class="nav-inner">
       <a href="index.html" class="logo">Florencia <span>OS</span></a>
       <div class="nav-right">
-        <a href="index.html"     class="nav-link">Home</a>
+        <a href="index.html"     class="nav-link">Accueil</a>
         <a href="dashboard.html" class="nav-link">Dashboard</a>
-        <a href="login.html"     class="nav-link">Log In</a>
-        <a href="signup.html"    class="btn-nav">Get Started Free</a>
+        <a href="login.html"     class="nav-link">Connexion</a>
+        <a href="signup.html"    class="btn-nav">Commencer gratuitement</a>
       </div>
     </div>
   </div>
@@ -464,17 +346,11 @@
 <section class="hero">
   <div class="container">
     <div class="hero-inner">
-      <span class="hero-label">Pricing</span>
-      <h1 class="display hero-title">Simple, honest<br><em>pricing.</em></h1>
+      <span class="hero-label">Tarifs</span>
+      <h1 class="display hero-title">Simple, honnête,<br><em>accessible.</em></h1>
       <p class="hero-sub">
-        Start for free. Upgrade when you&#8217;re ready. Every account includes a 14&#8209;day Elite trial so you experience the full platform before committing.
+        Commencez gratuitement. Passez au Pro quand vous êtes prêt. Aucun engagement, annulation à tout moment.
       </p>
-      <div class="billing-toggle">
-        <button class="toggle-btn active" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
-        <button class="toggle-btn"        id="btnAnnual"  onclick="setBilling('annual')">
-          Annual <span class="save-badge">Save 27%</span>
-        </button>
-      </div>
     </div>
   </div>
 </section>
@@ -484,90 +360,76 @@
   <div class="container">
     <div class="pricing-grid">
 
-      <!-- FREE -->
+      <!-- GRATUIT -->
       <div class="plan">
-        <p class="plan-name">Free</p>
-        <p class="plan-desc">Everything you need to get started and see real value before committing to a paid plan.</p>
+        <p class="plan-name">Gratuit</p>
+        <p class="plan-desc">Tout ce qu'il faut pour démarrer et constater la valeur réelle avant de passer à la vitesse supérieure.</p>
         <div class="plan-price">
           <span class="plan-currency">$</span>
           <span class="plan-amount">0</span>
         </div>
-        <p class="plan-period">forever &middot; no credit card</p>
-        <span class="plan-annual-note">&nbsp;</span>
+        <p class="plan-period">pour toujours &middot; sans carte bancaire</p>
         <div class="plan-divider"></div>
         <div class="plan-features">
-          <div class="pf"><span class="pf-icon check"></span>AI Assistant &mdash; 50 messages / day</div>
-          <div class="pf"><span class="pf-icon check"></span>Daily check-in</div>
-          <div class="pf"><span class="pf-icon check"></span>Basic business profile</div>
-          <div class="pf"><span class="pf-icon check"></span>3 active projects</div>
-          <div class="pf"><span class="pf-icon check"></span>5 clients in pipeline</div>
-          <div class="pf"><span class="pf-icon check"></span>7-day memory window</div>
-          <div class="pf locked"><span class="pf-icon dash"></span>Unlimited AI messages</div>
-          <div class="pf locked"><span class="pf-icon dash"></span>Long-term memory</div>
-          <div class="pf locked"><span class="pf-icon dash"></span>Document analysis</div>
+          <div class="pf"><span class="pf-icon check"></span>Assistant IA — 50 messages / jour</div>
+          <div class="pf"><span class="pf-icon check"></span>Check-in quotidien</div>
+          <div class="pf"><span class="pf-icon check"></span>Profil business basique</div>
+          <div class="pf"><span class="pf-icon check"></span>3 projets actifs</div>
+          <div class="pf"><span class="pf-icon check"></span>5 clients en pipeline</div>
+          <div class="pf"><span class="pf-icon check"></span>Mémoire 7 jours</div>
+          <div class="pf locked"><span class="pf-icon dash"></span>Messages IA illimités</div>
+          <div class="pf locked"><span class="pf-icon dash"></span>Mémoire long terme</div>
+          <div class="pf locked"><span class="pf-icon dash"></span>Analyse de documents</div>
         </div>
-        <a href="signup.html" class="btn-plan-free">Start for free</a>
-        <p class="plan-note">No credit card required</p>
+        <a href="signup.html" class="btn-plan-free">Commencer gratuitement</a>
+        <p class="plan-note">Aucune carte bancaire requise</p>
       </div>
 
       <!-- PRO -->
       <div class="plan featured">
-        <div class="plan-popular">Most Popular</div>
+        <div class="plan-popular">Le plus populaire</div>
         <p class="plan-name">Pro</p>
-        <p class="plan-desc">The complete Florencia OS experience for operators serious about building consistent income.</p>
+        <p class="plan-desc">L'expérience Florencia complète pour les opérateurs sérieux qui veulent construire un revenu stable.</p>
         <div class="plan-price">
           <span class="plan-currency">$</span>
-          <span class="plan-amount" id="proAmount">9</span>
+          <span class="plan-amount">5</span>
         </div>
-        <p class="plan-period" id="proPeriod">per month</p>
-        <span class="plan-annual-note" id="proNote">&nbsp;</span>
+        <p class="plan-period">par mois &middot; prix de lancement</p>
         <div class="plan-divider"></div>
         <div class="plan-features">
-          <div class="pf"><span class="pf-icon check"></span>Unlimited AI messages</div>
-          <div class="pf"><span class="pf-icon check"></span>Long-term memory &mdash; unlimited</div>
-          <div class="pf"><span class="pf-icon check"></span>Unlimited projects &amp; pipeline</div>
-          <div class="pf"><span class="pf-icon check"></span>PDF document analysis</div>
-          <div class="pf"><span class="pf-icon check"></span>Real-time web search</div>
-          <div class="pf"><span class="pf-icon check"></span>Content creation tools</div>
-          <div class="pf"><span class="pf-icon check"></span>Full conversation history</div>
-          <div class="pf"><span class="pf-icon check"></span>Full dashboard analytics</div>
-          <div class="pf locked"><span class="pf-icon dash"></span>Voice mode</div>
-          <div class="pf locked"><span class="pf-icon dash"></span>Automations</div>
+          <div class="pf"><span class="pf-icon check"></span>Messages IA illimités</div>
+          <div class="pf"><span class="pf-icon check"></span>Mémoire long terme — illimitée</div>
+          <div class="pf"><span class="pf-icon check"></span>Projets &amp; pipeline illimités</div>
+          <div class="pf"><span class="pf-icon check"></span>Analyse de documents PDF</div>
+          <div class="pf"><span class="pf-icon check"></span>Recherche web en temps réel</div>
+          <div class="pf"><span class="pf-icon check"></span>Outils de création de contenu</div>
+          <div class="pf"><span class="pf-icon check"></span>Historique complet des conversations</div>
+          <div class="pf"><span class="pf-icon check"></span>Analytics dashboard complet</div>
+          <div class="pf"><span class="pf-icon check"></span>Audit de code intelligent</div>
+          <div class="pf"><span class="pf-icon check"></span>Corrections automatiques</div>
         </div>
-        <button class="btn-plan-pro" id="btnPro" onclick="openModal('pro')">Get Pro</button>
-        <p class="plan-note">14-day free trial included</p>
-      </div>
 
-      <!-- ELITE -->
-      <div class="plan">
-        <p class="plan-name">Elite</p>
-        <p class="plan-desc">For ambitious operators who want agentic AI, automations, and the full platform without limits.</p>
-        <div class="plan-price">
-          <span class="plan-currency">$</span>
-          <span class="plan-amount" id="eliteAmount">29</span>
+        <!-- Chariow Snap Widget -->
+        <div class="chariow-wrapper">
+          <div id="chariow-widget-pro"
+               data-product-id="prd_uiiy49"
+               data-store-domain="mesnsjow.mychariow.shop"
+               data-style="tap"
+               data-border-style="rounded"
+               data-cta-width="full"
+               data-background-color="#2C4A3E"
+               data-cta-animation="shine"
+               data-locale="fr"
+               data-primary-color="#FFFFFF">
+          </div>
         </div>
-        <p class="plan-period" id="elitePeriod">per month</p>
-        <span class="plan-annual-note" id="eliteNote">&nbsp;</span>
-        <div class="plan-divider"></div>
-        <div class="plan-features">
-          <div class="pf"><span class="pf-icon check"></span>Everything in Pro</div>
-          <div class="pf"><span class="pf-icon check"></span>Voice mode &mdash; speak to Florencia</div>
-          <div class="pf"><span class="pf-icon check"></span>Automations &amp; workflows</div>
-          <div class="pf"><span class="pf-icon check"></span>Agentic AI actions</div>
-          <div class="pf"><span class="pf-icon check"></span>Weekly business report</div>
-          <div class="pf"><span class="pf-icon check"></span>Advanced analytics dashboard</div>
-          <div class="pf"><span class="pf-icon check"></span>Third-party integrations</div>
-          <div class="pf"><span class="pf-icon check"></span>Priority support &mdash; 24h</div>
-          <div class="pf"><span class="pf-icon check"></span>Early access to new features</div>
-          <div class="pf"><span class="pf-icon check"></span>API access</div>
-        </div>
-        <button class="btn-plan-elite" id="btnElite" onclick="openModal('elite')">Get Elite</button>
-        <p class="plan-note">14-day free trial included</p>
+
+        <p class="plan-note">Paiement sécurisé &middot; Mobile Money &middot; Carte bancaire</p>
       </div>
 
     </div>
 
-    <!-- Payment methods -->
+    <!-- Méthodes de paiement -->
     <div class="payment-row">
       <div class="payment-badge">
         <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
@@ -579,7 +441,7 @@
       </div>
       <div class="payment-badge">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Secured by KKiaPay
+        Sécurisé par Chariow
       </div>
     </div>
   </div>
@@ -590,32 +452,32 @@
   <div class="container">
     <div class="faq-header">
       <p class="faq-label">FAQ</p>
-      <h2 class="display faq-title">Common questions</h2>
+      <h2 class="display faq-title">Questions fréquentes</h2>
     </div>
     <div class="faq-grid">
       <div class="faq-item">
-        <p class="faq-q">Is there a free trial?</p>
-        <p class="faq-a">Yes. Every new account receives a 14-day full Elite trial automatically, no credit card required. After the trial you choose your plan.</p>
+        <p class="faq-q">Y a-t-il une période d'essai ?</p>
+        <p class="faq-a">Oui. Le plan Gratuit est disponible sans limite de temps. Vous pouvez tester Florencia sans aucune carte bancaire avant de passer au Pro.</p>
       </div>
       <div class="faq-item">
-        <p class="faq-q">What payment methods are accepted?</p>
-        <p class="faq-a">We accept Visa, Mastercard, and Mobile Money (MTN, Moov, Orange, Wave) through KKiaPay — available across Africa and internationally.</p>
+        <p class="faq-q">Quels moyens de paiement acceptez-vous ?</p>
+        <p class="faq-a">Nous acceptons Visa, Mastercard, et Mobile Money (MTN, Moov, Orange, Wave) via Chariow — disponible à travers l'Afrique et à l'international.</p>
       </div>
       <div class="faq-item">
-        <p class="faq-q">Can I cancel anytime?</p>
-        <p class="faq-a">Absolutely. There are no long-term commitments. Cancel at any time and your access continues until the end of the billing period.</p>
+        <p class="faq-q">Puis-je annuler à tout moment ?</p>
+        <p class="faq-a">Absolument. Aucun engagement à long terme. Annulez à tout moment depuis vos paramètres de compte. Votre accès continue jusqu'à la fin de la période payée.</p>
       </div>
       <div class="faq-item">
-        <p class="faq-q">Can I switch plans later?</p>
-        <p class="faq-a">Yes. You can upgrade or downgrade your plan at any time from your account settings. Changes take effect immediately.</p>
+        <p class="faq-q">Mes données sont-elles sécurisées ?</p>
+        <p class="faq-a">Oui. Toutes les données sont chiffrées en transit et au repos. Vous pouvez exporter ou supprimer vos données à tout moment depuis votre compte.</p>
       </div>
       <div class="faq-item">
-        <p class="faq-q">Is my data safe?</p>
-        <p class="faq-a">Yes. All data is encrypted in transit and at rest. We are fully GDPR-compliant and you can export or delete your data at any time.</p>
+        <p class="faq-q">Que se passe-t-il si j'annule ?</p>
+        <p class="faq-a">Vos données restent accessibles sur le plan Gratuit. Si vous supprimez votre compte, toutes les données sont définitivement effacées dans les 30 jours.</p>
       </div>
       <div class="faq-item">
-        <p class="faq-q">What happens to my data if I cancel?</p>
-        <p class="faq-a">Your data remains accessible on the Free plan. If you delete your account, all data is permanently removed within 30 days.</p>
+        <p class="faq-q">Ce prix est-il définitif ?</p>
+        <p class="faq-a">Le prix de $5/mois est notre tarif de lancement. Les premiers utilisateurs conservent ce prix à vie tant qu'ils maintiennent leur abonnement actif.</p>
       </div>
     </div>
   </div>
@@ -627,170 +489,33 @@
     <div class="footer-inner">
       <div>
         <p class="footer-logo">Florencia <span>OS</span></p>
-        <p class="footer-copy">&#169; 2026 Florencia OS. All rights reserved.</p>
+        <p class="footer-copy">&#169; 2026 Florencia OS. Tous droits réservés.</p>
       </div>
       <ul class="footer-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="help.html">Help</a></li>
-        <li><a href="privacy-policy.html">Privacy</a></li>
-        <li><a href="terms-of-service.html">Terms</a></li>
-        <li><a href="login.html">Log In</a></li>
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="about.html">À propos</a></li>
+        <li><a href="help.html">Aide</a></li>
+        <li><a href="privacy-policy.html">Confidentialité</a></li>
+        <li><a href="terms-of-service.html">Conditions</a></li>
+        <li><a href="login.html">Connexion</a></li>
       </ul>
     </div>
   </div>
 </footer>
 
-<!-- ══ PAYMENT MODAL ══ -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box" id="modalBox">
-    <button class="modal-close-btn" onclick="closeModal()">&#215;</button>
-    <span class="modal-badge" id="modalBadge">Pro</span>
-    <h2 class="modal-title" id="modalTitle">Upgrade to Pro</h2>
-    <p class="modal-sub" id="modalSub">Unlock unlimited AI, long-term memory, and everything you need to build consistent income.</p>
-    <div class="modal-amount-box">
-      <span class="modal-amount-label" id="modalAmountLabel">Total today</span>
-      <span class="modal-amount-value" id="modalAmountValue">$9 / month</span>
-    </div>
-    <!-- KKiaPay widget injected here -->
-    <div class="modal-kkiapay" id="kkiapayContainer"></div>
-    <div class="modal-security">
-      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Secured by KKiaPay &middot; Visa &middot; Mastercard &middot; Mobile Money
-    </div>
-  </div>
-</div>
-
-<!-- ══ KKIAPAY SDK ══ -->
-<script src="https://cdn.kkiapay.me/k.js"></script>
-
+<!-- ══ CHARIOW SDK ══ -->
 <script>
-  'use strict';
+(function() {
+  var script = document.createElement('script');
+  script.src = 'https://js.chariowcdn.com/v1/widget.min.js';
+  script.async = true;
+  document.head.appendChild(script);
 
-  /* ── Config ─────────────────────────────── */
-  var KKIAPAY_PUBLIC_KEY = '3406407e1ae8279e5dc27d7b5ef8467b1324ee9e';
-
-  /* Prices in USD cents converted to XOF (1 USD ≈ 615 XOF) */
-  var PLANS = {
-    pro: {
-      monthly: { usd: 9,  xof: 5535,  label: '$9 / month'  },
-      annual:  { usd: 79, xof: 48585, label: '$79 / year'  }
-    },
-    elite: {
-      monthly: { usd: 29,  xof: 17835,  label: '$29 / month' },
-      annual:  { usd: 249, xof: 153135, label: '$249 / year' }
-    }
-  };
-
-  var billing     = 'monthly';
-  var currentPlan = null;
-
-  /* ── Billing toggle ─────────────────────── */
-  function setBilling(type) {
-    billing = type;
-    document.getElementById('btnMonthly').classList.toggle('active', type === 'monthly');
-    document.getElementById('btnAnnual').classList.toggle('active',  type === 'annual');
-
-    if (type === 'annual') {
-      document.getElementById('proAmount').textContent   = '79';
-      document.getElementById('proPeriod').textContent   = 'per year';
-      document.getElementById('proNote').textContent     = 'Save $29 vs monthly';
-      document.getElementById('eliteAmount').textContent = '249';
-      document.getElementById('elitePeriod').textContent = 'per year';
-      document.getElementById('eliteNote').textContent   = 'Save $99 vs monthly';
-    } else {
-      document.getElementById('proAmount').textContent   = '9';
-      document.getElementById('proPeriod').textContent   = 'per month';
-      document.getElementById('proNote').textContent     = '\u00a0';
-      document.getElementById('eliteAmount').textContent = '29';
-      document.getElementById('elitePeriod').textContent = 'per month';
-      document.getElementById('eliteNote').textContent   = '\u00a0';
-    }
-  }
-
-  /* ── Modal ──────────────────────────────── */
-  function openModal(plan) {
-    currentPlan = plan;
-    var price   = PLANS[plan][billing];
-    var isPro   = plan === 'pro';
-
-    document.getElementById('modalBadge').textContent    = isPro ? 'Pro Plan' : 'Elite Plan';
-    document.getElementById('modalBadge').className      = 'modal-badge ' + plan;
-    document.getElementById('modalTitle').textContent    = isPro ? 'Upgrade to Pro' : 'Upgrade to Elite';
-    document.getElementById('modalSub').textContent      = isPro
-      ? 'Unlock unlimited AI, long-term memory, and everything you need to build consistent income.'
-      : 'The full Florencia OS experience — voice mode, automations, agentic AI and priority support.';
-    document.getElementById('modalAmountValue').textContent = price.label;
-
-    /* Inject KKiaPay widget */
-    var container = document.getElementById('kkiapayContainer');
-    container.innerHTML = '';
-    var widget = document.createElement('kkiapay-widget');
-    widget.setAttribute('sandbox',  'true'); /* ← change to "false" when account is active */
-    widget.setAttribute('amount',   String(price.xof));
-    widget.setAttribute('key',      KKIAPAY_PUBLIC_KEY);
-    widget.setAttribute('callback', window.location.origin + '/dashboard.html');
-    widget.setAttribute('data-plan', plan);
-    widget.setAttribute('data-billing', billing);
-    container.appendChild(widget);
-
-    document.getElementById('modalOverlay').classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('show');
-    document.body.style.overflow = '';
-    document.getElementById('kkiapayContainer').innerHTML = '';
-    currentPlan = null;
-  }
-
-  /* Close modal on overlay click */
-  document.getElementById('modalOverlay').addEventListener('click', function (e) {
-    if (e.target === this) closeModal();
-  });
-
-  /* Close on Escape */
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeModal();
-  });
-
-  /* ── KKiaPay payment events ─────────────── */
-  window.addEventListener('kkiapay-transaction-init', function (e) {
-    /* payment started — optional: log */
-    console.log('Payment initiated', e.detail);
-  });
-
-  window.addEventListener('kkiapay-transaction-failed', function (e) {
-    closeModal();
-    showToast('Payment failed. Please try again.', 'error');
-    console.error('Payment failed', e.detail);
-  });
-
-  window.addEventListener('kkiapay-transaction-successful', function (e) {
-    /* Save plan to localStorage so dashboard can read it */
-    var transactionId = e.detail && e.detail.transactionId ? e.detail.transactionId : '';
-    localStorage.setItem('florencia_plan',          currentPlan || 'pro');
-    localStorage.setItem('florencia_billing',        billing);
-    localStorage.setItem('florencia_kkiapay_txid',  transactionId);
-    localStorage.setItem('florencia_plan_since',    new Date().toISOString());
-
-    closeModal();
-    showToast('Payment successful. Welcome to Florencia OS ' + (currentPlan === 'elite' ? 'Elite' : 'Pro') + '!', 'success');
-
-    /* Redirect to dashboard after short delay */
-    setTimeout(function () {
-      window.location.href = 'dashboard.html';
-    }, 1800);
-  });
-
-  /* ── Toast ──────────────────────────────── */
-  function showToast(msg, type) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show ' + (type || 'success');
-    setTimeout(function () { t.className = 'toast'; }, 3500);
-  }
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://js.chariowcdn.com/v1/widget.min.css';
+  document.head.appendChild(link);
+})();
 </script>
 
 </body>
