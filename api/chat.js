@@ -1,7 +1,7 @@
 // ============================================================
 // FLORENCIA OS — api/chat.js
-// Vercel Node.js · Supabase REST · Plans Free/Pro
-// Router IA : Gemini → Groq → OpenRouter (fallback gratuit)
+// Vercel Edge · Supabase REST · Plans Free/Pro
+// Router IA : Gemma 4 → Gemini → Groq → DeepSeek (fallback)
 // ============================================================
 
 const PLAN_LIMITS = {
@@ -13,7 +13,6 @@ export async function POST(request) {
   try {
     const body    = await safeJson(request);
     const message = String(body.message || "").trim();
-
     if (!message) return jsonResponse(400, { error: "Message manquant." });
 
     const GEMINI_API_KEY     = process.env.GEMINI_API_KEY            || "";
@@ -24,10 +23,8 @@ export async function POST(request) {
     const SUPABASE_URL       = process.env.SUPABASE_URL              || "";
     const SUPABASE_SERVICE   = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
-    const lang = detectLanguage(message);
-
-    const authHeader = request.headers.get("Authorization") || "";
-    const userToken  = authHeader.replace("Bearer ", "").trim();
+    const lang      = detectLanguage(message);
+    const userToken = (request.headers.get("Authorization") || "").replace("Bearer ", "").trim();
 
     let userId   = null;
     let userPlan = "free";
@@ -37,28 +34,23 @@ export async function POST(request) {
         const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
           headers: { "Authorization": `Bearer ${userToken}`, "apikey": SUPABASE_SERVICE }
         });
-
         if (userRes.ok) {
           const userData = await userRes.json();
           userId = userData?.id || null;
-
           if (userId) {
             const profileRes = await fetch(
               `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=plan,plan_actif`,
               { headers: { "Authorization": `Bearer ${SUPABASE_SERVICE}`, "apikey": SUPABASE_SERVICE } }
             );
-
             if (profileRes.ok) {
-              const profiles = await profileRes.json();
-              const profile  = profiles?.[0];
+              const profile = (await profileRes.json())?.[0];
               if (profile) {
-                // Plan actif uniquement si plan_actif = true ET plan = 'pro'
                 userPlan = (profile.plan_actif === true && profile.plan === "pro") ? "pro" : "free";
               }
             }
           }
         }
-      } catch (e) { console.warn("[Florencia] Auth error:", e.message); }
+      } catch (e) { console.warn("[Florencia] Auth:", e.message); }
     }
 
     const planLimits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free;
@@ -71,21 +63,17 @@ export async function POST(request) {
           `${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}&select=messages_today,last_reset_date`,
           { headers: { "Authorization": `Bearer ${SUPABASE_SERVICE}`, "apikey": SUPABASE_SERVICE } }
         );
-
         if (usageRes.ok) {
           const usage = (await usageRes.json())?.[0];
           if (usage) {
             let msgToday = usage.messages_today || 0;
-
             if (usage.last_reset_date !== todayDate) {
               msgToday = 0;
-              await fetch(`${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}`, {
-                method: "PATCH",
-                headers: { "Authorization": `Bearer ${SUPABASE_SERVICE}`, "apikey": SUPABASE_SERVICE, "Content-Type": "application/json" },
-                body: JSON.stringify({ messages_today: 0, last_reset_date: todayDate })
-              });
+              await patchSupabase(SUPABASE_URL, SUPABASE_SERVICE,
+                `usage?user_id=eq.${userId}`,
+                { messages_today: 0, last_reset_date: todayDate }
+              );
             }
-
             if (msgToday >= planLimits.messagesPerDay) {
               return jsonResponse(429, {
                 error: "daily_limit_reached",
@@ -93,15 +81,13 @@ export async function POST(request) {
                 plan: userPlan, upgradeUrl: "/pricing.html"
               });
             }
-
-            await fetch(`${SUPABASE_URL}/rest/v1/usage?user_id=eq.${userId}`, {
-              method: "PATCH",
-              headers: { "Authorization": `Bearer ${SUPABASE_SERVICE}`, "apikey": SUPABASE_SERVICE, "Content-Type": "application/json" },
-              body: JSON.stringify({ messages_today: msgToday + 1 })
-            });
+            await patchSupabase(SUPABASE_URL, SUPABASE_SERVICE,
+              `usage?user_id=eq.${userId}`,
+              { messages_today: msgToday + 1 }
+            );
           }
         }
-      } catch (e) { console.warn("[Florencia] Usage error:", e.message); }
+      } catch (e) { console.warn("[Florencia] Usage:", e.message); }
     }
 
     const userProfile    = body.userProfile    || {};
@@ -111,8 +97,8 @@ export async function POST(request) {
     const conversation   = Array.isArray(body.conversation) ? body.conversation.slice(-12) : [];
     const userIp         = body.userIp || extractIp(request.headers.get("x-forwarded-for")) || "";
 
+    // Mémoire longue (Pro)
     let memory = body.memory || {};
-
     if (userId && planLimits.memory === "long" && SUPABASE_URL && SUPABASE_SERVICE) {
       try {
         const memRes = await fetch(
@@ -120,16 +106,17 @@ export async function POST(request) {
           { headers: { "Authorization": `Bearer ${SUPABASE_SERVICE}`, "apikey": SUPABASE_SERVICE } }
         );
         if (memRes.ok) {
-          const memRows = await memRes.json();
-          if (memRows?.length > 0) {
-            const dbMemory = {};
-            memRows.forEach(r => { dbMemory[r.key] = r.value; });
-            memory = { ...dbMemory, ...memory };
+          const rows = await memRes.json();
+          if (rows?.length > 0) {
+            const db = {};
+            rows.forEach(r => { db[r.key] = r.value; });
+            memory = { ...db, ...memory };
           }
         }
-      } catch (e) { console.warn("[Florencia] Memory fetch error:", e.message); }
+      } catch (e) { console.warn("[Florencia] Memory fetch:", e.message); }
     }
 
+    // Analyse PDF (Pro)
     let pdfContext = null;
     if (pdfBase64 && planLimits.pdf && GEMINI_API_KEY) {
       pdfContext = await analyzePDF(pdfBase64, GEMINI_API_KEY, lang);
@@ -155,14 +142,18 @@ export async function POST(request) {
       memory, userPlan, pdfContext, lang
     });
 
+    // Appel IA — Gemma 4 en PRIORITÉ
+    const isHeavy = ["analyse_business","analyse_document","decision","recap","automatisation","generation_offre","acquisition_clients"].includes(intent) || !!pdfContext;
+
     const result = await runRouter({
-      intent, prompt,
+      prompt,
       geminiKey:     GEMINI_API_KEY,
       groqKey:       GROQ_API_KEY,
       openRouterKey: OPENROUTER_API_KEY,
-      isLong:        !!pdfContext
+      isHeavy
     });
 
+    // Sauvegarde mémoire (Pro)
     if (userId && extractedMemory && planLimits.memory === "long" && SUPABASE_URL && SUPABASE_SERVICE) {
       try {
         const upserts = Object.entries(extractedMemory).map(([key, value]) => ({
@@ -171,29 +162,45 @@ export async function POST(request) {
         if (upserts.length > 0) {
           await fetch(`${SUPABASE_URL}/rest/v1/memory`, {
             method: "POST",
-            headers: { "Authorization": `Bearer ${SUPABASE_SERVICE}`, "apikey": SUPABASE_SERVICE, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates" },
+            headers: {
+              "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+              "apikey":        SUPABASE_SERVICE,
+              "Content-Type":  "application/json",
+              "Prefer":        "resolution=merge-duplicates"
+            },
             body: JSON.stringify(upserts)
           });
         }
-      } catch (e) { console.warn("[Florencia] Memory save error:", e.message); }
+      } catch (e) { console.warn("[Florencia] Memory save:", e.message); }
     }
 
+    // Sauvegarde conversation
     if (userId && conversationId && SUPABASE_URL && SUPABASE_SERVICE) {
       try {
         await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
           method: "POST",
-          headers: { "Authorization": `Bearer ${SUPABASE_SERVICE}`, "apikey": SUPABASE_SERVICE, "Content-Type": "application/json" },
+          headers: {
+            "Authorization": `Bearer ${SUPABASE_SERVICE}`,
+            "apikey":        SUPABASE_SERVICE,
+            "Content-Type":  "application/json"
+          },
           body: JSON.stringify([
             { conversation_id: conversationId, user_id: userId, role: "user",      content: message },
             { conversation_id: conversationId, user_id: userId, role: "assistant", content: result.reply }
           ])
         });
-      } catch (e) { console.warn("[Florencia] Message save error:", e.message); }
+      } catch (e) { console.warn("[Florencia] Message save:", e.message); }
     }
 
     return jsonResponse(200, {
-      reply: result.reply, provider: result.provider, intent,
-      plan: userPlan, lang, usedWeb: !!webContext, usedPdf: !!pdfContext,
+      reply:        result.reply,
+      provider:     result.provider,
+      thinking:     result.thinking || null,
+      intent,
+      plan:         userPlan,
+      lang,
+      usedWeb:      !!webContext,
+      usedPdf:      !!pdfContext,
       memoryUpdate: extractedMemory
     });
 
@@ -207,30 +214,93 @@ export async function OPTIONS() {
   return new Response(null, { status: 204, headers: corsHeaders() });
 }
 
-// ── Router IA ────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// ROUTER IA — Gemma 4 en PRIORITÉ ABSOLUE
+// Fallback automatique : Gemini → Groq → DeepSeek
+// ════════════════════════════════════════════════════════════
 
-async function runRouter({ intent, prompt, geminiKey, groqKey, openRouterKey, isLong }) {
-  const heavy = ["acquisition_clients","generation_offre","analyse_business","decision","recap","analyse_document","automatisation"];
-  const order = (heavy.includes(intent) || isLong)
-    ? ["gemini","groq","openrouter"]
-    : ["groq","gemini","openrouter"];
+async function runRouter({ prompt, geminiKey, groqKey, openRouterKey, isHeavy }) {
+  // Gemma 4 27B est le modèle principal — le plus puissant disponible gratuitement
+  // Les autres ne servent que si Gemma 4 est indisponible ou à quota
+  const providers = openRouterKey
+    ? ["gemma4", "gemini", "groq", "deepseek"]
+    : ["gemini", "groq"];
 
   let lastError = null;
-  for (const p of order) {
+
+  for (const p of providers) {
     try {
-      if (p === "gemini"      && geminiKey)      { const r = await callGemini(prompt, geminiKey, isLong);      if (r) return { reply: r, provider: "gemini" }; }
-      if (p === "groq"        && groqKey)        { const r = await callGroq(prompt, groqKey);                  if (r) return { reply: r, provider: "groq" }; }
-      if (p === "openrouter"  && openRouterKey)  { const r = await callOpenRouter(prompt, openRouterKey);      if (r) return { reply: r, provider: "openrouter" }; }
+      if (p === "gemma4" && openRouterKey) {
+        const r = await callOpenRouter(prompt, openRouterKey, "google/gemma-4-27b-it:free", true);
+        if (r?.reply) return r;
+      }
+      if (p === "gemini" && geminiKey) {
+        const reply = await callGemini(prompt, geminiKey, isHeavy);
+        if (reply) return { reply, provider: "gemini", thinking: null };
+      }
+      if (p === "groq" && groqKey) {
+        const reply = await callGroq(prompt, groqKey);
+        if (reply) return { reply, provider: "groq", thinking: null };
+      }
+      if (p === "deepseek" && openRouterKey) {
+        const r = await callOpenRouter(prompt, openRouterKey, "deepseek/deepseek-chat-v3-0324:free", false);
+        if (r?.reply) return r;
+      }
     } catch (err) { lastError = err; }
   }
+
   throw new Error(lastError?.message || "Aucun provider IA disponible.");
 }
 
-async function callGemini(prompt, apiKey, isLong = false) {
+// ── Gemma 4 via OpenRouter (avec thinking activé) ────────────
+
+async function callOpenRouter(prompt, apiKey, model, enableThinking = false) {
+  const body = {
+    model,
+    temperature: 0.7,
+    max_tokens:  4000,
+    messages:    [{ role: "user", content: prompt }]
+  };
+
+  // Le reasoning permet à Gemma 4 de réfléchir avant de répondre
+  if (enableThinking) {
+    body.reasoning = { effort: "high" };
+  }
+
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method:  "POST",
+    headers: {
+      "Content-Type":  "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+      "HTTP-Referer":  "https://florencia-os.vercel.app",
+      "X-Title":       "Florencia OS"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (res.status === 429) throw new Error("OpenRouter quota reached.");
+  if (!res.ok) throw new Error(`OpenRouter error ${res.status}`);
+
+  const data    = await res.json();
+  const reply   = data?.choices?.[0]?.message?.content || "";
+  const thinking = data?.choices?.[0]?.message?.reasoning || null;
+
+  return { reply, provider: "gemma-4-27b", thinking };
+}
+
+// ── Gemini ───────────────────────────────────────────────────
+
+async function callGemini(prompt, apiKey, isHeavy = false) {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.72, maxOutputTokens: isLong ? 3000 : 1800 } }) }
+    {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: isHeavy ? 3000 : 1800 }
+      })
+    }
   );
   if (res.status === 429) throw new Error("Gemini quota reached.");
   if (!res.ok) throw new Error(`Gemini ${res.status}`);
@@ -238,11 +308,18 @@ async function callGemini(prompt, apiKey, isLong = false) {
   return d?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
+// ── Groq ─────────────────────────────────────────────────────
+
 async function callGroq(prompt, apiKey) {
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
+    method:  "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: "llama-3.3-70b-versatile", temperature: 0.72, max_tokens: 2000, messages: [{ role: "user", content: prompt }] })
+    body: JSON.stringify({
+      model:       "llama-3.3-70b-versatile",
+      temperature: 0.7,
+      max_tokens:  2000,
+      messages:    [{ role: "user", content: prompt }]
+    })
   });
   if (res.status === 429) throw new Error("Groq quota reached.");
   if (!res.ok) throw new Error(`Groq ${res.status}`);
@@ -250,27 +327,32 @@ async function callGroq(prompt, apiKey) {
   return d?.choices?.[0]?.message?.content || "";
 }
 
-async function callOpenRouter(prompt, apiKey) {
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": "https://florencia-os.vercel.app", "X-Title": "Florencia OS" },
-    body: JSON.stringify({ model: "deepseek/deepseek-chat-v3-0324:free", temperature: 0.72, max_tokens: 2000, messages: [{ role: "user", content: prompt }] })
-  });
-  if (res.status === 429) throw new Error("OpenRouter quota reached.");
-  if (!res.ok) throw new Error(`OpenRouter ${res.status}`);
-  const d = await res.json();
-  return d?.choices?.[0]?.message?.content || "";
-}
-
-// ── PDF ──────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// ANALYSE PDF — Gemini Vision
+// ════════════════════════════════════════════════════════════
 
 async function analyzePDF(pdfBase64, apiKey, lang = "fr") {
   if (!apiKey || !pdfBase64) return null;
-  const instr = { fr: "Analyse ce document. Extrais les points clés, chiffres importants, décisions et actions requises. Réponds en français, structuré et actionnable.", en: "Analyze this document. Extract key points, figures, decisions, required actions. Respond in English, structured.", es: "Analiza este documento. Extrae puntos clave, cifras, decisiones, acciones. Responde en español.", pt: "Analise este documento. Extraia pontos principais, números, decisões, ações. Responda em português." };
+  const instr = {
+    fr: "Analyse ce document. Extrais les points clés, chiffres, décisions et actions requises. Réponds en français, structuré.",
+    en: "Analyze this document. Extract key points, figures, decisions, actions. Respond in English, structured.",
+    es: "Analiza este documento. Extrae puntos clave, cifras, decisiones, acciones. Responde en español.",
+    pt: "Analise este documento. Extraia pontos, números, decisões, ações. Responda em português."
+  };
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ inline_data: { mime_type: "application/pdf", data: pdfBase64 } }, { text: instr[lang] || instr.fr }] }], generationConfig: { temperature: 0.3, maxOutputTokens: 2500 } }) }
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { inline_data: { mime_type: "application/pdf", data: pdfBase64 } },
+            { text: instr[lang] || instr.fr }
+          ]}],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 2500 }
+        })
+      }
     );
     if (!res.ok) return null;
     const d = await res.json();
@@ -278,11 +360,13 @@ async function analyzePDF(pdfBase64, apiKey, lang = "fr") {
   } catch { return null; }
 }
 
-// ── Langue ───────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// LANGUE
+// ════════════════════════════════════════════════════════════
 
 function detectLanguage(text) {
   const t = text.toLowerCase();
-  const score = (markers) => markers.reduce((n, m) => n + (t.includes(m) ? 1 : 0), 0);
+  const score = (m) => m.reduce((n, w) => n + (t.includes(w) ? 1 : 0), 0);
   const s = {
     fr: score(["je ","tu ","il ","nous ","les ","des ","une ","est ","pas ","pour ","avec ","dans ","sur ","ça ","mais ","très "]),
     en: score(["i ","you ","he ","she ","we ","the ","a ","an ","is ","are ","have ","help ","how ","what ","can ","do "]),
@@ -297,11 +381,18 @@ function detectLanguage(text) {
 }
 
 function getLimitMessage(lang, limit) {
-  const m = { fr: `Limite de ${limit} messages atteinte. Passe au Pro pour des messages illimités.`, en: `Daily limit of ${limit} messages reached. Upgrade to Pro for unlimited messages.`, es: `Límite de ${limit} mensajes alcanzado. Actualiza a Pro.`, pt: `Limite de ${limit} mensagens atingido. Atualize para o Pro.` };
+  const m = {
+    fr: `Tu as atteint ta limite de ${limit} messages aujourd'hui. Passe au Pro pour des messages illimités.`,
+    en: `You've reached your daily limit of ${limit} messages. Upgrade to Pro for unlimited messages.`,
+    es: `Límite de ${limit} mensajes alcanzado. Actualiza a Pro.`,
+    pt: `Limite de ${limit} mensagens atingido. Atualize para o Pro.`
+  };
   return m[lang] || m.fr;
 }
 
-// ── Intent ───────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// INTENTION
+// ════════════════════════════════════════════════════════════
 
 function detectIntent(message, pdfContext) {
   if (pdfContext) return "analyse_document";
@@ -330,7 +421,9 @@ function shouldUseLocal(message, userProfile) {
   return containsOne(message.toLowerCase(), ["ici","local","région","ville","pays","near","city","country"]);
 }
 
-// ── Web ──────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// WEB + LOCAL
+// ════════════════════════════════════════════════════════════
 
 async function searchWeb({ query, apiKey }) {
   if (!apiKey || !query) return null;
@@ -347,13 +440,14 @@ async function searchWeb({ query, apiKey }) {
 }
 
 function buildSearchQuery(message, userProfile, localContext) {
-  return [message.substring(0, 120), localContext?.country || userProfile?.country || "", userProfile?.niche || ""].filter(Boolean).join(" ").trim();
+  return [message.substring(0, 120), localContext?.country || userProfile?.country || "", userProfile?.niche || ""]
+    .filter(Boolean).join(" ").trim();
 }
 
-// ── Local ────────────────────────────────────────────────────
-
 async function getLocalContext({ ip, token, userProfile }) {
-  if (userProfile?.country && userProfile?.city) return { country: userProfile.country, city: userProfile.city, timezone: userProfile.timezone || "" };
+  if (userProfile?.country && userProfile?.city) {
+    return { country: userProfile.country, city: userProfile.city, timezone: userProfile.timezone || "" };
+  }
   if (!ip || !token) return null;
   try {
     const res = await fetch(`https://ipinfo.io/${ip}?token=${token}`);
@@ -363,75 +457,135 @@ async function getLocalContext({ ip, token, userProfile }) {
   } catch { return null; }
 }
 
-// ── Mémoire ──────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// MÉMOIRE
+// ════════════════════════════════════════════════════════════
 
 function extractMemoryFromMessage(message, intent) {
   const mem = {};
   const t   = message.toLowerCase();
-  const nicheMatch   = t.match(/(?:niche|secteur|domaine)\s*(?:est|:)?\s*([a-zàâäéèêëîïôùûüç\s-]{3,30})/i);
-  const revenueMatch = t.match(/(\d[\d\s]*(?:€|eur|usd|\$|fcfa|xof|k€|k\$))/i);
-  const offerMatch   = t.match(/(?:offre|service|produit|vends?|propose)\s*(?::|est|de)?\s*([a-zàâäéèêëîïôùûüç\s-]{3,40})/i);
-  if (nicheMatch)   mem.lastNicheMentioned   = nicheMatch[1].trim();
-  if (revenueMatch) mem.lastMentionedRevenue = revenueMatch[1].trim();
-  if (offerMatch)   mem.lastMentionedOffer   = offerMatch[1].trim();
+  const n = t.match(/(?:niche|secteur|domaine)\s*(?:est|:)?\s*([a-zàâäéèêëîïôùûüç\s-]{3,30})/i);
+  const r = t.match(/(\d[\d\s]*(?:€|eur|usd|\$|fcfa|xof|k€|k\$))/i);
+  const o = t.match(/(?:offre|service|produit|vends?|propose)\s*(?::|est|de)?\s*([a-zàâäéèêëîïôùûüç\s-]{3,40})/i);
+  if (n) mem.lastNicheMentioned   = n[1].trim();
+  if (r) mem.lastMentionedRevenue = r[1].trim();
+  if (o) mem.lastMentionedOffer   = o[1].trim();
   return Object.keys(mem).length > 0 ? mem : null;
 }
 
-// ── Prompt ───────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// PROMPT
+// ════════════════════════════════════════════════════════════
 
 function buildFlorenciaPrompt({ message, intent, userProfile, dailyCheckin, localContext, webContext, conversation, memory, userPlan, pdfContext, lang }) {
-  const langRule = { fr: "Respond ONLY in French.", en: "Respond ONLY in English.", es: "Respond ONLY in Spanish.", pt: "Respond ONLY in Portuguese." }[lang] || "Respond ONLY in French.";
-  const memBlock = memory && Object.keys(memory).length > 0 ? `MEMORY\n${Object.entries(memory).map(([k,v]) => `- ${k}: ${v}`).join("\n")}` : "MEMORY\n- No prior memory.";
-  const webBlock = webContext ? `\nWEB RESULTS\n${webContext}` : "";
-  const pdfBlock = pdfContext ? `\nDOCUMENT\n${pdfContext}` : "";
-  const conv     = conversation.length > 0 ? conversation.map(m => `${m.role === "user" ? "User" : "Florencia"}: ${m.content}`).join("\n") : "No prior messages.";
-  const guide    = getIntentGuide(intent);
+  const langRule = {
+    fr: "Réponds UNIQUEMENT en français. Sans exception.",
+    en: "Respond ONLY in English. No exceptions.",
+    es: "Responde ÚNICAMENTE en español. Sin excepciones.",
+    pt: "Responda SOMENTE em português. Sem exceções."
+  }[lang] || "Réponds UNIQUEMENT en français.";
 
-  return `You are Florencia, an advanced AI business copilot.
+  const memBlock  = memory && Object.keys(memory).length > 0
+    ? `MÉMOIRE\n${Object.entries(memory).map(([k, v]) => `- ${k}: ${v}`).join("\n")}`
+    : "MÉMOIRE\n- Aucune mémoire enregistrée.";
+  const webBlock  = webContext  ? `\nRÉSULTATS WEB\n${webContext}` : "";
+  const pdfBlock  = pdfContext  ? `\nDOCUMENT\n${pdfContext}` : "";
+  const convBlock = conversation.length > 0
+    ? conversation.map(m => `${m.role === "user" ? "Utilisateur" : "Florencia"}: ${m.content}`).join("\n")
+    : "Pas de messages précédents.";
 
-LANGUAGE — CRITICAL: ${langRule} Never switch mid-response. Default: French.
+  return `Tu es Florencia — copilote IA business, stratège, conseiller de confiance.
 
-RULES: Direct, sharp, no filler. No "Of course!" or "Great question!". Never mention AI providers. Use memory.
+LANGUE : ${langRule}
 
-${guide}
+RÈGLES DE COMMUNICATION
+- Direct, précis, sans blabla. Zéro remplissage.
+- Jamais "Bien sûr !", "Absolument !", "Excellente question !"
+- Ne répète pas ce que l'utilisateur vient de dire.
+- Ton : calme, lucide, humain, premium.
+- Ne mentionne jamais les modèles IA ou tes limitations techniques.
+- Utilise la mémoire — ne pose jamais une question déjà répondue.
 
-CONTEXT
+LONGUEUR DE RÉPONSE
+Adapte la longueur à la question :
+- Question simple ou rapide → réponse courte et directe (2-5 lignes).
+- Analyse, plan d'action, stratégie → réponse longue et bien structurée.
+- Ne gonfle jamais une réponse simple. Ne coupe jamais une analyse importante.
+- Pour les réponses complexes, tu peux raisonner étape par étape en interne, puis donner une réponse finale claire.
+
+${getIntentGuide(intent)}
+
+CONTEXTE
 Plan: ${userPlan.toUpperCase()}
-Profile: ${userProfile.job || "—"} | ${userProfile.niche || memory?.lastNicheMentioned || "—"} | ${userProfile.country || localContext?.country || "—"}
-Check-in: Goal=${dailyCheckin.goal || "—"} | Focus=${dailyCheckin.focus || "—"} | Blocker=${dailyCheckin.blocker || "none"}
+Profil: ${userProfile.job || "—"} | ${userProfile.niche || memory?.lastNicheMentioned || "—"} | ${userProfile.country || localContext?.country || "—"} | ${userProfile.currency || "—"}
+Check-in: Objectif=${dailyCheckin.goal || "—"} | Focus=${dailyCheckin.focus || "—"} | Bloqueur=${dailyCheckin.blocker || "aucun"}
 ${memBlock}${webBlock}${pdfBlock}
 
-CONVERSATION
-${conv}
+CONVERSATION RÉCENTE
+${convBlock}
 
-INTENT: ${intent}
+INTENTION : ${intent}
 
-USER: ${message}`;
+UTILISATEUR : ${message}`;
 }
 
 function getIntentGuide(intent) {
   const g = {
-    acquisition_clients: "GUIDE: Prospecting scripts, relevant channels, quantified goals, ready-to-use templates.",
-    generation_offre:    "GUIDE: Name, content, price, promise, objections + answers.",
-    creation_contenu:    "GUIDE: Topics, scripts, hooks, titles, platform-adapted tone.",
-    analyse_business:    "GUIDE: Fastest growth levers, option comparison, 3 immediate actions.",
-    decision:            "GUIDE: Clear recommendation, why this option, risks of each choice.",
-    redaction:           "GUIDE: Ready-to-copy text, adapted tone.",
-    automatisation:      "GUIDE: Clear workflow steps, tools to connect, time saved.",
-    analyse_document:    "GUIDE: Key points, figures, decisions, required actions, hidden risks."
+    acquisition_clients: `GUIDE — ACQUISITION CLIENTS : Scripts de prospection adaptés. Canaux pertinents. Templates prêts. Objectifs chiffrés.`,
+    generation_offre:    `GUIDE — OFFRE : Nom, contenu, prix. Promesse concrète. Objections + réponses.`,
+    creation_contenu:    `GUIDE — CONTENU : Sujets adaptés à la niche. Scripts, hooks, titres. Ton adapté à la plateforme.`,
+    gestion_projets:     `GUIDE — PROJETS : Tâches actionnables. Bloqueurs identifiés. Planning réaliste.`,
+    analyse_business:    `GUIDE — BUSINESS : Leviers de croissance rapides. Comparaison d'options. 3 actions immédiates.`,
+    analyse_document:    `GUIDE — DOCUMENT : Points clés, chiffres, décisions, actions requises, risques cachés.`,
+    priorites_jour:      `GUIDE — PRIORITÉS : Max 3 actions. Urgent vs important. Ordre logique d'exécution.`,
+    decision:            `GUIDE — DÉCISION : Recommandation claire. Pourquoi cette option. Risques de chaque choix.`,
+    redaction:           `GUIDE — RÉDACTION : Texte prêt à copier-coller. Ton adapté. Concis et impactant.`,
+    automatisation:      `GUIDE — AUTOMATISATION : Étapes du workflow. Outils à connecter. Temps économisé.`,
+    recap:               `GUIDE — RÉCAP : Synthèse via profil + mémoire. Forces, faiblesses. 3 actions prioritaires.`
   };
   return g[intent] ? `\n${g[intent]}\n` : "";
 }
 
-// ── Helpers ──────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+
+async function patchSupabase(url, key, endpoint, data) {
+  return fetch(`${url}/rest/v1/${endpoint}`, {
+    method:  "PATCH",
+    headers: { "Authorization": `Bearer ${key}`, "apikey": key, "Content-Type": "application/json" },
+    body:    JSON.stringify(data)
+  });
+}
 
 function jsonResponse(status, body) {
-  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...corsHeaders() } });
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...corsHeaders() }
+  });
 }
+
 function corsHeaders() {
-  return { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization" };
+  return {
+    "Access-Control-Allow-Origin":  "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
+  };
 }
-async function safeJson(req) { try { return await req.json(); } catch { return {}; } }
-function extractIp(raw) { return (!raw || typeof raw !== "string") ? "" : raw.split(",")[0].trim(); }
-function today() { return new Date().toISOString().split("T")[0]; }
-function containsOne(text, keywords) { return keywords.some(w => text.includes(w)); }
+
+async function safeJson(req) {
+  try { return await req.json(); }
+  catch { return {}; }
+}
+
+function extractIp(raw) {
+  return (!raw || typeof raw !== "string") ? "" : raw.split(",")[0].trim();
+}
+
+function today() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function containsOne(text, keywords) {
+  return keywords.some(w => text.includes(w));
+}
